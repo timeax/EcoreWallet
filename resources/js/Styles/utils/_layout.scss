@@ -1,0 +1,21 @@
+%container {
+    @include px($px-main-content-container);
+    width: 100%;
+}
+
+%flex-x-center {
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+}
+
+%flex-y-center {
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+}
+
+%flex-y {
+    flex-direction: column;
+    display: flex;
+}

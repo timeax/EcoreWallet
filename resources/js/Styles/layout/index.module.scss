@@ -1,0 +1,27 @@
+.container {
+    @extend %container;
+}
+.main {
+    background-color: $color-theme-bgContent;
+    margin-left: $sidebar-width;
+    padding-right: 2rem;
+    header {
+        min-height: $header-height;
+        padding-top: $header-pt;
+        display: flex;
+        align-items: center;
+
+        .breadcrumbIcon {
+            @include size(12px);
+        }
+    }
+}
+
+.sidebar {
+    width: $sidebar-width;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100vh;
+    background-color: $color-theme-bgColor;
+}

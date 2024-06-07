@@ -1,0 +1,45 @@
+.main {
+    height: 100%;
+    @extend %flex-y;
+    align-items: center;
+}
+
+.header {
+    min-height: $header-height;
+    @extend %flex-x-center;
+    border-bottom: 3px solid $color-theme-bgContent;
+    width: 100%;
+    padding-top: $header-pt;
+    margin-bottom: 2rem;
+}
+
+.navitem {
+    position: relative;
+}
+
+.navlist {
+    // @include my(auto);
+    font-size: 15px;
+    // width: calc($size-sidebar - 80px);
+    // @extend %flex-y-center;
+}
+
+.navlink {
+    padding: 0.8rem 0.8rem;
+    @extend %flex-x-center;
+    column-gap: 0.8rem;
+    color: $color-theme-text;
+    font-weight: 300;
+
+    &:hover {
+        color: $color-theme-icons;
+    }
+}
+
+.active {
+    color: $color-theme-emphasis;
+}
+
+.nav-item-icon {
+    font-size: 18px;
+}

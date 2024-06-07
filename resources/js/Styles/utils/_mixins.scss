@@ -1,0 +1,73 @@
+@mixin px($x, $x2: null) {
+    @if $x2 == null {
+        $x2: $x;
+    }
+
+    padding-left: $x;
+    padding-right: $x2;
+}
+
+@mixin py($y, $y2: null) {
+    @if $y2 == null {
+        $y2: $y;
+    }
+
+    padding-top: $y;
+    padding-bottom: $y2;
+}
+
+@mixin mx($x, $x2: null) {
+    @if $x2 == null {
+        $x2: $x;
+    }
+
+    margin-left: $x;
+    margin-right: $x2;
+}
+
+@mixin my($y, $y2: null) {
+    @if $y2 == null {
+        $y2: $y;
+    }
+
+    margin-top: $y;
+    margin-bottom: $y2;
+}
+
+@mixin triangle($type, $size, $color: black) {
+    @if $type == "up" {
+        border-left: #{$size} solid transparent;
+        border-right: #{$size} solid transparent;
+        border-bottom: #{$size} solid #{$color};
+    }
+
+    @if $type == "down" {
+        border-left: #{$size} solid transparent;
+        border-right: #{$size} solid transparent;
+        border-top: #{$size} solid #{$black};
+    }
+
+    @if $type == "left" {
+        border-top: #{$size} solid transparent;
+        border-bottom: #{$size} solid transparent;
+        border-right: #{$size} solid #{$color};
+    }
+
+    @if $type == "right" {
+        border-top: $size solid transparent;
+        border-bottom: $size solid transparent;
+        border-left: $size solid #{$color};
+    }
+}
+
+@mixin size($all, $height: null) {
+    @if $height == null {
+        height: $all;
+    }
+
+    width: $all;
+
+    @if $height != null {
+        height: $height;
+    }
+}

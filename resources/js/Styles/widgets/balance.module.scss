@@ -1,0 +1,39 @@
+.balance {
+    font-size: 35px;
+    color: $color-theme-emphasis;
+}
+
+.icon {
+    padding: 8px 9px;
+    font-size: 8px;
+    // font-weight: 800;
+    background-color: rgb($rc-secondary-400 / 0.1);
+    border-radius: 50%;
+}
+
+.total {
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.tblances {
+    // padding-left: 30px;
+    margin-top: 2px;
+    font-size: 18px;
+    color: $color-theme-emphasis;
+    font-weight: 600;
+}
+
+.rate {
+    margin-top: auto;
+    @extend %flex-x-center;
+    column-gap: 1rem;
+}
+
+
+.divider {
+    padding: .1px;
+    background: rgb($rc-secondary / 0.2);
+    @include mx(1.4rem);
+    height: 40px;
+}
