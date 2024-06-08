@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import styles from '@styles/components/card.module.scss';
 import Text from '../Text';
 
-const Cardheader: React.FC<CardheaderProps> = ({ children, className = '', variant = 'main' }) => {
+const Cardheader: React.FC<CardheaderProps> = ({ children, className = '', variant = 'title' }) => {
     //--- code here ---- //
     let title = children, helpers;
     if (Array.isArray(children)) {

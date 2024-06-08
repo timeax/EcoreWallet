@@ -1,7 +1,7 @@
 import { FaChartPie } from "react-icons/fa";
 import { MdEventRepeat, MdWallet } from "react-icons/md";
 import { GiTrade } from "react-icons/gi";
-import { GrHistory } from "react-icons/gr";
+import { GrConfigure, GrHistory } from "react-icons/gr";
 import { IoIosHelpCircle } from "react-icons/io";
 import { PiHandDepositFill, PiHandWithdrawFill } from "react-icons/pi";
 import { MdAddShoppingCart } from "react-icons/md";
@@ -60,7 +60,7 @@ const routes: Routes = [
     {
         id: 'settings',
         label: 'Settings',
-        icon: <GrHistory />,
+        icon: <GrConfigure />,
         route: 'user.settings.all',
         showOnSidebar: true,
         bottombar: true

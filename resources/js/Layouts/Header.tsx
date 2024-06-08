@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import layout from '@styles/layout/index.module.scss';
 import { BreadCrumb, BreadCrumbProps } from 'primereact/breadcrumb';
 import { Link } from '@inertiajs/react';
@@ -10,12 +10,45 @@ import Tag from '@components/index';
 
 const Header: React.FC<HeaderProps> = ({ title, header }) => {
     //--- code here ---- //
-    const home = { icon: <FaHome />, url: 'https://primereact.org' };
+    const home = { icon: <FaHome />, url: 'https://primereact' };
+    const ref = useRef<HTMLDivElement>();
+
+    useEffect(() => {
+        const header = document.querySelector('header');
+        const container = document.querySelector('main');
+
+        const className = 'sticky-nav';
+        function setClass(rect: DOMRect, e?: WheelEvent) {
+            if (ref.current) {
+                const action = (type: 'a' | 'r' = 'a') => {
+                    if (type == 'a') {
+                        ref.current.style.width = container?.getBoundingClientRect().width + 'px';
+                        ref.current.classList.add(className);
+                    } else {
+                        ref.current.classList.remove(className);
+                        ref.current.style.width = null;
+                    }
+                }
+
+
+                if (e?.deltaY > 0 && rect.y === 0) return action();
+
+                if (rect.y < 0) action();
+                else action('r');
+            }
+        }
+
+        setClass(header?.getBoundingClientRect());
+
+        document.querySelector('main')?.addEventListener('wheel', (e) => setClass(header?.getBoundingClientRect(), e));
+    }, []);
 
     return (
-        <header className={`flex items-center justify-between`}>
-            <div className={layout.container}>
-                <div className="flex justify-between">
+        <header className={`flex items-center justify-between relative`}>
+            <div
+                //@ts-ignore
+                ref={ref} className={layout.container}>
+                <div className="flex justify-between navbar items-center">
                     <div className="flex flex-col">
                         <BreadCrumb pt={{
                             menu() {

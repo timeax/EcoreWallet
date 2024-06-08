@@ -10,8 +10,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\CryptomusWebhookController;
 use App\Http\Controllers\User\OnboardingController;
-use App\Models\Currency;
-use App\Models\Wallet;
+use App\Http\Controllers\User\TradeController;
 
 Route::name('user.')->middleware('maintenance')->group(function () {
     Route::middleware('auth')->group(function () {
@@ -34,8 +33,10 @@ Route::name('user.')->middleware('maintenance')->group(function () {
                     $transactions = $user->transactions;
                     $trades = $user->trades;
 
-                    return Inertia::render('Dashboard', compact('wallets', 'transactions'));
+                    return Inertia::render('Dashboard/Page', compact('wallets', 'transactions'));
                 })->name('dashboard');
+
+                Route::get('/wallets', [TradeController::class, 'wallets'])->name('wallets');
             });
 
             Route::get('/onboarding', [OnboardingController::class, 'create'])->name('onboarding');

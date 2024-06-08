@@ -6,10 +6,7 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import { BreadCrumbProps } from 'primereact/breadcrumb';
 
-export default function AuthenticatedLayout({ pusher = true, user, header, children, title }: PropsWithChildren<{
-    user: User, header: BreadCrumbProps['model']
-    , title: string, pusher?: boolean
-}>) {
+export default function AuthenticatedLayout({ pusher = true, user, header, children, title, onSearch }: PropsWithChildren<Props>) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
@@ -23,10 +20,18 @@ export default function AuthenticatedLayout({ pusher = true, user, header, child
                     <main>
                         <div className={styles.container}>
                             {children}
+                            <footer className='p-1'>footer</footer>
                         </div>
                     </main>
                 </div>
             </div>
         </AuthenticatedProvider>
     );
+}
+
+interface Props {
+    user: User,
+    header: BreadCrumbProps['model'],
+    onSearch?(callback: (e: KeyboardEvent) => void): void
+    title: string, pusher?: boolean
 }

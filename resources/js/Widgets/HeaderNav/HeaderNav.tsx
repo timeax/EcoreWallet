@@ -29,7 +29,7 @@ const HeaderNav: React.FC<HeaderNavProps> = () => {
                 <Button size='small' className='!text-base !text-theme-icons' rounded text icon={<CiChat1 />}></Button>
                 <Button size='small' className='!text-base !text-theme-icons' rounded text icon={<MdOutlineLightMode />}></Button>
 
-                <Button className='!bg-primary-800' rounded icon={<FaUser className='!text-white'/>}></Button>
+                <Button className='!bg-primary-900' rounded icon={<FaUser className='!text-white'/>}></Button>
             </div>
         </div>
     );

@@ -13,3 +13,26 @@ body {
 section {
     margin-bottom: 1.5rem;
 }
+
+.sticky-nav {
+    position: fixed;
+    height: fit-content !important;
+    z-index: 99999999999999999999999999999999999999999999999999999;
+    background: rgb($rc-theme-bgContent / 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(20px);
+
+    .navbar {
+        @include py(.4rem !important);
+    }
+}
+
+.container-snap::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.container-snap {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}

@@ -1,6 +1,6 @@
 .header {
-    display: flex;
-    // justify-content: space-between;
+    @extend %flex-x-center;
+    justify-content: space-between;
     padding-left: 1rem;
-    margin-bottom: .2rem;
+    margin-bottom: 0.2rem;
 }

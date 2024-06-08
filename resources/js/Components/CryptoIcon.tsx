@@ -43,14 +43,14 @@ const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', height = '3rem', sha
         ...(variant === 'contained' ? contained : outlined),
         minWidth: width,
         height,
-        ...(size ? { fontFamily: size } : '')
+        ...(size ? { fontSize: size } : '')
     }
 });
 
 interface DefProps {
     width?: string;
     size?: string;
-    height?: number;
+    height?: string;
     variant?: 'contained' | 'outlined';
     shape?: 'circle' | 'pill' | 'smooth' | 'sqaure';
     name: string;

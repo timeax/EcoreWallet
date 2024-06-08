@@ -5,7 +5,8 @@ import button from "./button";
 
 const AppTheme: PrimeReactPTOptions = {
     carousel,
-    button
+    button,
+    datatable: Tailwind.datatable
 }
 
 export default AppTheme;
