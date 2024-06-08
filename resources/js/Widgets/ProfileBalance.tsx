@@ -5,7 +5,7 @@ import React from 'react';
 import TotalWidget from './DashboardTotal';
 import Text from '@components/Text';
 import styles from '@styles/widgets/balance.module.scss';
-import { User } from '@tyings/index';
+import { User } from '@typings/index';
 import { useWrapper } from '@context/AuthenticatedContext';
 
 const ProfileBalance: React.FC<ProfileBalanceProps> = ({ user }) => {
@@ -14,7 +14,7 @@ const ProfileBalance: React.FC<ProfileBalanceProps> = ({ user }) => {
         console.log(e)
     })
     return (
-        <Card>
+        <Card sx={{width: '25rem'}} className='h-full'>
             <Cardheader variant='mini'>
                 <>Balance</>
                 <Button theme>Deposit</Button>
@@ -22,7 +22,7 @@ const ProfileBalance: React.FC<ProfileBalanceProps> = ({ user }) => {
             <Text variant={'titlebar'}>
                 ${user.balance}
             </Text>
-            <div className='mt-4 flex items-center'>
+            <div className='mt-auto flex items-center'>
                 <TotalWidget type='in' value='40,000' />
                 <div className={styles.divider}></div>
                 <TotalWidget type='out' value='40,000' />

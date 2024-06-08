@@ -1,5 +1,5 @@
 import { useState, PropsWithChildren } from 'react';
-import { User } from '@tyings/index';
+import { User } from '@typings/index';
 import AuthenticatedProvider from '@context/AuthenticatedContext';
 import styles from '@styles/layout/index.module.scss';
 import Sidebar from './Sidebar';

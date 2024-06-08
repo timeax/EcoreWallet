@@ -35,7 +35,7 @@ $app = Application::configure(basePath: $_ENV['APP_BASE_PATH'] ?? dirname(__DIR_
             return $response;
         });
     })->withSchedule(function (Schedule $schedule) {
-        $ticker = $schedule->call(function () {
+        $schedule->call(function () {
             event(new LivePriceUpdater());
         })->everySecond();
     })->create();

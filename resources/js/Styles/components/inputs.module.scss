@@ -1,0 +1,14 @@
+.textfield {
+    background-color: transparent;
+    border-radius: 4px;
+    border: 1px solid $color-theme-button-hover;
+    @include px(0.6rem);
+    @include py(0.4rem);
+
+    &:focus {
+        outline: none;
+        box-shadow: 0px 0px 2px 1px rgb($rc-theme-button-text / 0.1);
+        //---------
+        border: 1px solid $color-theme-button-text;
+    }
+}

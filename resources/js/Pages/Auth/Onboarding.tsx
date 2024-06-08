@@ -1,4 +1,4 @@
-import { PageProps } from '@tyings/index';
+import { PageProps } from '@typings/index';
 import React from 'react';
 
 const Onboarding: React.FC<OnboardingProps> = () => {

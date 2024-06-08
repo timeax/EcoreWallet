@@ -17,3 +17,11 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('user.{id}', function (User $user, int $id) {
     return (int) $user->id === (int) $id;
 });
+
+Broadcast::channel('updates', function () {
+    return Auth::check();
+});
+
+Broadcast::channel('live-chats.{id}', function (User $user, int $id) {
+    return Auth::check() && ((int) $user->id === (int) $id);
+});

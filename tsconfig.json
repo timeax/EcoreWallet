@@ -36,7 +36,7 @@
             "@context/*": [
                 "./resources/js/Context/*"
             ],
-            "@tyings/*": [
+            "@typings/*": [
                 "./resources/js/types/*"
             ],
             "ziggy-js": ["./vendor/tightenco/ziggy"]

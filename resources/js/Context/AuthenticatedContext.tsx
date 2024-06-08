@@ -1,7 +1,8 @@
-import { User } from '@tyings/index';
+import { User } from '@typings/index';
 import { Head } from '@inertiajs/react';
 import React, { PropsWithChildren, createContext, useContext, useState } from 'react';
 import Echo from 'laravel-echo';
+import icon from '@assets/images/ecore-favi.ico'
 
 //@ts-ignore
 const Context = createContext<AuthenticatedContextProps>();
@@ -44,7 +45,9 @@ export function useWrapper() {
                 }
 
                 case 'cryptoUpdates': {
-                    echo?.channel(`crypto.updates.${user.id}`).listen('live.updates.crypto', (e: Events['cryptoUpdates']['data']) => {
+                    console.log('called')
+
+                    echo?.channel(`updates`).listen('.LivePriceUpdater', (e: Events['cryptoUpdates']['data']) => {
                         if (callback) {
                             //@ts-ignore
                             callback({
@@ -86,6 +89,7 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
     return (
         <Context.Provider value={{ ...props, echo, config }}>
             <Head title={title}>
+                <link rel="shortcut icon" type={icon} href="favicon.ico" />
                 {usePusher ? <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> : ''}
             </Head>
             {children}

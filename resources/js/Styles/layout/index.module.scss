@@ -1,19 +1,33 @@
 .container {
     @extend %container;
+    height: 100%;
 }
 .main {
     background-color: $color-theme-bgContent;
     margin-left: $sidebar-width;
-    padding-right: 2rem;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     header {
         min-height: $header-height;
         padding-top: $header-pt;
         display: flex;
         align-items: center;
+        padding-right: $main-pl;
 
         .breadcrumbIcon {
             @include size(12px);
         }
+    }
+
+    main {
+        flex-grow: 1;
+        overflow: auto;
+        overflow-x: hidden;
+        display: flex;
+        padding-right: 2rem;
+        flex-direction: column;
     }
 }
 

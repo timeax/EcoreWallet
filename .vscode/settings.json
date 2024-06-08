@@ -10,7 +10,7 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true,
-        "vendor": true,
+        "vendor": false,
         "tests": true,
         "storage": false,
         ".editorconfig": true,
@@ -28,7 +28,7 @@
         "tailwind.config.js": false,
         "postcss.config.js": true,
         "resources": false,
-        "public": true,
+        "public": false,
         "composer.lock": true,
         "package.json": false,
         "resources\\js/Styles": true

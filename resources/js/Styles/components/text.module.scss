@@ -18,7 +18,7 @@
 }
 
 .text {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 300;
     color: $color-theme-text;
 }
@@ -42,13 +42,14 @@
 }
 
 .header {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 500;
+    // color: $color-theme-emphasis;
 }
 
 .titlebar-title {
-    font-size: 24px;
+    font-size: 16px;
     text-transform: capitalize;
-    font-weight: 500;
-    color: $color-theme-emphasis;
+    font-weight: 600;
+    color: $color-theme-icons;
 }

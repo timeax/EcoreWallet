@@ -1,38 +1,20 @@
+import { Link } from '@inertiajs/react';
+import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
+import { PageProps, Trades, Transactions, Wallets } from '@typings/index';
+import ProfileBalance from '@widgets/ProfileBalance';
+import DashboardWallets from '@widgets/DashboardWallets';
 import Card from '@components/Card';
 import Cardheader from '@components/Card/Cardheader';
 import Text from '@components/Text';
-import { Link } from '@inertiajs/react';
-import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
-import { PageProps, Trades, Transactions, Wallet, Wallets } from '@tyings/index';
+import { BsCurrencyExchange } from "react-icons/bs";
+import Textfield from '@components/Input';
+import SpotProvider from '@context/SpotContext';
+import { useState } from 'react';
+import Exchange from '@components/Trade/Exchange';
 import { Button } from 'primereact/button';
-import { Carousel } from 'primereact/carousel';
-import CryptoIcon from '@components/CryptoIcon';
-import TotalWidget from '@widgets/DashboardTotal';
-import ProfileBalance from '@widgets/ProfileBalance';
 
 export default function Dashboard({ auth, wallets, trades, transactions }: DashboardProps) {
-    const responsiveOptions = [
-        {
-            breakpoint: '1400px',
-            numVisible: 2,
-            numScroll: 1
-        },
-        {
-            breakpoint: '1199px',
-            numVisible: 3,
-            numScroll: 1
-        },
-        {
-            breakpoint: '767px',
-            numVisible: 2,
-            numScroll: 1
-        },
-        {
-            breakpoint: '575px',
-            numVisible: 1,
-            numScroll: 1
-        }
-    ];
+    const [currency, setCurrency] = useState(wallets[0].curr)
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -47,39 +29,74 @@ export default function Dashboard({ auth, wallets, trades, transactions }: Dashb
                 }
             ]}
         >
-            <div className='flex gap-x-8'>
-                <div className="w-fit">
+            <section className='flex gap-x-6 w-full'>
+                <div>
                     <ProfileBalance user={auth.user} />
                 </div>
-                <div className='grow'>
-                    <Text>Assets</Text>
-                    <Carousel showIndicators={true} showNavigators={false} value={wallets} numVisible={3} numScroll={3} responsiveOptions={responsiveOptions} itemTemplate={WalletTemplate} />
+                <div className='grow flex-col flex'>
+                    <DashboardWallets wallets={wallets} />
                 </div>
-            </div>
+            </section>
+
+            <section>
+                <div className="grid grid-cols-8 gap-x-6 ">
+                    <div className="col-span-5">
+                        <Card className='h-full'>
+                            <Cardheader variant='mini'>
+                                <>Open Orders</>
+                                <><Button>See All Orders</Button></>
+                            </Cardheader>
+                            <>
+                                <Text>Open limit orders that will execute when it reaches a target price</Text>
+                            </>
+                        </Card>
+                    </div>
+                    <div className="col-span-3">
+                        <Card>
+                            <Cardheader variant='mini'>
+                                <>Exchange</>
+                                <><BsCurrencyExchange /></>
+                            </Cardheader>
+                            <>
+                                <Text className='mb-4'>
+                                    Perform quick and seamless crypto exchanges here.
+                                </Text>
+                                <div className='flex flex-col'>
+                                    <SpotProvider
+                                        user={auth.user}
+                                        wallet={wallets[0]}
+                                        wallets={wallets}
+                                        currencies={wallets.map(item => item.curr)}
+                                        currency={currency}
+                                        setCurrency={setCurrency}
+                                    >
+                                        <Exchange exchange order={1} onChange={(e) => { }} />
+
+                                        <Button className='flex justify-center hover:!bg-primary-800 !text-primary-50 !bg-primary-700 mt-4' >Exchange</Button>
+                                    </SpotProvider>
+                                </div>
+                            </>
+                        </Card>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <div className="flex flex-col gap-4">
+                    <div>
+                        <Text variant={'subheading'} className='!text-theme-emphasis'>Recent Transactions</Text>
+                        <Text className='!text-theme-emphasis'>Your most recent funding, trading, and withdrawal activities</Text>
+                    </div>
+                    <div>
+                        <Card>
+                            Transactions
+                        </Card>
+                    </div>
+                </div>
+            </section>
         </AuthenticatedLayout>
     );
 }
 
-
-const WalletTemplate = (wallet: Wallet) => {
-    return (
-        <Card className="w-[93%] h-full overflow-hidden">
-            <div className="mb-3 flex items-center gap-x-2 flex-nowrap">
-                <CryptoIcon name={wallet.curr.curr_name} label={wallet.curr.symbol} />
-                <div className='flex flex-col overflow-hidden'>
-                    <Text size='12px' className="whitespace-nowrap text-ellipsis">{wallet.curr.curr_name}</Text>
-                    <Text size='14px' className="text-ellipsis text-theme-emphasis !font-semibold">{wallet.curr.rate}</Text>
-                </div>
-            </div>
-            <div>
-                <h6 className="mt-0 mb-3">${wallet.balance}</h6>
-                <div className="mt-5 flex flex-wrap gap-2 justify-content-center">
-
-                </div>
-            </div>
-        </Card>
-    );
-};
 
 interface DashboardProps extends PageProps {
     wallets: Wallets;

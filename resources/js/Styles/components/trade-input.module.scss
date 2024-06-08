@@ -1,0 +1,64 @@
+.main {
+    color: $color-theme-emphasis;
+    position: relative;
+    padding: 0.8rem;
+    border-radius: 4px;
+    border: 1px solid $color-theme-button-hover;
+    input {
+        position: absolute;
+        padding: 0;
+        width: 89%;
+        border: none;
+        background-color: transparent;
+        // padding-left: ;
+
+        &:focus {
+            outline: none;
+            border: none;
+
+            box-shadow: none;
+        }
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    p {
+        color: $color-theme-emphasis;
+    }
+}
+
+.focused {
+    border: 1px solid $color-theme-button-text;
+}
+
+.menu {
+    height: 15rem;
+    left: -1px;
+    top: -1px;
+    width: 101%;
+    border-radius: 4px;
+    // border: 1px solid $rc-theme-cardBorderColor;
+    z-index: 999999;
+    .menuitem {
+        @extend %flex-x-center;
+        justify-content: space-between;
+        background-color: $color-theme-bgColor;
+        padding: 0.8rem 1rem;
+
+        &:hover {
+            background: $color-theme-button-hover;
+        }
+    }
+    .symbol {
+        @include size(40px);
+        background-color: rgb(88, 88, 88);
+        border-radius: 50%;
+        color: white;
+        @extend %flex-x-center;
+        justify-content: center;
+    }
+}

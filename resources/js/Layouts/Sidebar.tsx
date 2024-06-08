@@ -1,15 +1,16 @@
 import React, { FC } from 'react';
 import styles from '@styles/layout/sidebar.module.scss';
-import Text from '@components/Text';
 import { getSidebar, Route } from '@routes/index';
 import { Link } from '@inertiajs/react';
+import logo from '@assets/images/logo1.png';
+import Tag from '@components/index';
 
 const Sidebar: React.FC<SidebarProps> = () => {
     //--- code here ---- //
     return (
         <div className={styles.main}>
             <div className={styles.header}>
-                <Text variant={'subheading'} weight={'600'} className='text-center !text-theme-emphasis grow'>Wallet</Text>
+                <Tag element={'img'} width={'160px'} src={logo} alt="" />
             </div>
             {/* <Button className='!bg-primary-800 w-fit !px-12 !rounded-[999px]'>Quick</Button> */}
             <div className='grow flex gap-y-12 flex-col'>

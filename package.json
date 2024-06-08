@@ -5,6 +5,7 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "reverb": "php artisan reverb:start --port=8081 --debug",
+        "start": "php artisan schedule:run",
         "color:watch": "dweb colors ./resources/js/Styles/helpers/colors.scss --watch=true"
     },
     "devDependencies": {

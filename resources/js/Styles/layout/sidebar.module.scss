@@ -1,6 +1,7 @@
 .main {
     height: 100%;
     @extend %flex-y;
+    position: relative;
     align-items: center;
 }
 
@@ -8,6 +9,7 @@
     min-height: $header-height;
     @extend %flex-x-center;
     border-bottom: 3px solid $color-theme-bgContent;
+    justify-content: center;
     width: 100%;
     padding-top: $header-pt;
     margin-bottom: 2rem;
