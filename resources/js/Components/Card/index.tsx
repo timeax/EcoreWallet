@@ -3,9 +3,9 @@ import styles from '@styles/components/card.module.scss';
 import Tag, { PropsWithSx } from '..';
 import styled from 'styled-components';
 
-const Card: React.FC<CardProps> = ({ children, variant = 'contained', className = '', id, sx, container, tabIndex, ...props }) => {
+const Card: React.FC<CardProps> = ({ children, variant = 'contained', className = '', id, rounded = true, sx, container, tabIndex, ...props }) => {
     //--- code here ---- //
-    const classes = [styles.main, styles[variant] || '', className]
+    const classes = [styles.main, styles[variant] || '', className, !rounded ? '!rounded-none' : '']
     return (
         <Tag tabIndex={tabIndex} id={id} element={'div'} className={classes.join(' ')} sx={sx} {...props}>
             {
@@ -29,6 +29,7 @@ export const Container = styled.div<PropsWithChildren>(() => {
 interface CardProps extends AppElement, PropsWithSx {
     variant?: 'contained' | 'outline' | 'none';
     container?: string;
+    rounded?: boolean;
 }
 
 export default Card

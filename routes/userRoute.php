@@ -37,6 +37,11 @@ Route::name('user.')->middleware('maintenance')->group(function () {
                 })->name('dashboard');
 
                 Route::get('/wallets', [TradeController::class, 'wallets'])->name('wallets');
+
+                Route::name('crypto.trades.')->group(function () {
+                    Route::get('/trades/spot/{type}/{wallet}', [TradeController::class, 'wallets'])->name('spot');
+                    Route::get('/trades/deposit/{code}', [TradeController::class, 'wallets'])->name('deposit');
+                });
             });
 
             Route::get('/onboarding', [OnboardingController::class, 'create'])->name('onboarding');

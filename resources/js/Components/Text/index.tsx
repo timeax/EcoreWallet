@@ -29,6 +29,7 @@ function getVariant(variant: TextProps['variant']): { element: ElementType<HTMLT
         case 'small': return { element: 'small', styleName: 'small' };
         case 'header': return { element: 'h5', styleName: 'header' }
         case 'titlebar': return { element: 'h6', styleName: 'titlebar-title' }
+        case 'other': return { element: 'span', styleName: 'other' }
     }
 
     return { element: variant as any, styleName: 'other' };

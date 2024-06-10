@@ -1,0 +1,26 @@
+.symbol {
+    @include size(2.5rem, 2.4rem);
+    @extend %flex-x-center;
+    justify-content: center;
+    border-radius: 50%;
+    line-height: 0;
+    color: #ffffff;
+}
+
+.header {
+    @extend %flex-x-center;
+    column-gap: 10px;
+    // margin-bottom: 1rem;
+}
+
+.tab {
+    color: $color-theme-text;
+    a {
+        padding: 1.5rem 2rem;
+    }
+}
+
+.content {
+    @include py(0.8rem, 1rem);
+    @include px(2rem);
+}

@@ -36,3 +36,26 @@ section {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
 }
+
+.p-selectbutton {
+    display: flex;
+    column-gap: 8px;
+
+    .p-button[tabindex='0'] {
+        background-color: $color-primary;
+        font-weight: 400;
+    }
+}
+.p-button {
+    padding: 0.3rem 1rem;
+    font-weight: 200;
+    font-size: 15px;
+    background-color: rgb($rc-primary /.7);
+    border-radius: 4px;
+    color: white;
+    border: 1px solid $color-primary;
+
+    &:hover {
+        background-color: $color-primary;
+    }
+}

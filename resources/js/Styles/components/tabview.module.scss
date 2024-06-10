@@ -1,0 +1,20 @@
+.tabLink {
+    @include px(.8rem);
+    font-size: 14px;
+}
+
+.tab {
+    cursor: pointer;
+    &:first-child {
+        .tabLink {
+            padding-left: 0;
+        }
+    }
+}
+
+.inkbar {
+    border: 1px solid $color-primary;
+    top: 100%;
+    position: absolute;
+    width: 10px !important;
+}

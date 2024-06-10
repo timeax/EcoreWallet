@@ -7,6 +7,8 @@ import { PiHandDepositFill, PiHandWithdrawFill } from "react-icons/pi";
 import { MdAddShoppingCart } from "react-icons/md";
 import { CgArrowsExchange } from "react-icons/cg";
 import { TbExchange } from "react-icons/tb";
+import { RiFundsFill } from "react-icons/ri";
+import { BiMoneyWithdraw } from "react-icons/bi";
 export interface Route {
     id: string;
     label: string;
@@ -46,6 +48,22 @@ const routes: Routes = [
         label: 'Trades',
         icon: <GiTrade />,
         route: 'user.crypto.trades',
+        showOnSidebar: false
+    },
+
+    {
+        id: 'fund',
+        label: 'Fund',
+        icon: <RiFundsFill />,
+        route: 'user.crypto.trades.deposit',
+        showOnSidebar: true
+    },
+
+    {
+        id: 'withdraw',
+        label: 'Withdraw',
+        icon: <BiMoneyWithdraw />,
+        route: 'user.crypto.trades.withdraw',
         showOnSidebar: true
     },
 
