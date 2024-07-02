@@ -1,10 +1,14 @@
 <?php
 
 use App\Events\LivePriceUpdater;
+use App\Jobs\UpdateCryptoPrices;
+use App\Jobs\UpdateExchangeRates;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Http\Response;
+
 /*
 |--------------------------------------------------------------------------
 | Create The Application
@@ -25,19 +29,25 @@ $app = Application::configure(basePath: $_ENV['APP_BASE_PATH'] ?? dirname(__DIR_
 
         //
     })->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->respond(function (Response $response) {
+        $exceptions->respond(function ($response) {
             if ($response->getStatusCode() === 419) {
+                Log::info('there was an error ' . $response->getContent());
                 return back()->with([
-                    'message' => 'The page expired, please try again.',
+                    'toast' => [
+                        'type'
+                    ],
                 ]);
             }
 
             return $response;
         });
     })->withSchedule(function (Schedule $schedule) {
-        $schedule->call(function () {
-            event(new LivePriceUpdater());
-        })->everySecond();
+        //---- update
+        $schedule->job(new UpdateCryptoPrices('price-data'))->everyFiveMinutes();
+        //--- update the historical data of the wallets
+        $schedule->job(new UpdateCryptoPrices('historical-data'))->dailyAt('1:00');
+        //--- update the exchange rates of the cryptomus api
+        $schedule->job(new UpdateExchangeRates())->everyTenMinutes();
     })->create();
 
 

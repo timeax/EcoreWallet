@@ -8,6 +8,7 @@ import Dropdown from '@components/Dropdown';
 import Card from '@components/Card';
 import { SlOptions } from 'react-icons/sl';
 import CryptoIcon from '@components/CryptoIcon';
+import routes, { routeById } from '@routes/index';
 const WalletInfo: React.FC<WalletInfoProps> = ({ wallet, bgColor = 'grey' }) => {
     //--- code here ---- //
     const buttonStyles = { padding: '0 .8rem !important', lineHeight: '2.5rem !important', fontSize: '14px' };
@@ -31,10 +32,10 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ wallet, bgColor = 'grey' }) => 
                                             <Button icon={<SlOptions />} sx={buttonStyles} shape='smooth'>Options</Button>
                                         </Dropdown.Trigger>
                                         <Dropdown.Content align='left'>
-                                            <Dropdown.Link href={route('user.crypto.trades.spot', { wallet: wallet.curr.code, type: 'buy' })}>Buy</Dropdown.Link>
-                                            <Dropdown.Link href={route('user.crypto.trades.spot', { wallet: wallet.curr.code, type: 'sell' })}>Sell</Dropdown.Link>
-                                            <Dropdown.Link href={route('user.crypto.trades.spot', { wallet: wallet.curr.code, type: 'sell' })}>Withraw</Dropdown.Link>
-                                            <Dropdown.Link href={route('user.crypto.trades.spot', { wallet: wallet.curr.code, type: 'sell' })}>Deposit</Dropdown.Link>
+                                            <Dropdown.Link href={route(routeById('buy').route, { wallet: wallet.curr.code, type: 'buy' })}>Buy</Dropdown.Link>
+                                            <Dropdown.Link href={route(routeById('sell').route, { wallet: wallet.curr.code, type: 'sell' })}>Sell</Dropdown.Link>
+                                            <Dropdown.Link href={route(routeById('withdraw').route, { wallet: wallet.curr.code })}>Withraw</Dropdown.Link>
+                                            <Dropdown.Link href={route(routeById('fund').route, { wallet: wallet.curr.code })}>Deposit</Dropdown.Link>
                                         </Dropdown.Content>
                                     </Dropdown>
                                 </div>
@@ -62,7 +63,7 @@ export const Balance: React.FC<BalanceProps> = ({ balance, rate, title }) => {
         <div>
             <Text variant={'small'}>{title}</Text>
             <Text variant={'header'} className='boldColor'>{balance}</Text>
-            <Text variant="text" className='!font-medium !text-info'>{balance * rate} <span>USD</span></Text>
+            <Text variant="text" className='!font-medium !text-primary-900'>{balance * rate} <span>USD</span></Text>
         </div>
     );
 }

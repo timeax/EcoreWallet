@@ -23,12 +23,12 @@ const Wallets: React.FC<WalletsProps> = ({ auth, wallets }) => {
                     },
                 }]
             } title='Assets'>
+            <div>
+                <Text variant={'header'} className='!text-theme-emphasis !text-[24px]'>All Available Assets</Text>
+                <Text className='!text-theme-emphasis'>Ranked in order of popularity (24H view)s</Text>
+            </div>
             <div className="grid grid-cols-9 mt-4 gap-x-6">
                 <div className='col-span-4'>
-                    <div>
-                        <Text variant={'header'} className='!text-theme-emphasis !text-[24px]'>All Available Assets</Text>
-                        <Text className='!text-theme-emphasis'>Ranked in order of popularity (24H view)s</Text>
-                    </div>
                     <div className='flex gap-y-2 flex-col mt-4'>
                         <Card rounded={false} container='!py-1'>
                             <div className="flex w-full items-center">

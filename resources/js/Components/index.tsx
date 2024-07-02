@@ -1,13 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { JSXElementConstructor } from "react";
 import { type CSSProperties } from "react";
-import styled from "styled-components";
+import styled, { WebTarget } from "styled-components";
 import isPropValid from '@emotion/is-prop-valid';
 import cssprops from "@assets/fn/cssprops";
 
+
+
 const StyledTag = styled.div
-    .withConfig({ shouldForwardProp: (prop) => prop === 'tabIndex' || (isPropValid(prop) && prop !== 'color') })
+    .withConfig({ shouldForwardProp: (prop, element) => verify(prop, element) })
     //@ts-ignore
     <{ sx?: SxProps } & StyledProps>(({ sx = {}, ...props }) => {
         let cssProps: StyledProps = {};
@@ -32,14 +34,16 @@ const StyledTag = styled.div
         return { ...cssProps, ...sx }
     });
 
-const Tag: React.FC<TagProps & StyledProps & { [x: string]: any }> = ({ element: TagName = "div", sx, ...props }) => {
-    //--- code here ---- //
+function Tag<T extends JSXElementConstructor<any> | keyof React.JSX.IntrinsicElements = React.FunctionComponent>({ element: TagName = 'div', sx, ...props }: TagProps<T> & StyledProps & { [x: string]: any }) {
+    //@ts-ignore--- code here ---- //
     return <StyledTag sx={sx} as={TagName} {...props} />;
-};
-
-interface TagProps extends PropsWithSx, AppElement {
-    element?: ElementType<HTMLTags> | React.FunctionComponent;
 }
+
+type TagProps<T extends JSXElementConstructor<any> | keyof React.JSX.IntrinsicElements = keyof React.JSX.IntrinsicElements>
+    = PropsWithSx &
+    AppElement & {
+        element?: T;
+    } & React.ComponentProps<T>
 
 export interface PropsWithSx {
     sx?: SxProps
@@ -61,3 +65,8 @@ type AnyRule = {
 export type SxProps = CSSProperties | CSSRule;
 
 export default Tag;
+function verify(prop: string, element: WebTarget): boolean {
+    if (typeof element !== 'string') return true;
+    return prop === 'tabIndex' || (isPropValid(prop) && prop !== 'color')
+}
+

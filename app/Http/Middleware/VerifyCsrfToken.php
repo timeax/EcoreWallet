@@ -2,8 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Support\Str;
-use App\Models\Generalsetting;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
 class VerifyCsrfToken extends Middleware
@@ -16,5 +14,6 @@ class VerifyCsrfToken extends Middleware
 
     protected $except = [
         'notify/coinpayment',
+        'cryptomus/deposits/webhook/*'
     ];
 }

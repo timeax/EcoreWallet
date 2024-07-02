@@ -1,10 +1,12 @@
 .tabLink {
-    @include px(.8rem);
+    @include px(0, 1.6rem);
     font-size: 14px;
 }
 
 .tab {
     cursor: pointer;
+    padding-bottom: .1rem;
+
     &:first-child {
         .tabLink {
             padding-left: 0;
@@ -16,5 +18,29 @@
     border: 1px solid $color-primary;
     top: 100%;
     position: absolute;
-    width: 10px !important;
+    width: 25px !important;
+}
+
+
+
+.selectbutton {
+    font-size: 14px;
+    padding: .3rem .8rem;
+
+    &:hover {
+        background-color: $color-secondary-100;
+        color: black;
+    }
+}
+
+.activeButton {
+    background: $color-primary-800;
+    color: white;
+}
+
+.selectRoot {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
 }

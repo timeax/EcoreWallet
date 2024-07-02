@@ -1,8 +1,9 @@
 import { User } from '@typings/index';
 import { Head } from '@inertiajs/react';
-import React, { PropsWithChildren, createContext, useContext, useState } from 'react';
+import React, { PropsWithChildren, createContext, useContext, useRef, useState } from 'react';
 import Echo from 'laravel-echo';
 import icon from '@assets/images/ecore-favi.ico'
+import { Toast, ToastMessageOptions } from 'primereact/toast';
 
 //@ts-ignore
 const Context = createContext<AuthenticatedContextProps>();
@@ -10,6 +11,10 @@ const Context = createContext<AuthenticatedContextProps>();
 
 export function useAuth() {
     return useContext(Context).user;
+}
+
+export function useNotify() {
+    return useContext(Context).notify
 }
 
 type Event<T extends string, O> = {
@@ -27,7 +32,15 @@ interface Events {
     }>;
 
     cryptoUpdates: Event<'live.updates.crypto', string[]>
-
+    liveChat: Event<'live.chat', {
+        name: string;
+        message: {
+            from: 'system' | 'admin' | 'user';
+            type: 'file' | 'text';
+            file?: string;
+            content: string;
+        }
+    }>
 }
 
 export function useWrapper() {
@@ -38,15 +51,26 @@ export function useWrapper() {
             return user;
         },
 
+        async liveChatConnect() {
+            const chat = await window.axios.post(route('user.chat.connect'));
+            // console.log(chat.data);
+        },
+
         onChange<T extends keyof Events>(event: T, callback: (e: Events[T]) => void) {
             switch (event) {
                 case 'notifications': {
+                    echo?.private(`user.${user.id}`).notification((notification: any) => {
+                        console.log(notification)
+                        //@ts-ignore
+                        callback({
+                            data: notification,
+                            event: `user.${user.id}`,
+                        })
+                    })
                     break;
                 }
 
                 case 'cryptoUpdates': {
-                    console.log('called')
-
                     echo?.channel(`updates`).listen('.LivePriceUpdater', (e: Events['cryptoUpdates']['data']) => {
                         if (callback) {
                             //@ts-ignore
@@ -58,6 +82,10 @@ export function useWrapper() {
                     });
 
                     break;
+                }
+
+                case 'liveChat': {
+                    echo?.private(`live.chats.`)
                 }
             }
         },
@@ -86,12 +114,23 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         //--
         // console.log(echo)
     }
+
+
+    const toast = useRef<{ show(props: any): void }>(null);
+
+    const notify = (props: ToastMessageOptions, isMessage?: boolean) => {
+        toast.current?.show(props);
+    }
+
     return (
-        <Context.Provider value={{ ...props, echo, config }}>
+        <Context.Provider value={{ ...props, echo, config, notify }}>
             <Head title={title}>
                 <link rel="shortcut icon" type={icon} href="favicon.ico" />
                 {usePusher ? <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> : ''}
             </Head>
+            <Toast
+                //@ts-ignore
+                ref={toast} />
             {children}
         </Context.Provider >
     );
@@ -112,6 +151,7 @@ interface AuthenticatedContextProps {
     user: User;
     echo?: Echo;
     config: Array<Store>;
+    notify(props: ToastMessageOptions, msg?: boolean): void
 }
 
 interface Store {

@@ -1,5 +1,5 @@
 import { FaChartPie } from "react-icons/fa";
-import { MdEventRepeat, MdWallet } from "react-icons/md";
+import { MdCurrencyExchange, MdEventRepeat, MdWallet } from "react-icons/md";
 import { GiTrade } from "react-icons/gi";
 import { GrConfigure, GrHistory } from "react-icons/gr";
 import { IoIosHelpCircle } from "react-icons/io";
@@ -24,8 +24,15 @@ interface BreadCrumbs {
     route: string
 };
 
-export type Routes = Route[];
+const fake: Route = {
+    id: 'fake',
+    icon: '',
+    label: '',
+    route: '',
+}
 
+export type Routes = Route[] & { byId(id: string): Route };
+//@ts-ignore
 const routes: Routes = [
     {
         id: 'dashboard',
@@ -52,10 +59,18 @@ const routes: Routes = [
     },
 
     {
+        id: 'swap',
+        label: 'Exchange / Swap',
+        icon: <MdCurrencyExchange />,
+        route: 'user.crypto.swap',
+        showOnSidebar: true
+    },
+
+    {
         id: 'fund',
         label: 'Fund',
         icon: <RiFundsFill />,
-        route: 'user.crypto.trades.deposit',
+        route: 'user.crypto.deposit',
         showOnSidebar: true
     },
 
@@ -63,7 +78,7 @@ const routes: Routes = [
         id: 'withdraw',
         label: 'Withdraw',
         icon: <BiMoneyWithdraw />,
-        route: 'user.crypto.trades.withdraw',
+        route: 'user.crypto.withdraw',
         showOnSidebar: true
     },
 
@@ -71,7 +86,7 @@ const routes: Routes = [
         id: 'history',
         label: 'Transactions',
         icon: <MdWallet />,
-        route: 'user.wallets',
+        route: 'user.crypto.history',
         showOnSidebar: true
     },
 
@@ -88,35 +103,22 @@ const routes: Routes = [
         id: 'support',
         label: 'Support',
         icon: <IoIosHelpCircle />,
-        route: 'user.admin.support',
+        route: 'user.support',
         showOnSidebar: true,
         bottombar: true
-    },
-
-    {
-        id: 'deposit',
-        label: 'Deposit',
-        icon: <PiHandDepositFill />,
-        route: 'user.crypto.deposit',
-    },
-    {
-        id: 'withdraw',
-        label: 'Withdraw',
-        icon: <PiHandWithdrawFill />,
-        route: 'user.crypto.withdraw',
     },
 
     {
         id: 'buy',
         label: 'Buy',
         icon: <MdAddShoppingCart />,
-        route: 'user.crypto.trades.buy',
+        route: 'user.crypto.trades.spot',
     },
     {
         id: 'sell',
         label: 'Sell',
         icon: <CgArrowsExchange />,
-        route: 'user.crypto.trades.sell',
+        route: 'user.crypto.trades.spot',
     },
     {
         id: 'exchange',
@@ -132,6 +134,14 @@ const routes: Routes = [
     },
 
 ]
+
+routes.byId = function (id) {
+    return this.find(item => item.id === id) || fake;
+}
+
+export function routeById(id: string) {
+    return routes.find(item => item.id === id) || fake;
+}
 
 export function getSidebar() {
     const all = routes.filter(item => item.showOnSidebar);

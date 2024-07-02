@@ -11,7 +11,10 @@ class DepositAddress extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $hidden = [
+        'wallet_uuid',
+        'url_id'
+    ];
 
     public function curr()
     {
@@ -25,17 +28,18 @@ class DepositAddress extends Model
         $id = $user->id;
 
         //--------
-        $wallet_id = $id * strtotime('now');
-
-        $url_hook = route('cryptomus.deposit.webhooks', [
-            'wallet_id' => $wallet_id,
-            'key' => $gs->webhook_uuid,
-            'user_id' => $id
-        ]);
+        $base_id = $id * strtotime('now');
 
         foreach ($networks as $key => $network) {
             $network_name = $network->get('network');
             $curr_id = $network->get('currency_id');
+            $url_id = $base_id * ($key + 2);
+
+            $url_hook = route('cryptomus.deposit.webhooks', [
+                'url_id' => $url_id,
+                'key' => $gs->webhook_uuid,
+                'user_id' => $id
+            ]);
 
             if (self::where(['user_id' => $id, 'network' => $network_name, 'currency_id' => $curr_id])->count() > 0) continue;
 
@@ -46,7 +50,7 @@ class DepositAddress extends Model
             );
 
             self::create([
-                'url_id' => $wallet_id * ($key + 2),
+                'url_id' => $url_id,
                 'network' => $network_name,
                 'currency_id' => $curr_id,
                 'user_id' => $id,

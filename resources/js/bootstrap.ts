@@ -23,3 +23,15 @@ console[level] = function filterWarnings(msg, ...args) {
     if (SUPPRESSED_WARNINGS.some((entry) => msg.includes(entry))) return;
     consoleWarn(msg, ...args);
 };
+
+//@ts-ignore
+var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+(function () {
+    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+    s1.async = true;
+    s1.src = 'https://embed.tawk.to/6683b45a9d7f358570d611bf/1i1p7h1d7';
+    s1.charset = 'UTF-8';
+    s1.setAttribute('crossorigin', '*');
+    //@ts-ignore
+    s0.parentNode.insertBefore(s1, s0);
+})();

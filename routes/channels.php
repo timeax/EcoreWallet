@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Admin;
+use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -15,13 +17,17 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Broadcast::channel('user.{id}', function (User $user, int $id) {
-    return (int) $user->id === (int) $id;
+    return (int) $user->id === $id;
+});
+
+Broadcast::channel('App.Models.Admin.{id}', function ($user, int $id) {
+    return (int) auth()->guard('admin')->user()->id === $id;
 });
 
 Broadcast::channel('updates', function () {
     return Auth::check();
 });
 
-Broadcast::channel('live-chats.{id}', function (User $user, int $id) {
-    return Auth::check() && ((int) $user->id === (int) $id);
+Broadcast::channel('live.chats.{id}', function (Admin|User $user, $id) {
+    return Auth::check() && $user->chat_ref === $id;
 });

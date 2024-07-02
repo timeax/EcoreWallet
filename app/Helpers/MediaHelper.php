@@ -2,47 +2,47 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Str;
-use Intervention\Image\ImageManagerStatic as Image;
+// use Illuminate\Support\Str;
+// use Intervention\Image\ImageManagerStatic as Image;
 
-class MediaHelper {
+use Illuminate\Support\Facades\Log;
+use Image;
+
+class MediaHelper
+{
 
     public function __construct()
     {
-       
     }
 
     // image is file
     // field is database field photo name
     // array is image resize width and height
-    public static function handleMakeImage($file,$resize_array=null,$ticket = false)
+    public static function handleMakeImage($file, $resize_array = null, $ticket = false)
     {
         $image_name = MediaHelper::imageNameValidation($file);
-        $locaion = base_path('../assets/images/');
-       
-        $fileExts = ['pdf','doc','docx','csv'];
-        if($ticket || in_array($file->getClientOriginalExtension(),$fileExts)){
+        $locaion = base_path('public/assets/images');
+
+        $fileExts = ['pdf', 'doc', 'docx', 'csv'];
+        if ($ticket || in_array($file->getClientOriginalExtension(), $fileExts)) {
             $locaion = base_path('../assets/ticket/');
             $file->move($locaion, $image_name);
-        }else{
-            if($resize_array){
-                $image = Image::make($file)->resize($resize_array[0], $resize_array[1]);
-               if ($file->getClientOriginalExtension() == 'gif') {
-                    copy($file->getRealPath(), $locaion.'/'.$image_name);
+        } else {
+            if ($resize_array) {
+                $image = Image::read($file)->resize($resize_array[0], $resize_array[1]);
+                if ($file->getClientOriginalExtension() == 'gif') {
+                    copy($file->getRealPath(), $locaion . '/' . $image_name);
+                } else {
+                    $image->save($locaion . '/' . $image_name);
                 }
-                else {
-                   $image->save($locaion.'/'.$image_name);
+            } else {
+                $image = Image::read($file);
+                if ($file->getClientOriginalExtension() == 'gif') {
+                    copy($file->getRealPath(), $locaion . '/' . $image_name);
+                } else {
+                    $image->save($locaion . '/' . $image_name);
                 }
-            }else{
-                $image = Image::make($file);
-                 if ($file->getClientOriginalExtension() == 'gif') {
-                    copy($file->getRealPath(), $locaion.'/'.$image_name);
-                }
-                else {
-                   $image->save($locaion.'/'.$image_name);
-                }
-                
-            } 
+            }
         }
 
         return $image_name;
@@ -51,39 +51,38 @@ class MediaHelper {
     // image is file
     // field is database field photo name
     // array is image resize width and height
-    public static function handleUpdateImage($file,$field,$resize_array=null)
+    public static function handleUpdateImage($file, $field, $resize_array = null)
     {
         $image_name = MediaHelper::imageNameValidation($file);
-        $locaion = base_path('../assets/images/');
-       
-        if($field && file_exists($locaion.$field)){
-            unlink($locaion.$field);
+        $locaion = base_path('public/assets/images');
+
+        if ($field && file_exists($locaion . $field)) {
+            unlink($locaion . $field);
         }
-        if($resize_array){
-            $image = Image::make($file)->resize($resize_array[0], $resize_array[1]);
+        if ($resize_array) {
+            $image = Image::read($file)->resize($resize_array[0], $resize_array[1]);
             if ($file->getClientOriginalExtension() == 'gif') {
-                copy($file->getRealPath(), $locaion.'/'.$image_name);
+                copy($file->getRealPath(), $locaion . '/' . $image_name);
+            } else {
+                $image->save($locaion . '/' . $image_name);
             }
-            else {
-               $image->save($locaion.'/'.$image_name);
-            }
-        }else{
-            $image = Image::make($file);
+        } else {
+            $image = Image::read($file);
             if ($file->getClientOriginalExtension() == 'gif') {
-                copy($file->getRealPath(), $locaion.'/'.$image_name);
+                copy($file->getRealPath(), $locaion . '/' . $image_name);
+            } else {
+                Log::info($locaion . '/' . $image_name);
+                $image->save($locaion . '/' . $image_name);
             }
-            else {
-               $image->save($locaion.'/'.$image_name);
-            }
-        } 
+        }
         return $image_name;
     }
 
     public static function handleDeleteImage($field)
     {
-        $locaion = base_path('../assets/images/');
-        if($field && file_exists($locaion.$field)){
-            unlink($locaion.$field);
+        $locaion = base_path('public/assets/images');
+        if ($field && file_exists($locaion . $field)) {
+            unlink($locaion . $field);
         }
     }
 
@@ -91,20 +90,20 @@ class MediaHelper {
 
     public static function imageNameValidation($image)
     {
-       $extension = $image->getClientOriginalExtension();
-       $old_name  = explode('.',$image->getClientOriginalName());
-       $new_name = rand().time() . '.'. $extension;
-       return $new_name;
+        $extension = $image->getClientOriginalExtension();
+        $old_name  = explode('.', $image->getClientOriginalName());
+        $new_name = rand() . time() . '.' . $extension;
+        return $new_name;
     }
 
     public static function ExtensionValidation($image)
     {
-       $extension = ['jpg','JPG','jpeg','JPEG','zip','pdg','csv','png','PNG','pdf','doc','docx'];
-       $image_extension = $image->getClientOriginalExtension();
-       if(in_array($image_extension,$extension)){
-           return true;
-       }else{
-           return false;
-       }
+        $extension = ['jpg', 'JPG', 'jpeg', 'JPEG', 'zip', 'pdg', 'csv', 'png', 'PNG', 'pdf', 'doc', 'docx'];
+        $image_extension = $image->getClientOriginalExtension();
+        if (in_array($image_extension, $extension)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

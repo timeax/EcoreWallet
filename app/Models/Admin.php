@@ -5,12 +5,13 @@ namespace App\Models;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class Admin extends Authenticatable
 {
-    use HasFactory,HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
-     /**
+    /**
      * The attributes that are mass assignable.
      *
      * @var string[]
@@ -36,5 +37,8 @@ class Admin extends Authenticatable
         'password',
     ];
 
-   
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'App.Models.Admin.'.$this->id;
+    }
 }

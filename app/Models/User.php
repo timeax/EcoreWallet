@@ -54,6 +54,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(Wallet::class, 'user_id');
     }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class);
+    }
+
+    public function chat()
+    {
+        return $this->belongsTo(Chat::class, 'chat_ref');
+    }
+
     public function trades()
     {
         return $this->hasMany(Trade::class, 'offer_user_id');
@@ -81,6 +92,11 @@ class User extends Authenticatable
                 'city' => @loginIp()->geoplugin_city,
             ]);
         });
+    }
+
+    public function tickets()
+    {
+        return @$this->hasMany(SupportTicket::class)->with('messages');
     }
 
     public function hasAddedAddress()
@@ -153,5 +169,10 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(DepositAddress::class);
+    }
+
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'user.' . $this->id;
     }
 }

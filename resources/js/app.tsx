@@ -7,7 +7,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import '@styles/index.scss';
 import { twMerge } from 'tailwind-merge';
-import AppTheme from '@assets/theme';
+import AppTheme from '@assets/theme/index';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({

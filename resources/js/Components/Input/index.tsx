@@ -5,13 +5,13 @@ import Tag, { PropsWithSx } from '@components/index';
 import { FloatLabel } from "primereact/floatlabel";
 import styles from '@styles/components/inputs.module.scss'
 
-const Textfield: React.FC<TextfieldProps> = ({ className, label, floatLabel, onChange, desc, descId, errorText, id, htmlFor, sx, ...props }) => {
+const Textfield: React.FC<TextfieldProps> = ({ className, label, floatLabel, onChange, desc, descId, errorText, id, htmlFor, sx, inputElement = InputText, ...props }) => {
     //--- code here ---- //
     return (
         <Tag element={floatLabel ? FloatLabel : 'div'} id={id} className={"flex flex-col gap-1 " + className} sx={sx}>
             {label ? <Tag fontSize={'14px'} element={'label'} color='rgb(var(--color-theme-title))' className='font-medium' htmlFor={htmlFor}>{label}</Tag> : ''}
             {/* @ts-ignore */}
-            <Tag element={InputText} className={styles.textfield} id={htmlFor} aria-describedby={descId} onChange={onChange} {...props} />
+            <Tag element={inputElement} className={styles.textfield} id={htmlFor} aria-describedby={descId} onChange={onChange} {...props} />
             {desc ? <small id={descId}>{desc}</small> : ''}
 
             {errorText ? <Text className='!text-danger-700 !font-medium' variant="small">{errorText}</Text> : ''}
@@ -28,6 +28,7 @@ interface TextfieldProps extends AppElement<React.InputHTMLAttributes<HTMLInputE
     descId?: string;
     floatLabel?: boolean;
     htmlFor?: string;
+    inputElement?: any
     // onChange?(ev: React.ChangeEventHandler<HTMLInputElement>): void
 }
 

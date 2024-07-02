@@ -4,11 +4,12 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    row-gap: 2rem;
     // padding-bottom: 2rem;
 }
 .main {
     background-color: $color-theme-bgContent;
-    margin-left: $sidebar-width;
+    margin-left: calc($sidebar-width + 4px);
     overflow: auto;
     overflow-x: hidden;
     height: 100vh;
@@ -33,7 +34,7 @@
     main {
         flex-grow: 1;
         display: flex;
-        margin-right: 2rem;
+        margin-right: $main-pl;
         flex-direction: column;
     }
 }

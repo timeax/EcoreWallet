@@ -6,6 +6,7 @@ import styles from '@styles/components/button.module.scss';
 import { ColorNames, color } from "@assets/fn/create-color"
 import StyledButton, { DefStyledProps, StyledIcon } from "./StyledButton";
 import { Link } from "@inertiajs/react";
+import { classNames } from "primereact/utils";
 
 const getColor = color('background');
 
@@ -15,11 +16,10 @@ const Button: React.FC<ButtonProps> = ({ id,
     icon, shape = 'smooth',
     size = 'md', spacing = '10px', icc: icoClass = '',
     variant = 'contained', linkComponent = Link, iconStyle = 'none',
-    sx, iconLoc = 'left', iconSize = '12px', inset, height,
+    sx, iconLoc = 'left', iconSize = '12px', inset, height, centered,
     ...rest
 }) => {
     //--- code here ---- //
-    const classes = [styles.btn, className, styles['btn-' + size], rest.href ? styles['btn-link'] : '', styles[variant], styles[shape], effects ? styles.effects : '']
     const tagName = rest.href ? (linkComponent || 'a') : 'button';
     //---
     const colors = getColor(bgColor), cfx = colors.effects();
@@ -45,7 +45,20 @@ const Button: React.FC<ButtonProps> = ({ id,
         <StyledButton
             {...styleProps}
             id={id}
-            className={classes.join(' ').trim()}
+            className={classNames(
+                styles.btn,
+                className,
+                styles['btn-' + size],
+                styles[variant],
+                styles[shape],
+                styles[variant],
+                styles[shape],
+                {
+                    [styles['btn-link']]: rest.href,
+                    [styles.effects]: effects,
+                    'justify-center': centered
+                }
+            )}
             element={tagName} {...rest}>
             <span className="btn-text">
                 {children}
@@ -67,7 +80,7 @@ const Button: React.FC<ButtonProps> = ({ id,
 };
 
 
-interface DefButtonProps extends AppElement<any> {
+interface DefButtonProps extends AppElement<React.ButtonHTMLAttributes<HTMLButtonElement>> {
     shape?: "pill" | "smooth" | "square" | "circle";
     variant?: "none" | "contained" | "outlined";
     color?: string;
@@ -75,7 +88,7 @@ interface DefButtonProps extends AppElement<any> {
     icon?: ReactNode;
     iconLoc?: 'left' | 'right';
     spacing?: string;
-    size?: "lg" | "sm" | "md";
+    size?: "lg" | "sm" | "md" | 'normal';
     height?: number;
     inset?: boolean;
     sx?: SxProps;
@@ -85,6 +98,7 @@ interface DefButtonProps extends AppElement<any> {
     ripple?: boolean;
     effects?: boolean
     iconSize?: string;
+    centered?: boolean
 }
 
 interface PropsWithLink extends DefButtonProps {

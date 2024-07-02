@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\TransactionNotifications;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,42 +12,80 @@ class Deposit extends Model
     protected $guarded = [];
     public function currency()
     {
-        return $this->belongsTo(Currency::class,'currency_id')->withDefault(['code'=>'BTC']);
+        return $this->belongsTo(Currency::class, 'currency_id')->withDefault(['code' => 'BTC']);
     }
     public function user()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function escrow()
+    {
+        return $this->belongsTo(Escrow::class, 'transaction_ref', 'ref');
     }
 
     protected static function boot()
     {
         parent::boot();
-        static::created(function($deposit)
-        {
-            Transaction::create([
-                'trnx'    => $deposit->tnx,
+        static::created(function ($deposit) {
+            $user = User::find($deposit->user_id);
+            $status = $deposit->status;
+            //-------
+            $transaction = Transaction::create([
+                'trnx'    => $deposit->txid,
                 'user_id' => $deposit->user_id,
                 'charge'  => $deposit->charge,
-                'amount'  => numFormat($deposit->total_amount,8),
+                'amount'  => numFormat($deposit->total_amount, 8),
                 'remark'  => 'deposit',
                 'currency_id'  => $deposit->currency_id,
+                'ref' => $deposit->cryptomus_uuid,
                 'type'    => '+',
-                'details' => translate('Deposit completed.')
+                'status' => $status,
+                'details' => translate(getStatusMessage($status, 'Deposit'))
             ]);
 
-           try{
-            mailSend('deposit_completed', [
-                'crypto_amount'   => numFormat($deposit->total_amount,8),
-                'cryp_curr'       => $deposit->currency->code,
-                'charge'          => numFormat( $deposit->charge,8),
-                'tnx'             => $deposit->tnx,
-                'cp_tnx'          => $deposit->coinpayment_tnx
-             ],$deposit->user);
-           }
-           catch(\Exception $e){}
-
-           
-           
+            $user->notify(new TransactionNotifications($transaction));
         });
-    }    
+
+        static::saved(function ($deposit) {
+            if ($deposit->status == 'pending') return;
+            //----------
+            $user = User::find($deposit->user_id);
+
+            $transaction = Transaction::where(['uuid' => $deposit->cryptomus_uuid])->findOrCreate([
+                'trnx'    => $deposit->txid,
+                'user_id' => $deposit->user_id,
+                'charge'  => $deposit->charge,
+                'amount'  => numFormat($deposit->total_amount, 8),
+                'remark'  => 'deposit',
+                'currency_id'  => $deposit->currency_id,
+                'ref' => $deposit->cryptomus_uuid,
+                'type'    => '+',
+                'details' => getStatusMessage($deposit->status, 'Deposit')
+            ], ['status' => $deposit->status]);
+
+            $user->notify(new TransactionNotifications($transaction));
+        });
+    }
+
+    static private function resolvePending(self $deposit, User $user)
+    {
+        $status = $deposit->status;
+        $wallet = $user->wallets()->where(['currency_id' => $deposit->currency_id])->first();
+
+        if ($status === 'pending') {
+            return Escrow::create([
+                'type' => 'in',
+                'ref' => $deposit->cryptomus_uuid,
+                'user_id' => $deposit->user_id,
+                'wallet_id' => $wallet->id,
+                'transaction_ref' => $deposit->ref,
+                'amount' => $deposit->amount
+            ]);
+        }
+
+        $escrow = $deposit->escrow()->first();
+
+        if ($escrow) $escrow->delete();
+    }
 }

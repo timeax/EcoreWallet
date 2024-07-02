@@ -15,8 +15,8 @@ const DashboardWallets: React.FC<DashboardWalletsProps> = ({ wallets }) => {
             <div className={styles.header}>
                 <Text variant={'titlebar'}>My Assets</Text>
                 <div className='flex gap-x-1'>
-                    <Button rounded className='!bg-primary-700' icon={<IoIosArrowBack />}></Button>
-                    <Button rounded className='!bg-primary-700' icon={<IoIosArrowForward />}></Button>
+                    <Button rounded className='!bg-primary-700' icon={<IoIosArrowBack color='white' />}></Button>
+                    <Button rounded className='!bg-primary-700' icon={<IoIosArrowForward color='white' />}></Button>
                 </div>
             </div>
             <div className='flex gap-4'>
@@ -47,8 +47,8 @@ const WalletTemplate: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
                     </div>
                 </div>
                 <div className="mt-auto flex flex-col flex-wrap gap-1 justify-content-center">
-                    <Text variant={'small'} className='text-theme-emphasis'>In Orders </Text>
-                    <Text variant={'small'} className='text-theme-emphasis'>Available</Text>
+                    <Text variant={'small'} className='text-theme-emphasis'>In Orders - {wallet.all_balance.escrow}</Text>
+                    <Text variant={'small'} className='text-theme-emphasis'>Available - {wallet.all_balance.available}</Text>
                 </div>
             </Card>
         </div>

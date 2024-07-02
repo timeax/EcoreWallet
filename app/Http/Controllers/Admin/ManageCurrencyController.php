@@ -56,7 +56,7 @@ class ManageCurrencyController extends Controller
         ]);
 
         $data = $request->only('icon','curr_name','code','symbol','rate','type','default','status');
-       
+
         if($request->default && $request->type != 2){
             $default = Currency::where('default',1)->firstOrFail();
             $default->default = 0;
@@ -109,7 +109,7 @@ class ManageCurrencyController extends Controller
             'withdraw_limit_max.required_if'  =>'Withdraw maximum limit is required when currency type is crypto.',
             'icon.required_if'                =>'Icon is required when currency type is crypto.',
         ]);
-        
+
         $data = $request->only('icon','curr_name','code','symbol','rate','type','default','status');
         $curr = Currency::findOrFail($id);
         if($request->default && $request->type != 2){
@@ -145,5 +145,5 @@ class ManageCurrencyController extends Controller
 
         return back()->with('success','Currency API Updated');
     }
-    
+
 }

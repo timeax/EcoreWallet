@@ -18,7 +18,7 @@
         ".env": false,
         ".vscode": true,
         "node_modules": true,
-        "database": true,
+        "database": false,
         ".gitattributes": true,
         ".gitignore": true,
         "artisan": true,
@@ -31,7 +31,8 @@
         "public": false,
         "composer.lock": true,
         "package.json": false,
-        "resources\\js/Styles": true
+        "resources\\js/Styles": true,
+        "db": true
     },
     "explorerExclude.backup": {},
     "intelephense.diagnostics.undefinedTypes": false,

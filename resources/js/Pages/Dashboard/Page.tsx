@@ -3,20 +3,11 @@ import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
 import { PageProps, Trades, Transactions, Wallets } from '@typings/index';
 import ProfileBalance from '@widgets/ProfileBalance';
 import DashboardWallets from '@widgets/DashboardWallets';
-import Card from '@components/Card';
-import Cardheader from '@components/Card/Cardheader';
-import Text from '@components/Text';
-import { BsCurrencyExchange } from "react-icons/bs";
-import Textfield from '@components/Input';
-import SpotProvider from '@context/SpotContext';
-import { useState } from 'react';
-import Exchange from '@components/Trade/Exchange';
-import { Button } from 'primereact/button';
-import NoData from '@widgets/NoData';
 import HistorySection from './Partials/HistorySection';
 import ExchangeAndOpenOrders from './Partials/ExchangeAndOpenOrders';
 
-export default function Dashboard({ auth, wallets, trades, transactions }: DashboardProps) {
+export default function Dashboard({ auth, wallets, trades, transactions, gs }: DashboardProps) {
+    // console.log(gs);
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -40,9 +31,14 @@ export default function Dashboard({ auth, wallets, trades, transactions }: Dashb
                 </div>
             </section>
 
-            {/* <ExchangeAndOpenOrders auth={auth} wallets={wallets} /> */}
-
-            <HistorySection transactions={transactions} />
+            <div className="grid grid-cols-9 gap-6">
+                <div className="col-span-6">
+                    <HistorySection transactions={transactions} />
+                </div>
+                <div className="col-span-3">
+                    <ExchangeAndOpenOrders auth={auth} wallets={wallets} />
+                </div>
+            </div>
 
         </AuthenticatedLayout>
     );

@@ -11,7 +11,7 @@ const WalletChart: React.FC<ChartProps> = ({ wallet }) => {
     const [data, setChartData] = useState({});
     const [options, setChartOptions] = useState({});
 
-    const [time, setTime] = useState('1 day')
+    const [time, setTime] = useState('past hour')
 
     useEffect(() => {
         const data = {
@@ -19,7 +19,7 @@ const WalletChart: React.FC<ChartProps> = ({ wallet }) => {
             datasets: [
                 {
                     label: 'First Dataset',
-                    data: [65, 59, 80, 81, 56, 55, 40],
+                    data: [65, 59, 56, 55, 40],
                     fill: false,
                     borderColor: '#0c2bff',
                     tension: 0.4
@@ -44,17 +44,19 @@ const WalletChart: React.FC<ChartProps> = ({ wallet }) => {
     }, []);
 
     const selectInterval = (value: string, e: any) => {
+        console.log(value)
         setTime(value)
     }
 
     return (
         <div className='flex flex-col gap-6'>
-            <div>
-                {wallet?.curr.code} Price
-                <Text className='boldColor' variant={'header'}>
-                    $800,000.00
-                </Text>
-                <Text variant={'small'} size='14px'>$300,000 <span className='capitalize'>{time}</span></Text>
+            <div className="flex items-end justify-between">
+                <div>
+                    {/* <Text className='!font-semibold'>{wallet?.curr.code} Price </Text> */}
+                    <Text variant={'other'} className='font-bold' size='14px'>$300,000 <span className='capitalize'>{time}</span></Text>
+                </div>
+                <Btn value={time} onSelect={selectInterval} />
+
             </div>
             <Chart
                 type="line"
@@ -63,9 +65,6 @@ const WalletChart: React.FC<ChartProps> = ({ wallet }) => {
                 data={data}
                 options={options}
             />
-            <div className='flex gap-2'>
-                <Btn value='1D' onSelect={selectInterval} />
-            </div>
         </div>
     );
 }
@@ -78,9 +77,7 @@ const Btn: React.FC<BtnProps> = ({ onSelect, className, value = '1H' }) => {
         { label: '1M', value: 'past month' }
     ];
 
-    const labels = options.map(item => item.label);
-
-    return <SelectButton value={value} onChange={(e) => onSelect(e.value)} options={options} />
+    return <SelectButton className='mr-4' value={value} onChange={(e) => onSelect(e.value)} options={options} />
 }
 
 //@ts-ignore

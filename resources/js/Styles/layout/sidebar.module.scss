@@ -8,7 +8,7 @@
 .header {
     min-height: $header-height;
     @extend %flex-x-center;
-    border-bottom: 3px solid $color-theme-bgContent;
+    border-bottom: 1px solid $color-theme-bgContent;
     justify-content: center;
     width: 100%;
     padding-top: $header-pt;
@@ -40,6 +40,18 @@
 
 .active {
     color: $color-theme-emphasis;
+    background-color: $color-primary-900;
+    position: relative;
+    color: $color-primary-light;
+
+    &::before {
+        content: " ";
+        position: absolute;
+        height: 100%;
+        width: 300px;
+        background-color: $color-primary-900;
+        right: 100%;
+    }
 }
 
 .nav-item-icon {

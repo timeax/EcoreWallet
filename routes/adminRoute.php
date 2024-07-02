@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\ManageDepositController;
 use App\Http\Controllers\Admin\GeneralSettingController;
 use App\Http\Controllers\Admin\ManageCurrencyController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
+use App\Http\Controllers\User\ChatController;
 
 // ************************** ADMIN SECTION START ***************************//
 
@@ -34,7 +35,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/login',            [LoginController::class,'showLoginForm'])->name('login');
     Route::post('/login',           [LoginController::class,'login']);
-    
+
     Route::get('/forgot-password',   [LoginController::class,'forgotPasswordForm'])->name('forgot.password');
     Route::post('/forgot-password',   [LoginController::class,'forgotPasswordSubmit']);
     Route::get('forgot-password/verify-code',     [LoginController::class,'verifyCode'])->name('verify.code');
@@ -54,6 +55,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //------------ ADMIN DASHBOARD & PROFILE SECTION ENDS ------------
 
 
+
+        //--------- Chats
+        Route::get('/manage/chats', [ChatController::class, 'index'])->name('live.chats');
 
         //transactions
         Route::get('/transaction-report',                 [AdminController::class,'transactions'])->name('transactions')->middleware('permission:transactions');
@@ -76,9 +80,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //manage blogs
 
         Route::get('blog-category',       [BlogCategoryController::class,'index'])->name('bcategory.index')->middleware('permission:manage blog-category');
-     
+
         Route::post('blog-category/store',       [BlogCategoryController::class,'store'])->name('bcategory.store')->middleware('permission:store blog-category');
-      
+
         Route::put('blog-category/update/{id}',       [BlogCategoryController::class,'update'])->name('bcategory.update')->middleware('permission:update blog-category');
 
         Route::get('blog',       [BlogController::class,'index'])->name('blog.index')->middleware('permission:manage blog');
@@ -124,7 +128,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //manage trade
         Route::get('/trade-durations',[ManageTradeController::class,'tradeDurations'])->name('trade.durations')->middleware('permission:manage trade duration');
         Route::post('/trade-durations',[ManageTradeController::class,'addTradeDuration'])->middleware('permission:trade duration add');
-      
+
         Route::post('update/trade-durations',[ManageTradeController::class,'updateTradeDuration'])->name('trade.duration.update')->middleware('permission:trade duration update');
 
         Route::post('remove/trade-durations',[ManageTradeController::class,'removeTradeDuration'])->name('trade.duration.remove')->middleware('permission:trade duration remove');
@@ -203,7 +207,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
         Route::get('/payment-gateways',        [PaymentGatewayController::class,'index'])->name('gateway')->middleware('permission:manage payment gateway');
-        
+
         Route::post('/payment-gateways',        [PaymentGatewayController::class,'store'])->middleware('permission:manage payment gateway');
 
 
@@ -230,7 +234,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // admin language
         Route::get('adminlanguage/status/{id1}/{id2}', [AdminLanguageController::class,'status'])->name('adminlanguage.status')->middleware('permission:manage language');
 
-    
+
         //==================================== LANGUAGE SETTING SECTION END =============================================//
 
 
@@ -254,12 +258,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('user-login/{id}', [ManageUserController::class,'login'])->name('user.login')->middleware('permission:user login');
 
             Route::get('user-login/info/{id}', [ManageUserController::class,'loginInfo'])->name('user.login.info')->middleware('permission:user login logs');
-         
+
             Route::get('user/deposit-history/{id}', [ManageUserController::class,'depositHistory'])->name('user.deposit.history');
             Route::get('user/withdraw-history/{id}', [ManageUserController::class,'withdrawHistory'])->name('user.withdraw.history');
 
 
-     
+
 
         //================= Site Contents ======================
 
@@ -293,24 +297,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
              //Manage Kyc
 
-     
+
              Route::get('/manage-kyc-form',[KycManageController::class,'userKycForm'])->name('manage.kyc.form')->middleware('permission:manage kyc form');
- 
+
              Route::post('/manage-kyc-form/{user}',[KycManageController::class,'kycForm'])->middleware('permission:kyc form add');
- 
+
              Route::post('/kyc-form/update',[KycManageController::class,'kycFormUpdate'])->name('kyc.form.update')->middleware('permission:kyc form update');
- 
+
              Route::post('/kyc-form/delete',[KycManageController::class,'deletedField'])->name('kyc.form.delete')->middleware('permission:kyc form delete');
- 
+
              Route::get('/kyc-info',[KycManageController::class,'kycInfo'])->name('kyc.info')->middleware('permission:kyc info');
-           
+
              Route::get('/kyc-details/{id}',[KycManageController::class,'kycDetails'])->name('kyc.details')->middleware('permission:kyc details');
- 
+
              Route::post('/kyc-reject/{id}',[KycManageController::class,'rejectKyc'])->name('kyc.reject')->middleware('permission:kyc reject');
- 
+
              Route::post('/kyc-approve/{id}',[KycManageController::class,'approveKyc'])->name('kyc.approve')->middleware('permission:kyc approve');
 
-         
+
           //role manage
 
               Route::get('manage/role',[ManageRoleController::class,'index'])->name('role.manage')->middleware('permission:manage role');
@@ -347,7 +351,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
               Route::get('system-update',  [AddonController::class,'update'])->name('update')->middleware('permission:system update');
 
               Route::post('system-update', [AddonController::class,'updateSystem'])->name('update.install')->middleware('permission:system update');
-  
+
               Route::get('/clear-cache',function(){
                   \Artisan::call('optimize:clear');
                   return back()->with('success','Cache cleared successfully');

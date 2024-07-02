@@ -19,5 +19,9 @@ class Transaction extends Model
     {
         return $this->belongsTo(User::class)->withDefault();
     }
-   
+
+    public function escrow()
+    {
+        return $this->belongsTo(Escrow::class, 'transaction_ref', 'ref');
+    }
 }

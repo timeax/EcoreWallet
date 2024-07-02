@@ -18,11 +18,12 @@
     <link rel="stylesheet" href="{{asset('assets/admin/css/style.css')}}">
     <link rel="stylesheet" href="{{asset('assets/admin/css/components.css')}}">
     <link rel="stylesheet" href="{{asset('assets/admin/css/custom.css')}}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    @vite('resources/js/echo.js')
     @stack('style')
 </head>
 <body>
-  
+
 <div id="app">
     <div class="main-wrapper">
       <div class="navbar-bg"></div>
@@ -34,10 +35,10 @@
       <!-- Main Content -->
       <div class="main-content">
         @yield('breadcrumb')
-        
+
         @yield('content')
       </div>
-      
+
     </div>
   </div>
 
@@ -88,7 +89,7 @@
             'policy_title' : '{{__('Enter Title')}}',
             'policy_content' : '{{__('Enter Content')}}',
         };
-  
+
     </script>
     <script>
       'use strict';
@@ -100,6 +101,6 @@
     });
     </script>
     @stack('script')
-    
+
 </body>
 </html>

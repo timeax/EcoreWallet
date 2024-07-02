@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, Fragment, PropsWithChildren, Dispatch, SetStateAction } from 'react';
+import { useState, createContext, useContext, Fragment, PropsWithChildren, Dispatch, SetStateAction, useEffect, useRef, Ref } from 'react';
 import { Link, InertiaLinkProps } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import Tag from '.';
@@ -6,8 +6,10 @@ import Tag from '.';
 const DropDownContext = createContext<{
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
+    ref?: React.MutableRefObject<HTMLDivElement | undefined>
     toggleOpen: () => void;
     onSelect(value?: string): void
+    event?(callback: Function): void
 }>({
     open: false,
     setOpen: () => { },
@@ -18,17 +20,30 @@ const DropDownContext = createContext<{
 const Dropdown = ({ children, className = '', onSelect }: PropsWithChildren<{ className?: string, onSelect?: (value?: any) => void }>) => {
     const [open, setOpen] = useState(false);
 
+    const ref = useRef<HTMLDivElement>();
+
     const toggleOpen = () => {
-        setOpen((previousState) => !previousState);
+        setOpen((previousState) => {
+            let newState = !previousState;
+
+            return newState;
+        });
     };
+
+    useEffect(() => {
+
+    }, [])
 
     const select = (value: string) => {
         onSelect?.(value)
     }
 
     return (
-        <DropDownContext.Provider value={{ open, setOpen, toggleOpen, onSelect: select }}>
-            <div className={`relative ${className}`}>{children}</div>
+        //@ts-ignore
+        <DropDownContext.Provider value={{ open, setOpen, toggleOpen, onSelect: select, ref }}>
+            <div
+                //@ts-ignore
+                ref={ref} className={`relative ${className}`}>{children}</div>
         </DropDownContext.Provider>
     );
 };
@@ -38,16 +53,15 @@ const Trigger = ({ children }: PropsWithChildren) => {
 
     return (
         <>
-            <div onClick={toggleOpen}>{children}</div>
+            <div className={open ? 'open' : ''} onClick={toggleOpen}>{children}</div>
 
             {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>}
         </>
     );
 };
 
-const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-white', children }: PropsWithChildren<{ align?: 'left' | 'right', width?: '48', contentClasses?: string }>) => {
-    const { open, setOpen } = useContext(DropDownContext);
-
+const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-white', children }: PropsWithChildren<{ align?: 'left' | 'right', width?: string, contentClasses?: string }>) => {
+    const { open, setOpen, ref } = useContext(DropDownContext);
     let alignmentClasses = 'origin-top';
 
     if (align === 'left') {
@@ -56,10 +70,35 @@ const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-whit
         alignmentClasses = 'ltr:origin-top-right rtl:origin-top-left end-0';
     }
 
+
+    const [auto, setAuto] = useState('');
+
     let widthClasses = '';
 
     if (width === '48') {
         widthClasses = 'w-48';
+    } else widthClasses = width;
+
+    function adjust(menu: HTMLDivElement) {
+        const rect = menu.getBoundingClientRect();
+        const wH = window.innerHeight, wW = window.innerWidth;
+
+        const diffH = wH - rect.y;
+
+        let classes: string[] = [];
+
+        if (diffH < rect.height) {
+            classes.push('bottom-[100%]')
+        }
+
+        if (classes.length > 0) setAuto(classes.join(' '))
+    }
+
+    if (ref) {
+        setTimeout(() => {
+            const menu = ref.current?.querySelector('.drop-menu') as HTMLDivElement;
+            if (menu && open) adjust(menu);
+        }, 50);
     }
 
     return (
@@ -73,9 +112,10 @@ const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-whit
                 leave="transition ease-in duration-75"
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
+            //@ts-ignore
             >
                 <div
-                    className={`absolute z-50 mt-2 rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`}
+                    className={`absolute drop-menu z-50  mt-2 rounded-md shadow-lg ${alignmentClasses} ${auto} ${widthClasses}`}
                     onClick={() => setOpen(false)}
                 >
                     <div className={`rounded-md ring-1 ring-black ring-opacity-5 ` + contentClasses}>{children}</div>

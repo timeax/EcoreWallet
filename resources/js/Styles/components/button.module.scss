@@ -1,71 +1,77 @@
 .btn {
-   display: inline-flex;
-   align-items: center;
-   line-height: 2.8;
-   font-weight: 300;
+    display: inline-flex;
+    align-items: center;
+    line-height: 2.8;
+    font-weight: 300;
 
-   &.effects {
-      transition: all 0.1s ease-in;
-      &:hover {
-         transform: scale(1.01);
-      }
-   }
+    &.effects {
+        transition: all 0.1s ease-in;
+        &:hover {
+            transform: scale(1.01);
+        }
+    }
 
-   &:focus {
-      outline: none;
-      transition: box-shadow 0.1s ease-in-out 0s;
-   }
+    &:focus {
+        outline: none;
+        transition: box-shadow 0.1s ease-in-out 0s;
+    }
 
-   &.contained {
-      border: none;
-   }
+    &.contained {
+        border: none;
+    }
 
-   &.smooth {
-      border-radius: 6px;
-   }
+    &.smooth {
+        border-radius: 6px;
+    }
 
-   &.pill {
-      border-radius: 999px;
-      line-height: 3;
-   }
+    &.pill {
+        border-radius: 999px;
+        line-height: 3;
+    }
 
-   &.square {
-      border-radius: 0px;
-   }
+    &.square {
+        border-radius: 0px;
+    }
 
-   &.circle {
-      border-radius: 50%;
-   }
+    &.circle {
+        border-radius: 50%;
+    }
 
-   &-md {
-      font-size: 16px;
-      @include px(1.8rem);
-   }
+    &-md {
+        font-size: 16px;
+        @include px(1.8rem);
+    }
 
-   &-sm {
-      @include px(1rem);
-      font-size: 13px;
-      line-height: 2.3;
-   }
+    &-normal {
+        font-size: 14.5px;
+        @include px(1rem);
+        // line-height: 2.4;
+    }
 
-   &-lg {
-      font-size: 18px;
-      @include px(1.8rem);
-   }
+    &-sm {
+        @include px(1rem);
+        font-size: 13px;
+        line-height: 2.3;
+    }
+
+    &-lg {
+        font-size: 18px;
+        @include px(1.8rem);
+    }
 }
 
 .icon {
-   cursor: pointer;
-   &-square {
-      padding: 0.3rem;
-   }
+    cursor: pointer;
+    &-square {
+        padding: 0.3rem;
+    }
 
-   &-none {
-      background: transparent !important;
-   }
+    &-none {
+        background: transparent !important;
+    }
 
-   &-circle {
-      padding: 0.5rem;
-      border-radius: 50%;
-   }
+    &-circle {
+        padding: 0.5rem;
+        border-radius: 50%;
+    }
 }

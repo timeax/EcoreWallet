@@ -30,11 +30,11 @@ type Opacity = {
 }
 
 type ColorWeight = {
-    normal?: string;
-    focus?: string;
-    hover?: string;
-    visited?: string;
-    disabled?: string;
+    normal?: string | number;
+    focus?: string | number;
+    hover?: string | number;
+    visited?: string | number;
+    disabled?: string | number;
 };
 
 type ColorType = "text" | "background" | "border" | "shadow" | "gradiant";
@@ -103,8 +103,35 @@ function textColor(name: ColorNames, weights: ColorWeight = {}, opacity: Opacity
     }
 }
 
+function bg(name: ColorNames): ColorWeight {
+    switch (name) {
+        case "primary": return {
+            normal: 800,
+            disabled: 200,
+            focus: 900,
+            hover: 900,
+            visited: 300
+        };
+        case "secondary":
+        case "danger":
+        case "warning":
+        case "info":
+        case "success":
+        case "theme":
+        default: return {
+            normal: 500,
+            disabled: 200,
+            focus: 700,
+            hover: 600,
+            visited: 300
+        }
+    }
+}
+
+
 function bgColor(name: ColorNames, weights: ColorWeight = {}, opacity: Opacity = {}): ColorObject {
-    const { normal = 500, visited = 300, focus = 700, hover = 600, disabled = 200 } = weights;
+    const dw = bg(name);
+    const { normal = dw.normal, visited = dw.visited, focus = dw.focus, hover = dw.hover, disabled = dw.disabled } = weights;
     const { normal: oNormal, visited: oVisited, focus: oFocus, hover: oHover, disabled: oDisabled } = opacity;
     const base = create(name, normal, oNormal);
     return {
