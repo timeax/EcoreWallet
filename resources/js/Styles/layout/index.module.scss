@@ -1,3 +1,5 @@
+
+
 .container {
     @extend %container;
     height: 100%;
@@ -9,12 +11,17 @@
 }
 .main {
     background-color: $color-theme-bgContent;
-    margin-left: calc($sidebar-width + 4px);
+    margin-left: calc($sidebar-width-closed + 1.5rem);
     overflow: auto;
     overflow-x: hidden;
     height: 100vh;
     display: flex;
     flex-direction: column;
+
+    &.sidebar-opened {
+        margin-left: calc($sidebar-width + 4px);
+    }
+
     header {
         min-height: $header-height;
         padding-top: $header-pt;
@@ -40,10 +47,14 @@
 }
 
 .sidebar {
-    width: $sidebar-width;
+    width: $sidebar-width-closed;
     position: fixed;
     top: 0px;
     left: 0px;
     height: 100vh;
     background-color: $color-theme-bgColor;
+
+    &.open {
+        width: $sidebar-width;
+    }
 }

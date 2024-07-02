@@ -9,6 +9,7 @@ import { CgArrowsExchange } from "react-icons/cg";
 import { TbExchange } from "react-icons/tb";
 import { RiFundsFill } from "react-icons/ri";
 import { BiMoneyWithdraw } from "react-icons/bi";
+import { VscHistory } from "react-icons/vsc";
 export interface Route {
     id: string;
     label: string;
@@ -60,7 +61,7 @@ const routes: Routes = [
 
     {
         id: 'swap',
-        label: 'Exchange / Swap',
+        label: 'Swap',
         icon: <MdCurrencyExchange />,
         route: 'user.crypto.swap',
         showOnSidebar: true
@@ -84,8 +85,8 @@ const routes: Routes = [
 
     {
         id: 'history',
-        label: 'Transactions',
-        icon: <MdWallet />,
+        label: 'History',
+        icon: <VscHistory />,
         route: 'user.crypto.history',
         showOnSidebar: true
     },

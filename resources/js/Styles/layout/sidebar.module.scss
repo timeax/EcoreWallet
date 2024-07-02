@@ -17,25 +17,66 @@
 
 .navitem {
     position: relative;
+
+    &:hover {
+        // column-gap: 0.8rem;
+        .label {
+            visibility: visible;
+            background-color: $color-primary-900;
+            padding-right: 8px;
+            border-radius: 999px;
+            top: 0;
+            z-index: 9999999999999999999999;
+            font-size: 100%;
+            margin-left: 12px;
+            @include px(8px);
+            @include py(2px);
+            &::before {
+                content: " ";
+                @include triangle("left", 7px, $color-primary-900);
+                position: absolute;
+                left: -3px;
+                top: 3px;
+            }
+        }
+
+        .navlink {
+            .nav-item-icon {
+                svg {
+                    color: $color-primary-700;
+                }
+            }
+
+            .dot::before {
+                content: " ";
+                display: none;
+            }
+        }
+    }
 }
 
 .navlist {
     // @include my(auto);
     font-size: 15px;
-    // width: calc($size-sidebar - 80px);
-    // @extend %flex-y-center;
+}
+
+.nav-item-icon {
+    z-index: 999999999999999999;
+    position: relative;
 }
 
 .navlink {
     padding: 0.8rem 0.8rem;
     @extend %flex-x-center;
-    column-gap: 0.8rem;
     color: $color-theme-text;
     font-weight: 300;
+}
 
-    &:hover {
-        color: $color-theme-icons;
-    }
+.label {
+    position: absolute;
+    visibility: hidden;
+    font-size: 11px !important;
+    color: white;
 }
 
 .active {
@@ -43,14 +84,34 @@
     background-color: $color-primary-900;
     position: relative;
     color: $color-primary-light;
+    border-radius: 999px;
+
+    .nav-item-icon {
+        svg {
+            color: $color-primary-50 !important;
+        }
+    }
 
     &::before {
         content: " ";
         position: absolute;
+        border-radius: 999px;
         height: 100%;
-        width: 300px;
+        width: calc($sidebar-width-closed - 0.3rem);
         background-color: $color-primary-900;
-        right: 100%;
+        left: calc(5.3rem - $sidebar-width-closed);
+        z-index: 1;
+    }
+
+    .dot::before {
+        content: " ";
+        border: 4px solid $color-theme-bgContent;
+        z-index: 999999999999999999;
+        right: 0;
+        position: absolute;
+        top: 4px;
+        left: calc($sidebar-width-closed - 4rem);
+        border-radius: 50%;
     }
 }
 

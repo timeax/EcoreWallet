@@ -2,11 +2,12 @@ import React, { FC } from 'react';
 import styles from '@styles/layout/sidebar.module.scss';
 import { getSidebar, Route } from '@routes/index';
 import { Link, router } from '@inertiajs/react';
-import logo from '@assets/images/logo1.png';
+import logo from '@assets/images/icon.png';
 import Tag from '@components/index';
 import Button from '@components/Button';
 import Dropdown from '@components/Dropdown';
 import { useAuth } from '@context/AuthenticatedContext';
+import { classNames } from 'primereact/utils';
 
 const Sidebar: React.FC<SidebarProps> = () => {
     //--- code here ---- //
@@ -14,7 +15,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
     return (
         <div className={styles.main}>
             <div className={styles.header}>
-                <Tag element={'img'} width={'160px'} src={logo} alt="" />
+                <Tag element={'img'} width={'30px'} src={logo} alt="" />
             </div>
             {/* <Button className='!bg-primary-800 w-fit !px-12 !rounded-[999px]'>Quick</Button> */}
             <div className='grow flex gap-y-12 flex-col'>
@@ -43,16 +44,28 @@ const Sidebar: React.FC<SidebarProps> = () => {
     );
 }
 
-const NavItem: FC<NavItemProps> = ({ route: href, label, icon }) => {
-    return <div className={styles.navitem}>
-        <Link href={route(href)} className={styles.navlink + ' ' + (route().current() === href ? styles.active : '')}>
-            <span className={styles['nav-item-icon']}>{icon}</span>
-            {label}
-        </Link>
-    </div>
+const NavItem: FC<NavItemProps> = ({ route: href, label, icon, sidebarOpen }) => {
+    return (
+        <div className={classNames(styles.navitem, { [styles.sidebarOpen]: sidebarOpen })}>
+            <Link
+                href={route(href)}
+                className={classNames(styles.navlink, { [styles.active]: route().current() === href })}
+            >
+                <span className={styles['nav-item-icon']}>{icon}</span>
+                <div className='relative h-[19px]'>
+                    <span className={classNames({ [styles.label]: !sidebarOpen })}>
+                        <span>{label}</span>
+                    </span>
+                    <span className={classNames({ [styles.dot]: !sidebarOpen })}></span>
+                </div>
+            </Link>
+        </div>
+    )
 }
 
-interface NavItemProps extends Route { }
+interface NavItemProps extends Route {
+    sidebarOpen?: boolean
+}
 
 interface SidebarProps {
 
