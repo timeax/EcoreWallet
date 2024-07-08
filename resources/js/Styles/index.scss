@@ -3,6 +3,11 @@ body {
     color: $color-theme-text;
     font-family: Poppins !important;
     overflow: hidden;
+
+    #{prime(mask)} {
+        z-index: 99999999999999999999999999999999999999999999 !important;
+        background-color: rgba(0, 0, 0, 0.123) !important;
+    }
 }
 
 .scontainer {
@@ -11,7 +16,11 @@ body {
 }
 
 section {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+
+    @include media('<=xs-tablet') {
+        margin-bottom: 1.3rem;
+    }
 }
 
 .sticky-nav {

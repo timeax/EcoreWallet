@@ -1,10 +1,10 @@
 
 import Tag, { PropsWithSx } from "..";
-import React from "react";
+import React, { forwardRef } from "react";
 import styles from '@styles/components/text.module.scss';
 import { Color } from "@assets/fn/create-color";
 
-const Text: React.FC<TextProps> = ({ variant = 'text', className = '', id, children, weight, size, sx, color, ...props }) => {
+const Text = forwardRef<HTMLParagraphElement, TextProps>(({ variant = 'text', className = '', id, children, weight, size, sx, color, ...props }, ref) => {
     //--- code here ---- //
     const { element, styleName } = getVariant(variant);
     let css: StyledProps = {}
@@ -13,11 +13,11 @@ const Text: React.FC<TextProps> = ({ variant = 'text', className = '', id, child
     if (size) css.fontSize = size;
     //----
     return (
-        <Tag {...css} {...props} className={className + ' ' + styles[styleName]} id={id} sx={sx} element={element}>
+        <Tag {...css} {...props} tagRef={ref} className={className + ' ' + styles[styleName]} id={id} sx={sx} element={element}>
             {children}
         </Tag>
     );
-};
+});
 
 function getVariant(variant: TextProps['variant']): { element: ElementType<HTMLTags>, styleName: string } {
     switch (variant) {

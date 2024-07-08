@@ -1,22 +1,24 @@
 import React from 'react';
 import StyledButton, { DefStyledProps } from './StyledButton';
-import { ColorNames, color } from '@assets/fn/create-color';
+import { Color, ColorNames, color as getColor } from '@assets/fn/create-color';
 import styles from '@styles/components/button.module.scss';
 
 const IconButton: React.FC<IconButtonProps> = ({ inset, variant = 'none', children, className = '', bgColor = 'primary', color, shape = 'square', size = '16px', ...rest }) => {
     //--- code here ---- //
-    const colors = getColor(bgColor);
+    const colorFunc = getColor('background');
+    const colors = colorFunc(bgColor);
+    const effects = colors.effects();
 
     const classNames: string[] = [className, styles['icon-' + shape], styles.icon];
 
     const props: DefStyledProps = {
         variant,
-        bgColor: colors.value,
-        bgFocus: colors.focus,
-        bgHover: colors.hover,
-        color: variant == 'none' ? colors.focus : colors.color,
+        bgColor: colors.color,
+        bgFocus: effects.focus,
+        bgHover: effects.hover,
+        color: color || (variant == 'none' || variant == 'outlined' ? effects.focus : effects.text),
         effects: true,
-        hColor: colors.colorHover,
+        hColor: effects.hoverColor || colors.color,
         iconStyle: shape,
         size,
         shadowInset: inset
@@ -30,14 +32,14 @@ const IconButton: React.FC<IconButtonProps> = ({ inset, variant = 'none', childr
     );
 }
 
-interface IconButtonProps extends AppElement<React.ButtonHTMLAttributes<any>> {
+interface IconButtonProps extends AppElement<React.ButtonHTMLAttributes<HTMLButtonElement>> {
     variant?: "none" | "contained" | "outlined";
     shape?: 'circle' | 'square',
     href?: string;
     linkComponent?: any;
     inset?: boolean
     bgColor?: ColorNames;
-    color?: string
+    color?: Color
     size?: string
 }
 

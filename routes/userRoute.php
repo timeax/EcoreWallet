@@ -1,22 +1,20 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Notifications\SystemNotification;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\User\ProfileController;
-use Inertia\Inertia;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\CryptomusWebhookController;
 use App\Http\Controllers\User\ChatController;
 use App\Http\Controllers\User\OnboardingController;
+use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SupportTicketController;
 use App\Http\Controllers\User\TradeController;
-use App\Models\Admin;
-use App\Models\SupportTicket;
-use App\Models\Wallet;
+use App\Jobs\UpdateCryptoPrices;
+use App\Models\Currency;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::name('user.')->middleware('maintenance')->group(function () {
     Route::middleware('auth')->group(function () {
@@ -24,10 +22,10 @@ Route::name('user.')->middleware('maintenance')->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        Route::post('/chat', function (Cryptomus $cryptomus) {
-            auth()->user()->initiateUser($cryptomus);
-            return 'it worked';
-        });
+        // Route::post('/chat', function (Cryptomus $cryptomus) {
+        //     auth()->user()->initiateUser($cryptomus);
+        //     return 'it worked';
+        // });
 
         Route::post('/chat/connect', [ChatController::class, 'create'])->name('chat.connect');
 
@@ -36,15 +34,6 @@ Route::name('user.')->middleware('maintenance')->group(function () {
         })->name('settings.all');
 
         Route::get('/support', [SupportTicketController::class, 'view'])->name('support');
-
-        Route::get('/test', function () {
-            $user = auth()->user();
-
-            $user->notify(new SystemNotification());
-            //--------
-            return (new SystemNotification())->toMail();
-        });
-
         //------
         Route::middleware(['email_verified'])->group(function () {
             Route::middleware(['2fa'])->group(function () {
@@ -52,11 +41,12 @@ Route::name('user.')->middleware('maintenance')->group(function () {
                     $user = Auth::user();
 
                     $wallets = $user->wallets()->with('curr')->get();
+                    $currencies = Currency::all();
                     //------
-                    $transactions = $user->transactions;
+                    $transactions = $user->transactions()->with('currency')->get();
                     $trades = $user->trades;
 
-                    return Inertia::render('Dashboard/Page', compact('wallets', 'transactions'));
+                    return Inertia::render('Dashboard/Page', compact('wallets', 'transactions', 'currencies'));
                 })->name('dashboard');
 
 
@@ -103,6 +93,13 @@ Route::name('user.')->middleware('maintenance')->group(function () {
 
 
 Route::get('/myadmin', function () {
-    @$admins = @Admin::whereIn('role', ['customer_service', 'admin'])->get();
-    return response()->json($admins->toArray());
+    // $rate = Rate::where(['currency_id' => 1])->get();
+
+    UpdateCryptoPrices::dispatch('historical-data');
+
+    $arr = [];
+
+    $arr = Arr::add($arr, 'name', 'Timmy');
+
+    return response()->json($arr);
 });

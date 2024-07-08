@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import styles from '@styles/components/card.module.scss';
 import Text from '../Text';
+import { Title } from '@components/Trade';
 
 const Cardheader: React.FC<CardheaderProps> = ({ children, className = '', variant = 'title' }) => {
     //--- code here ---- //
@@ -11,7 +12,7 @@ const Cardheader: React.FC<CardheaderProps> = ({ children, className = '', varia
 
     return (
         <div className={styles.header + ' ' + className}>
-            <Text variant={'header'} className={styles[variant]}>{title}</Text>
+            <Title noPad bright data-section='card-title' className={styles[variant]}>{title}</Title>
             {
                 helpers ? <div className={styles.nav}>{helpers}</div> : ''
             }

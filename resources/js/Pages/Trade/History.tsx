@@ -11,7 +11,6 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
-import { Button } from 'primereact/button';
 import { ProgressBar } from 'primereact/progressbar';
 import { Calendar } from 'primereact/calendar';
 import { MultiSelect } from 'primereact/multiselect';
@@ -23,6 +22,14 @@ import { Toolbar } from 'primereact/toolbar';
 import { styles } from '@assets/theme/transaction';
 import CryptoIcon from '@components/CryptoIcon';
 import Text from '@components/Text';
+import { Container, Title } from '@components/Trade';
+import Button from '@components/Button';
+import { FaFilter } from 'react-icons/fa';
+import { Total } from '@pages/Dashboard/Partials/BalanceSummary';
+import { TbTransactionDollar } from 'react-icons/tb';
+import { TiStarFullOutline } from 'react-icons/ti';
+import { MdError } from 'react-icons/md';
+import Select from '@components/Trade/Select';
 const History: React.FC<HistoryProps> = ({ auth, transactions }) => {
     //--- code here ---- //
 
@@ -63,11 +70,11 @@ const History: React.FC<HistoryProps> = ({ auth, transactions }) => {
     };
 
     const formatDate = (value: Date) => {
-        return value.toLocaleDateString(undefined, {
+        return <Title lg brighter>{value.toLocaleDateString(undefined, {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
-        });
+        })}</Title>;
     };
 
     const formatCurrency = (value: any) => {
@@ -85,22 +92,11 @@ const History: React.FC<HistoryProps> = ({ auth, transactions }) => {
         setGlobalFilterValue(value);
     };
 
-    const renderHeader = () => {
-        return (
-            <div className="flex flex-wrap gap-2 justify-content-between align-items-center">
-                <h4 className="m-0">Customers</h4>
-                <IconField iconPosition="left">
-                    <InputIcon className="pi pi-search" />
-                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
-                </IconField>
-            </div>
-        );
-    };
 
     const countryBodyTemplate = (rowData: Transaction) => {
         return (
             <div className="flex align-items-center gap-2">
-                <span>{rowData.type == '+' ? 'Money In' : 'Money Out'}</span>
+                <Title brighter lg medium>{rowData.type == '+' ? 'Money In' : 'Money Out'}</Title>
             </div>
         );
     };
@@ -110,65 +106,114 @@ const History: React.FC<HistoryProps> = ({ auth, transactions }) => {
     };
 
     const walletTemplate = (options: Transaction) => {
-        const size = '3rem';
+        const size = '2rem';
         return (
             <div className='flex items-center gap-2'>
-                <CryptoIcon width={size} height={size} name={options.currency.curr_name} size='14px' label={options.currency.symbol} />
+                <CryptoIcon width={size} height={size} name={options.currency.curr_name} size='13px' label={options.currency.symbol} />
                 <div className='flex flex-col'>
-                    <Text variant={'other'} className='font-bold text-[10px]'>{options.currency.code}</Text>
-                    <Text variant={'other'} className='text-[14px]'>{options.currency.curr_name}</Text>
+                    <Title noPad bold lg>{options.currency.code}</Title>
+                    <Title noPad sm>{options.currency.curr_name}</Title>
                 </div>
             </div>
         )
     };
 
     const balanceBodyTemplate = (rowData: Transaction) => {
-        return formatCurrency(parseFloat(rowData.amount) + parseFloat(rowData.charge));
+        return <Title lg brighter>{formatCurrency(parseFloat(rowData.amount) + parseFloat(rowData.charge))}</Title>;
     };
 
     const statusBodyTemplate = (rowData: Transaction) => {
         return <Tag value={rowData.status || 'Successful'} severity={getSeverity(rowData.status || 'success')} />;
     };
 
-    const filterTemplate = () => {
-        return <div>
+    const filterStatus: Array<{ label: string, value: string }> = [
+        {
+            label: 'All Status',
+            value: 'all'
+        },
+        {
+            label: 'Successful',
+            value: 'success'
+        }, {
+            label: 'Pending',
+            value: 'pending'
+        }, {
+            label: 'Failed',
+            value: 'failed'
+        }, {
+            label: 'Cancelled',
+            value: 'canceled'
+        }, {
+            label: 'Refunded',
+            value: 'refunded'
+        },
+    ]
 
-        </div>
-    }
+    const filterCategory: Array<{ label: string, value: string }> = [
+        {
+            label: 'All Categories',
+            value: 'all'
+        },
+        {
+            label: 'Deposit',
+            value: 'success'
+        }, {
+            label: 'Withdraw',
+            value: 'withdraw'
+        }, {
+            label: 'Transfer',
+            value: 'transfer'
+        }
+    ]
 
     return (
         <AuthenticatedLayout
             user={auth.user}
             title='transaction history'
             pusher={true}
-            header={[
-                {
-                    label: 'Transactions',
-                    template(item, options) {
-                        return <Link href={route('user.dashboard')}>{item.label}</Link>
-                    },
-                }
-            ]}
+            desc='Take a look at all you transactions'
         >
-            <section>
-                <Toolbar start={<>
-                    <Button>Export</Button>
-                </>}>
-                </Toolbar>
-                <Card className='!rounded-none' container='!py-2'>
-                    <DataTable value={history} pt={styles} paginator rows={10}
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        rowsPerPageOptions={[10, 25, 50]} dataKey="id"
-                        filters={filters} filterDisplay="menu" globalFilterFields={['name', 'country.name', 'representative.name', 'balance', 'status']}
-                        emptyMessage="No Transactions Found." currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
-                        <Column field="currency.code" header="Wallet" body={walletTemplate} />
-                        <Column field="remark" header="Type" className='capitalize' />
-                        <Column field="country.name" header="Flow" body={countryBodyTemplate} />
-                        <Column field="date" header="Date" dataType="date" body={dateBodyTemplate} />
-                        <Column field="balance" header="Amount" dataType="numeric" body={balanceBodyTemplate} />
-                        <Column field="status" header="Status" filterMenuStyle={{ width: '14rem' }} body={statusBodyTemplate} />
-                    </DataTable>
-                </Card>
+            <section className='mt-8 flex flex-col gap-6'>
+                <div className='flex mb-4 gap-6'>
+                    <Total value={transactions.length} color='info' label='Total' change='' icon={<TbTransactionDollar />} />
+                    <Total value={transactions.filter(item => item.status == 'success').length} color='success' label='Successful' change='' icon={<TiStarFullOutline />} />
+                    <Total value={transactions.filter(item => item.status == 'pending').length} color='info' label='Pending' change='' icon={<TbTransactionDollar />} />
+                    <Total value={transactions.filter(item => item.status == 'failed').length} color='warning' label='Failed' change='' icon={<MdError />} />
+                </div>
+                <div className='flex gap-4 items-center'>
+                    <Select
+                        unique='value'
+                        contentTemplate={(e) => <Title className='mr-4'>{e.label}</Title>}
+                        value={filterStatus[0]}
+                        menuItemTemplate={(e) => <Title>{e.label}</Title>}
+                        items={filterStatus}
+                        quick
+                     />
+                    <Select
+                        unique='value'
+                        contentTemplate={(e) => <Title className='mr-4'>{e.label}</Title>}
+                        value={filterCategory[0]}
+                        menuItemTemplate={(e) => <Title>{e.label}</Title>}
+                        items={filterCategory}
+                        quick
+                    />
+                    <div>
+                        <Title>Sort by Date</Title>
+                    </div>
+                    <Button className='ml-auto'>Export</Button>
+                </div>
+                <DataTable value={history} pt={styles} paginator rows={10}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    rowsPerPageOptions={[10, 25, 50]} dataKey="id"
+                    filters={filters} filterDisplay="menu" globalFilterFields={['name', 'country.name', 'representative.name', 'balance', 'status']}
+                    emptyMessage="No Transactions Found." currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                    <Column field="currency.code" header="Wallet" body={walletTemplate} />
+                    <Column field="remark" header="Type" className='capitalize' />
+                    <Column field="country.name" header="Flow" body={countryBodyTemplate} />
+                    <Column field="date" header="Date" dataType="date" body={dateBodyTemplate} />
+                    <Column field="balance" header="Amount" dataType="numeric" body={balanceBodyTemplate} />
+                    <Column field="status" header="Status" filterMenuStyle={{ width: '14rem' }} body={statusBodyTemplate} />
+                </DataTable>
             </section>
 
         </AuthenticatedLayout>

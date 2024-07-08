@@ -17,7 +17,7 @@ const Card: React.FC<CardProps> = ({ children, variant = 'contained', className 
     );
 }
 
-export const Container = styled.div<PropsWithChildren>(() => {
+const Container = styled.div<PropsWithChildren>(() => {
     return {
         padding: '1.5rem',
         height: '100%',

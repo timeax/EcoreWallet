@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Currency;
 use App\Models\Generalsetting;
 use App\Models\Rate;
 use App\Models\Transaction;
@@ -111,20 +112,29 @@ class TradeController extends Controller
         return back()->with('success', 'Withdraw request has been submitted successfully.');
     }
 
-    public function history()
+    public function history(Request $request)
     {
-        $transactions = Transaction::with('currency')->get();
+        $transactions = Transaction::where(['user_id' => $request->user()->id])->with('currency')->get();
         return Inertia::render('Trade/History', compact('transactions'));
     }
 
-    public function swap_ui()
+    public function swap_ui(string $code = 'BTC')
     {
         $user = Auth::user();
         $wallets = $user->wallets()->with('curr')->get();
+        $rates = Rate::all();
+        $history = $user->transactions()->where(['type' => 'swap'])->get();
+
+        $currencies = Currency::all();
+
+        $wallet = $wallets->filter(function ($item) use ($code) {
+            return $item->curr->code === $code;
+        })->first();
+
         //------------
         $services = $this->cryptomus->payoutServices();
 
-        return Inertia::render('Trade/Withdraw', compact('wallets', 'wallet', 'services'));
+        return Inertia::render('Trade/Exchange', compact('wallets', 'wallet', 'history', 'currencies'));
     }
 
     public function exchange(Request $request)

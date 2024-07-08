@@ -10,15 +10,24 @@
 }
 
 .title {
-    color: $color-theme-emphasis;
-    font-weight: 600 !important;
-    font-size: 20px;
+    // color: $color-theme-emphasis;
+    font-weight: 500 !important;
+    font-size: 18px;
+    margin-bottom: 8px;
+
+    @include media('<=mobile') {
+        font-size: 15px;
+    }
 }
 
 .mini {
     color: $color-theme-text;
     font-weight: 500 !important;
     font-size: 14px !important;
+
+    @include media('<=mobile') {
+        color: $color-theme-button-text;
+    }
 }
 
 .nav {

@@ -1,0 +1,163 @@
+.pie {
+    --w: 150px;
+
+    width: var(--w);
+    aspect-ratio: 1;
+    position: relative;
+    display: flex;
+    // place-content: center;
+    // margin: 5px;
+    font-size: 25px;
+    font-weight: bold;
+    font-family: sans-serif;
+    div {
+        z-index: 1;
+    }
+}
+.pie:before {
+    content: "";
+    position: absolute;
+    z-index: 999;
+    border-radius: 50%;
+    inset: 0;
+    background: conic-gradient(var(--c) calc(var(--p) * 1%), #0000 0);
+    box-shadow: 1px 1rem 8rem var(--c);
+    -webkit-mask: radial-gradient(
+        farthest-side,
+        #0000 calc(99% - var(--b)),
+        #000 calc(100% - var(--b))
+    );
+    mask: radial-gradient(
+        farthest-side,
+        #0000 calc(99% - var(--b)),
+        #000 calc(100% - var(--b))
+    );
+}
+
+.history {
+    table {
+        width: 100%;
+        @include media("<=xs-tablet") {
+            display: none;
+        }
+    }
+
+    .history_mobile {
+        @include media(">xs-tablet") {
+            display: none;
+        }
+    }
+
+    tr:first-child {
+        td {
+            padding-top: 0;
+        }
+    }
+
+    td {
+        @include py(0.6rem);
+    }
+}
+
+.overlay {
+    :global {
+        #app-dashboard {
+            column-gap: 70px;
+
+            #{attr(classic-light)} {
+                width: 62%;
+                padding-top: 2.8rem;
+                @include media("<=xs-tablet") {
+                    width: 100%;
+                    padding-top: 0;
+                }
+            }
+
+            #{attr(classic-dark)} {
+               flex-grow: 1;
+            }
+
+            @include media("<=1185px") {
+                column-gap: 50px;
+            }
+
+            @include media("<=xs-tablet") {
+                column-gap: 0px;
+            }
+        }
+    }
+}
+
+.assets {
+    @include media("<=xs-tablet") {
+        display: none;
+    }
+}
+
+.total_container {
+    @include media("<=xs-tablet") {
+        display: none;
+    }
+}
+
+.total {
+    width: 33.3%;
+}
+
+.prices {
+    @include media("<=lg-mobile") {
+        padding: 0.8rem !important;
+    }
+
+    padding-bottom: 0px !important;
+    overflow-y: auto;
+}
+
+.price_element {
+    display: flex;
+    border-bottom: 1px solid $color-theme-bgContent;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    padding: 0.8rem 0;
+    img {
+        width: 40px;
+
+        @include media("<=mobile") {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    justify-content: space-between;
+
+    .price_area {
+        display: flex;
+        column-gap: 1rem;
+        align-items: center;
+        justify-content: center;
+
+        @include media("<=xs-tablet") {
+            flex-direction: column;
+            align-items: end;
+        }
+    }
+}
+
+.quickLinks {
+    @include media(">=xs-tablet") {
+        display: none;
+    }
+}
+
+.graph {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+
+    @include media(">=xs-mobile") {
+        @include px(1rem);
+    }
+}

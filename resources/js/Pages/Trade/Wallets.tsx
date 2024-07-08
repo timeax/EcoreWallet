@@ -9,30 +9,32 @@ import styles from '@styles/pages/wallets/wallets.module.scss';
 import WalletInfo from './Partials/WalletInfo';
 import { classNames } from 'primereact/utils';
 import ExtraInfo from './Partials/ExtraInfo';
+import { routeById } from '@routes/index';
+import { Title } from '@components/Trade';
+import Textfield from '@components/Input';
+import { Checkbox } from 'primereact/checkbox';
 
 const Wallets: React.FC<WalletsProps> = ({ auth, wallets }) => {
     //--- code here ---- //
     const [wallet, setWallet] = useState(wallets[0]);
+    const [checked, setChecked] = useState<boolean | undefined>(false);
+
     return (
         <AuthenticatedLayout user={auth.user}
-            header={[
-                {
-                    label: 'Wallets',
-                    template(item, options) {
-                        return <Link href={route('user.wallets')}>{item.label}</Link>
-                    },
-                }]
-            } title='Assets'>
-            <div>
-                <Text variant={'header'} className='!text-theme-emphasis !text-[24px]'>All Available Assets</Text>
-                <Text className='!text-theme-emphasis'>Ranked in order of popularity (24H view)s</Text>
-            </div>
-            <div className="grid grid-cols-9 mt-4 gap-x-6">
-                <div className='col-span-4'>
+            desc={'All available assets ranked in order of popularity (24H view)s'} title='Assets'>
+            <div className="mt-8 flex">
+                <div className='w-full'>
+                    <div className='flex gap-4'>
+                        <Textfield placeholder='Search All Wallets' />
+                        <div className="flex items-center gap-2">
+                            <Checkbox checked={checked as boolean} onChange={(e) => setChecked(e.checked)} />
+                            <Title noPad lg>Hide all zero values</Title>
+                        </div>
+                    </div>
                     <div className='flex gap-y-2 flex-col mt-4'>
                         <Card rounded={false} container='!py-1'>
                             <div className="flex w-full items-center">
-                                {['Name', 'Price', '24h Change'].map((item, i) => (
+                                {['Name', 'Price', '24h Change', ''].map((item, i) => (
                                     <div key={item} className={styles[`col-${i + 1}`]}>
                                         <Text variant={'other'} className='text-[11px] uppercase font-semibold'>{item}</Text>
                                     </div>
@@ -48,10 +50,17 @@ const Wallets: React.FC<WalletsProps> = ({ auth, wallets }) => {
                                             <NameTemplate key={item.id} {...item} />
                                         </div>
                                         <div className={styles['col-2']}>
-                                            <Text variant={'other'} className='text-[14px]'>$9000000000</Text>
+                                            <Text variant={'other'} className='text-[14px]'>${item.curr.rate}</Text>
                                         </div>
                                         <div className={styles['col-3']}>
                                             <Text variant={'other'} className='text-[14px]'>+20%</Text>
+                                        </div>
+                                        <div className={styles['col-4']}>
+                                            <div className="flex gap-2 bg-info-100 rounded-md p-2 w-fit px-3">
+                                                <Title bright className='hover:text-primary-400' noPad><Link href={route(routeById('fund').route, { wallet: item.curr.code })}>fund</Link></Title>
+                                                <Title className='!text-white' noPad brighter xl>|</Title>
+                                                <Title className='hover:text-warning-300' noPad><Link href={route(routeById('withdraw').route, { wallet: item.curr.code })}>withdraw</Link></Title>
+                                            </div>
                                         </div>
                                     </div>
                                 </Card>
@@ -59,12 +68,12 @@ const Wallets: React.FC<WalletsProps> = ({ auth, wallets }) => {
                         })}
                     </div>
                 </div>
-                <div className='col-span-5'>
+                {/* <div className='col-span-5'>
                     <div className='flex flex-col gap-4'>
-                        <WalletInfo wallet={wallet} />
                         <ExtraInfo wallet={wallet} />
+                        <WalletInfo wallet={wallet} />
                     </div>
-                </div>
+                </div> */}
             </div>
         </AuthenticatedLayout>
     );

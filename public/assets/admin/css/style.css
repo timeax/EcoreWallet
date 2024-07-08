@@ -630,10 +630,10 @@ select.form-control:not([size]):not([multiple]) {
     .card .card-header .btn {
       margin-top: 1px;
       padding: 2px 15px; }
-     
+
       .card .card-header .btn:hover {
         box-shadow: none; }
-  
+
       .card .card-header .form-control + .input-group-btn .btn {
         margin-top: -1px; }
     .card .card-header h4 {
@@ -1967,7 +1967,7 @@ body {
     padding: 0 2rem;
     background-color: #fafafa;
   }
-  
+
   .switch--box {
     width: 25rem;
     text-align: center;
@@ -1977,7 +1977,7 @@ body {
     background-color: #fafafa;
     box-shadow: 0 0.5rem 1.2rem rgba(15, 31, 77, 0.1);
   }
-  
+
   .cswitch {
     position: relative;
     display: inline-flex;
@@ -2030,7 +2030,7 @@ body {
   .cswitch:hover .cswitch--trigger {
     background-color: rgba(15, 31, 77, 0.2);
   }
-  
+
   .cswitch input:checked ~ .cswitch--trigger {
     box-shadow: 0 0 0.25rem 0 #6777ef inset;
     background-color: #6777ef;
@@ -2429,7 +2429,7 @@ pre {
 .section {
   position: relative;
   z-index: 1; }
- 
+
   .section .section-header {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
@@ -2883,7 +2883,7 @@ body.layout-3 .main-footer {
         float: right;
         padding: 1px 5px;
         margin-top: 6px;
-      
+
       }
       .main-sidebar .sidebar-menu li a i {
         width: 28px;
@@ -3125,7 +3125,7 @@ body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li.active ul.dropdown-men
     opacity: 0.0; } }
 
 @media screen and (max-width:767px) {
-  
+
   .main-content {
     padding-left: 16px;
     padding-right: 16px;
@@ -3375,4 +3375,14 @@ body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li.active ul.dropdown-men
 .gy-xxl-5 {
     --bs-gutter-y: 3rem;
   }
+}
+
+
+.background-select {
+    border: none;
+    outline: none;
+}
+
+.background-select:focus {
+    outline: none;
 }

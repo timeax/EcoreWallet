@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import colors from '@styles/utils/crypo_colors.module.scss';
 import Tag from '.';
 import styled from 'styled-components';
+import { showIf } from '@assets/fn';
 
 const keys = Object.keys(colors).map(key => key.split('__').join(' ').trim().toLowerCase());
 
@@ -17,17 +18,32 @@ const CryptoIcon: React.FC<CryptoIconProps> = ({ name: coin, shape = 'circle', l
     //---
     if (shape === 'circle') classes.push('rounded-full')
     if (shape === 'pill') classes.push('rounded-[999px]')
-    if (shape === 'smooth') classes.push('rounded')
+    if (shape === 'smooth') classes.push('rounded');
+
+    const [loaded, setLoaded] = useState<boolean>();
+    const ref = useRef<HTMLDivElement>();
+    useEffect(() => {
+        if (ref.current) {
+            const image = ref.current.querySelector('img');
+            if (image) setLoaded(image.complete);
+        }
+    })
 
     return (
-        <Coin className={classes.join(' ')} name={coin} {...props}>
-            {label}
+        <Coin tagRef={ref} loaded={loaded} className={classes.join(' ')} name={coin} {...props}>
+            {showIf(props.img, <img src={props.img} />)}
+            {showIf(!loaded, label)}
         </Coin>
     );
 }
 
-const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', height = '3rem', shape = 'circle', variant = 'contained', name }) => {
+const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', loaded, height = '3rem', shape = 'circle', variant = 'contained', name }) => {
     const color = getColor(name);
+
+    const img = {
+        background: 'none',
+        width: '100%'
+    }
 
     const contained = {
         background: color,
@@ -43,6 +59,8 @@ const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', height = '3rem', sha
         ...(variant === 'contained' ? contained : outlined),
         minWidth: width,
         height,
+        position: 'relative',
+        ...(loaded ? img : {}),
         ...(size ? { fontSize: size } : '')
     }
 });
@@ -54,6 +72,7 @@ interface DefProps {
     variant?: 'contained' | 'outlined';
     shape?: 'circle' | 'pill' | 'smooth' | 'sqaure';
     name: string;
+    img?: string;
 }
 
 interface CryptoIconProps extends DefProps {

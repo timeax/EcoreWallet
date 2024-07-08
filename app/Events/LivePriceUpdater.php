@@ -2,8 +2,12 @@
 
 namespace App\Events;
 
+use App\Models\HistoricalData;
+use App\Models\MarketData;
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -16,8 +20,10 @@ class LivePriceUpdater implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct()
-    {
+    public function __construct(
+        public string $type,
+        public array $data,
+    ) {
         //
     }
 
@@ -29,7 +35,7 @@ class LivePriceUpdater implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('updates'),
+            new Channel('live.crypto.price.updates'),
         ];
     }
 
@@ -41,9 +47,8 @@ class LivePriceUpdater implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'status' => '200',
-            'count' => randNum(),
-            'date' => now()->toString()
+            'type' => $this->type,
+            'data' => $this->data
         ];
     }
 }

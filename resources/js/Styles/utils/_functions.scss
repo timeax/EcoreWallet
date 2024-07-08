@@ -1,3 +1,7 @@
 @function prime($name) {
     @return "[data-pc-section=" $name + "]";
 }
+
+@function attr($name) {
+    @return "[data-section=" $name + "]";
+}

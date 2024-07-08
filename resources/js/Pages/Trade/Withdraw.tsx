@@ -11,6 +11,7 @@ import Select from '@components/Trade/Select';
 import { contentTemplate, menuTemplate } from './Deposit';
 import withdrawalForms from './Partials/WithdrawForms';
 import WithdrawForms from './Partials/WithdrawForms';
+import Note from '@components/Trade/Note';
 
 const Withdraw: React.FC<WithdrawProps> = ({ auth, wallets, wallet: code, services }) => {
     //--- code here ---- //
@@ -39,18 +40,10 @@ const Withdraw: React.FC<WithdrawProps> = ({ auth, wallets, wallet: code, servic
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={[
-                {
-                    label: 'Withrawal',
-                    template(item) {
-                        return <Link href={routeById('withraw').route}>{item.label}</Link>
-                    },
-                }
-            ]}
+            desc='Withdraw or send cryptocurrency to personal account'
             title='Withdrawal'>
             <div>
-                <Title normal noPad xl>Withdraw or send cryptocurrency to personal account</Title>
-                <div className="mt-5 grid gap-8 grid-cols-9">
+                <div className="mt-8 grid gap-20 grid-cols-9">
                     <div className="col-span-5">
                         <div className="flex flex-col gap-6">
                             <div className="flex flex-col gap-4">
@@ -97,17 +90,13 @@ const Withdraw: React.FC<WithdrawProps> = ({ auth, wallets, wallet: code, servic
                             </div>
 
 
-                            <Card className='mt-10'>
-                                <Text variant={'other'} size='50px' className='text-danger mb-4'><PiSealWarningFill /></Text>
+                            <Note title='Take Note!' lg variant='warning'>
                                 <Title noPad lg bright normal>Ecorewallet will never request you to withdraw funds to a third party account. If you are doing this because you have received a suspicious email or SMS, please contact our support team.</Title>
-                            </Card>
+                            </Note>
                         </div>
                     </div>
                     <div className="col-span-4">
-                        <div className='mb-4'>
-                            <Title xl medium>Make Request</Title>
-                        </div>
-                        <Card>
+                        <Card rounded={false}>
                             {channel ? (
                                 <div className="flex flex-col">
                                     {/**@ts-ignore */}

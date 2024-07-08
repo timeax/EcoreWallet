@@ -29,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({ id,
         bgHover: cfx.hover,
         bgColor: cfx.value,
         //@ts-ignore
-        color: color ? color : variant === 'none' ? colors.focus : cfx.text,
+        color: color ? color : (variant === 'none') ? colors.focus : cfx.text,
         hColor: cfx.text,
         iconStyle,
         effects: variant === 'none',
@@ -70,7 +70,7 @@ const Button: React.FC<ButtonProps> = ({ id,
                 bgHover={styleProps.bgHover}
                 className={icoClass + ' ' + styles['icon-' + iconStyle]}
                 //@ts-ignore
-                color={iconStyle === 'none' ? styleProps.color : colors.color}
+                color={styleProps.color}
                 hColor={styleProps.hColor}
                 iconStyle={iconStyle}
                 size={iconSize}

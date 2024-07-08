@@ -44,7 +44,7 @@
     @if $type == "down" {
         border-left: #{$size} solid transparent;
         border-right: #{$size} solid transparent;
-        border-top: #{$size} solid #{$black};
+        border-top: #{$size} solid #{$color};
     }
 
     @if $type == "left" {
@@ -69,5 +69,26 @@
 
     @if $height != null {
         height: $height;
+    }
+}
+
+@mixin section($a: 70%) {
+    .classic-light {
+        // background-color: $color-theme-bgColor;
+        width: $a;
+    }
+}
+
+@mixin sectiong($a: 70%) {
+    :global {
+        .classic-light {
+            // background-color: $color-theme-bgColor;
+            width: $a;
+        }
+
+        .classic-dark {
+            // background-color: $color-theme-bgContent;
+            flex-grow: 1;
+        }
     }
 }

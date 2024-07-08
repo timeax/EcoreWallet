@@ -54,20 +54,10 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={[
-                {
-                    label: 'Crypto Deposits',
-                    template(item, options) {
-                        return <Link href={routeById('fund').route}>{item.label}</Link>
-                    },
-                }
-            ]}
+            desc='Add Crypto to your Ecorewallet account!'
             title='Fund Account'>
-            <div className="grid grid-cols-9 gap-12">
+            <div className="grid mt-8 grid-cols-9 gap-12">
                 <div className="col-span-6">
-                    <Title noPad xl medium>Deposit</Title>
-                    <Text className='!font-medium mb-6'>Add Crypto to your Ecorewallet account!</Text>
-
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-3">
                             <Title medium bright>

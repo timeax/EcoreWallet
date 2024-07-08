@@ -53,7 +53,7 @@ export type Transactions = Array<{
     remark: string;
     ref: string;
     details: string | null;
-    status: 'pending' | 'success';
+    status: 'pending' | 'success' | 'failed' | '';
     type: '+' | '-';
     created_at: string;
     updated_at: any;

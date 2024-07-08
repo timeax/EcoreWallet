@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CryptomusWebhookController;
+use App\Http\Controllers\DataController;
 use App\Http\Middleware\EnsureValidWebhook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,8 +17,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
 });
 
 
@@ -45,3 +45,7 @@ Route::post('/webhooks', function (Cryptomus $cryptomus) {
 
     return compact('stats');
 })->name('api.webhook');
+
+Route::get('/rates', [DataController::class, 'rates'])->name('data.rates');
+Route::get('/market', [DataController::class, 'market'])->name('data.market');
+Route::get('/historical/{id}/{range?}', [DataController::class, 'historical'])->name('data.historical');

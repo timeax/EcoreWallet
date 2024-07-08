@@ -1,0 +1,38 @@
+.actions {
+    display: flex;
+    margin-top: auto;
+
+    a {
+        color: rgb(216, 216, 216);
+        font-size: 15px;
+    }
+
+    @include media("<=xs-tablet") {
+        display: none;
+    }
+}
+
+.acct {
+    color: rgb(223, 223, 223);
+    @include media("<=xs-tablet") {
+        span {
+            display: none;
+        }
+    }
+
+    @include media("<=2xs-mobile") {
+        display: none;
+    }
+}
+
+.balance {
+    color: white;
+}
+
+.main {
+    background-color: $color-primary-900;
+
+    #{attr(card-title)} {
+        color: rgb(216, 216, 216);
+    }
+}

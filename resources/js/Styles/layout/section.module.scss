@@ -1,0 +1,14 @@
+.default {
+    @include sectiong();
+}
+
+.main {
+    position: relative;
+
+    :global {
+        .classic-dark {
+            // background-color: $color-theme-bgContent;
+            flex-grow: 1;
+        }
+    }
+}

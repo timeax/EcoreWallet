@@ -11,7 +11,7 @@ class Wallet extends Model
     use HasFactory;
     protected $guarded = [];
 
-    protected $appends = ['all_balance'];
+    protected $appends = ['all_balance', 'transactions'];
 
     public function curr()
     {
@@ -26,6 +26,16 @@ class Wallet extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function transactions(): Attribute
+    {
+        $curr = $this->curr->id;
+        $all = $this->user->transactions();
+
+        return new Attribute(
+            get: fn() => $all->where(['currency_id' => $curr])->get()
+        );
     }
 
     protected function allBalance(): Attribute

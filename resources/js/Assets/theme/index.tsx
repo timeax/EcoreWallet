@@ -5,6 +5,23 @@ import carousel from "./carousel";
 import button from "./button";
 import { classNames } from "primereact/utils";
 import tab from '@styles/components/tabview.module.scss'
+import dashboard from '@styles/pages/dashboard.module.scss';
+
+
+export function classList(options: any = {}): string[] {
+    const data: string[] = options
+        .props
+        ?.className
+        ?.split?.(' ')
+        .map(item => item.trim())
+        .filter(item => item) || [];
+
+    return {
+        has(key: string) {
+            return data.includes(key)
+        }
+    }
+}
 
 const AppTheme: PrimeReactPTOptions = {
     carousel,
@@ -15,21 +32,39 @@ const AppTheme: PrimeReactPTOptions = {
 
     tabview: {
         nav(options) {
-            return 'flex relative mb-2'
+            const list = classList(options);
+            return classNames('flex relative mb-2', {
+                [dashboard.nav]: list.has('db-classic')
+            })
         },
 
         inkbar(options) {
-            return tab.inkbar
+            const list = classList(options);
+            let isDashboard = list.has('db-classic');
+            //-------
+            return classNames({
+                [dashboard.inkbar]: isDashboard,
+                [tab.inkbar]: !isDashboard
+            })
         },
     },
 
     tabpanel: {
         headerAction(options) {
-            return tab.tabLink
+            const list = classList(options);
+            const active = options.tabpanel?.context?.active;
+
+            return classNames(tab.tabLink, {
+                [dashboard.tabLink]: list.has('db-classic'),
+                [dashboard.active]: active && list.has('db-classic')
+            })
         },
 
         header(options) {
-            return tab.tab
+            const list = classList(options);
+            return classNames(tab.tab, {
+                [dashboard.tab]: list.has('db-classic')
+            })
         },
     },
 
@@ -50,7 +85,7 @@ const AppTheme: PrimeReactPTOptions = {
         root: function root(_ref13) {
             var state = _ref13.state;
             return {
-                className: classNames('rounded-lg shadow-lg border-0', 'max-h-[90%] transform scale-100', 'm-0 w-[50vw]', 'dark:border dark:border-blue-900/40', {
+                className: classNames('rounded-lg shadow-lg border-0 flex flex-col', 'max-h-[90%] transform scale-100', 'm-0 w-[50vw]', 'dark:border dark:border-blue-900/40', {
                     'transition-none transform-none !w-screen !h-screen !max-h-full !top-0 !left-0': state.maximized
                 })
             };
@@ -69,7 +104,7 @@ const AppTheme: PrimeReactPTOptions = {
             var props = _ref14.props,
                 state = _ref14.state;
             return {
-                className: classNames('overflow-y-auto', 'bg-theme-bgColor px-6 pb-8 pt-0', {
+                className: classNames('overflow-y-auto grow', 'bg-theme-bgColor px-6 pb-8 pt-0', {
                     'rounded-bl-lg rounded-br-lg': !props.footer
                 }, {
                     grow: state.maximized
@@ -121,9 +156,50 @@ const AppTheme: PrimeReactPTOptions = {
         }
     },
 
-    toast: Tailwind.toast,
+    toast: {
+        root: {
+          className: classNames('w-96', 'opacity-90')
+        },
+        message: function message(_ref23) {
+          var state = _ref23.state,
+            index = _ref23.index;
+          return {
+            className: classNames('my-4 rounded-md w-full', {
+              'bg-info-100 border-solid border-0 border-l-4 border-blue-500 text-blue-700': state.messages[index] && state.messages[index].message.severity == 'info',
+              'bg-greensuccess-100 border-solid border-0 border-l-4 border-green-500 text-green-700': state.messages[index] && state.messages[index].message.severity == 'success',
+              'bg-warning-100 border-solid border-0 border-l-4 border-orange-500 text-orange-700': state.messages[index] && state.messages[index].message.severity == 'warn',
+              'bg-danger-100 border-solid border-0 border-l-4 border-red-500 text-red-700': state.messages[index] && state.messages[index].message.severity == 'error'
+            })
+          };
+        },
+        content: 'flex items-center py-5 px-7',
+        icon: {
+          className: classNames('w-6 h-6', 'text-lg mr-2')
+        },
+        text: 'text-sm font-light flex flex-col flex-1 grow shrink ml-4',
+        summary: 'font-medium block',
+        detail: 'mt-1 block',
+        closeButton: {
+          className: classNames('w-8 h-8 rounded-full bg-transparent transition duration-200 ease-in-out', 'ml-auto overflow-hidden relative', 'flex items-center justify-center', 'hover:bg-white/30')
+        },
+        transition: {
+          timeout: {
+            enter: 300,
+            exit: 1000
+          },
+          classNames: {
+            enter: 'opacity-0 max-h-0 translate-x-0 translate-y-2/4 translate-z-0',
+            enterActive: '!max-h-40 !opacity-90 !translate-y-0 transition-transform transition-opacity duration-300',
+            exit: 'max-h-40 opacity-90',
+            exitActive: '!max-h-0 !opacity-0 !mb-0 overflow-hidden transition-all duration-1000 ease-in'
+          }
+        }
+      },
     message: Tailwind.message,
-    messages: Tailwind.messages
+    messages: Tailwind.messages,
+    avatar: Tailwind.avatar,
+    checkbox: Tailwind.checkbox,
+    toolbar: Tailwind.toolbar
 }
 
 export default AppTheme;

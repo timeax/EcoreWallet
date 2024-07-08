@@ -11,11 +11,11 @@ const WalletChart: React.FC<ChartProps> = ({ wallet }) => {
     const [data, setChartData] = useState({});
     const [options, setChartOptions] = useState({});
 
-    const [time, setTime] = useState('past hour')
+    const [time, setTime] = useState('today')
 
     useEffect(() => {
         const data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            labels: ['January', 'February', 'March', '1', 'May', 'June', 'July'],
             datasets: [
                 {
                     label: 'First Dataset',
@@ -60,8 +60,8 @@ const WalletChart: React.FC<ChartProps> = ({ wallet }) => {
             </div>
             <Chart
                 type="line"
-                width="100%"
-                height="300px"
+                width="50%"
+                height="50px"
                 data={data}
                 options={options}
             />
@@ -69,12 +69,12 @@ const WalletChart: React.FC<ChartProps> = ({ wallet }) => {
     );
 }
 
-const Btn: React.FC<BtnProps> = ({ onSelect, className, value = '1H' }) => {
+const Btn: React.FC<BtnProps> = ({ onSelect, className, value }) => {
     const options = [
-        { label: '1H', value: 'past hour' },
         { label: '1D', value: 'today' },
         { label: '1W', value: 'past week' },
-        { label: '1M', value: 'past month' }
+        { label: '1M', value: 'past month' },
+        { label: '1Y', value: 'past year' }
     ];
 
     return <SelectButton className='mr-4' value={value} onChange={(e) => onSelect(e.value)} options={options} />

@@ -1,6 +1,6 @@
 import { User } from '@typings/index';
 import { Head } from '@inertiajs/react';
-import React, { PropsWithChildren, createContext, useContext, useRef, useState } from 'react';
+import React, { PropsWithChildren, createContext, useContext, useEffect, useRef, useState } from 'react';
 import Echo from 'laravel-echo';
 import icon from '@assets/images/ecore-favi.ico'
 import { Toast, ToastMessageOptions } from 'primereact/toast';
@@ -32,6 +32,9 @@ interface Events {
     }>;
 
     cryptoUpdates: Event<'live.updates.crypto', string[]>
+
+    rates: Event<'live.updates.rate', { from: string, to: string, course: string }[]>
+
     liveChat: Event<'live.chat', {
         name: string;
         message: {
@@ -71,21 +74,12 @@ export function useWrapper() {
                 }
 
                 case 'cryptoUpdates': {
-                    echo?.channel(`updates`).listen('.LivePriceUpdater', (e: Events['cryptoUpdates']['data']) => {
-                        if (callback) {
-                            //@ts-ignore
-                            callback({
-                                event: 'live.updates.crypto',
-                                data: e
-                            });
-                        }
-                    });
 
                     break;
                 }
 
-                case 'liveChat': {
-                    echo?.private(`live.chats.`)
+                case 'rates': {
+
                 }
             }
         },
@@ -115,10 +109,9 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         // console.log(echo)
     }
 
-
     const toast = useRef<{ show(props: any): void }>(null);
 
-    const notify = (props: ToastMessageOptions, isMessage?: boolean) => {
+    const notify = (props: ToastMessageOptions | ToastMessageOptions[]) => {
         toast.current?.show(props);
     }
 
@@ -151,7 +144,7 @@ interface AuthenticatedContextProps {
     user: User;
     echo?: Echo;
     config: Array<Store>;
-    notify(props: ToastMessageOptions, msg?: boolean): void
+    notify(props: ToastMessageOptions): void
 }
 
 interface Store {

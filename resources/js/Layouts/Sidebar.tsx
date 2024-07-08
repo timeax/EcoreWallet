@@ -26,20 +26,6 @@ const Sidebar: React.FC<SidebarProps> = () => {
                 })}
 
             </div>
-            <div className='my-4'>
-                <Dropdown onSelect={(value) => {
-                    window.axios.post(route('api.webhook'))
-                }}>
-                    <Dropdown.Trigger>
-                        <Button size='sm' variant='outlined' bgColor='success'>{user.email}</Button>
-                    </Dropdown.Trigger>
-                    <Dropdown.Content>
-                        <Dropdown.Link value='paid'>Paid</Dropdown.Link>
-                        <Dropdown.Link value='process'>Process</Dropdown.Link>
-                        <Dropdown.Link value='failed'>Failed</Dropdown.Link>
-                    </Dropdown.Content>
-                </Dropdown>
-            </div>
         </div>
     );
 }

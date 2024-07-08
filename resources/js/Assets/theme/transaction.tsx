@@ -12,6 +12,7 @@ export const styles: DataTablePassThroughOptions = {
     table(options) {
         return css.main
     },
+
     //@ts-ignore
     headerContent: 'flex',
     paginator: {

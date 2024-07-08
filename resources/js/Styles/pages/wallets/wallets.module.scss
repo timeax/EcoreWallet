@@ -1,13 +1,18 @@
 .col-1 {
-    flex-basis: 45%;
+    flex-basis: 30%;
 }
 
 .col-2 {
-    flex-basis: 27.5%;
+    flex-basis: 23.3%;
 }
 
 .col-3 {
-    flex-basis: 27.5%;
+    flex-basis: 23.3%;
+    @include px(1rem)
+}
+
+.col-4 {
+    flex-basis: 23.3%;
     @include px(1rem)
 }
 

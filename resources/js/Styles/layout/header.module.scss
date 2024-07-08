@@ -1,0 +1,71 @@
+:global {
+    header {
+        min-height: $header-height;
+        padding-top: $header-pt;
+        display: flex;
+        align-items: center;
+        margin-right: $main-pl;
+
+        @include media("<=xs-tablet") {
+            padding: 0;
+            min-height: 5rem;
+            margin-right: 6px;
+        }
+
+        #{attr(classic-light)} {
+            display: flex;
+            align-items: center;
+        }
+    }
+}
+
+.titlebar {
+    display: flex;
+    @include media("<=xs-tablet") {
+        span {
+            position: relative;
+            font-size: 18px;
+            &::after {
+                content: ' ';
+                border: 3px solid $color-primary-800;
+                width: 2rem;
+                position: absolute;
+                top: 105%;
+                border-radius: 10px;
+            }
+        }
+    }
+}
+
+.nav {
+    @include media(">xs-tablet") {
+        justify-content: space-between;
+    }
+
+    @include media("<=xs-tablet") {
+        margin-left: auto;
+    }
+}
+
+@include media("<=xs-tablet") {
+    .desc,
+    .avatarText,
+    .themeBtn {
+        display: none;
+    }
+
+    .search {
+        margin-right: 10%;
+    }
+}
+
+.headernav {
+    #{attr(classic-dark)} {
+        width: 412px;
+        margin-left: auto;
+
+        @include media("<=xs-tablet") {
+            width: auto;
+        }
+    }
+}

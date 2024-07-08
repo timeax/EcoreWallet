@@ -10,6 +10,7 @@ window.axios = axios;
 
 window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
+
 const SUPPRESSED_WARNINGS = [
     'If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase',
     'If you want to write it to the DOM, pass a string instead:',

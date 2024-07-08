@@ -2,6 +2,13 @@ import Colors from "../colors";
 
 export type ColorNames = keyof typeof Colors;
 
+interface Theming {
+    name: ColorNames,
+    theme: {
+
+    }
+}
+
 export type Color =
     | `rgb(var(--color-${ColorNames}))`
     | `rgb(var(--color-${ColorNames}-${string | number}))`
@@ -76,6 +83,24 @@ function color<T extends ColorType>(
     }
 }
 
+function hijack(name: ColorNames, type: ColorType, effect?: keyof ColorEffects, weight?: string | number, opactiy?: string | number): Color {
+    if (type == 'text') {
+        if (name == 'theme') {
+            if (effect == 'text') return `rgb(var(--color-theme-button-text))`
+            if (effect == 'hover') return `rgb(var(--color-theme-icons))`
+            if (effect == 'focus') return `rgb(var(--color-theme-emphasis))`
+        }
+    }
+
+    if (type === 'background') {
+        if (name == 'theme') {
+            if (!effect) return 'rgb(var(--color-theme-bgColor) / .7)';
+            if (effect == 'hover') return 'rgb(var(--color-theme-bgColor))'
+        }
+    }
+    return create(name, weight, opactiy);
+}
+
 function create(color: ColorNames, weight?: string | number, opacity?: number | string): Color {
     const percent = opacity ? ' / ' + opacity : '';
     //@ts-ignore
@@ -133,17 +158,22 @@ function bgColor(name: ColorNames, weights: ColorWeight = {}, opacity: Opacity =
     const dw = bg(name);
     const { normal = dw.normal, visited = dw.visited, focus = dw.focus, hover = dw.hover, disabled = dw.disabled } = weights;
     const { normal: oNormal, visited: oVisited, focus: oFocus, hover: oHover, disabled: oDisabled } = opacity;
-    const base = create(name, normal, oNormal);
+    const base = hijack(name, 'background', undefined, normal, oNormal);
     return {
         color: base,
         effects() {
             return {
                 value: base,
-                visited: create(name, visited, oVisited),
-                focus: create(name, focus, oFocus),
-                hover: create(name, hover, oHover),
-                disabled: create(name, disabled, oDisabled),
-                text: create(name, name == 'theme' ? undefined : 200)
+                visited: hijack(name, 'background', 'visited', visited, oVisited),
+                focus: hijack(name, 'background', 'focus', focus, oFocus),
+                hover: hijack(name, 'background', 'hover', hover, oHover),
+                disabled: hijack(name, 'background', 'disabled', disabled, oDisabled),
+                //-------
+                focusColor: hijack(name, 'text', 'focus', disabled, oDisabled),
+                visitedColor: hijack(name, 'text', 'visited', disabled, oDisabled),
+                hoverColor: hijack(name, 'text', 'hover', disabled, oDisabled),
+                disabledColor: hijack(name, 'text', 'disabled', disabled, oDisabled),
+                text: hijack(name, 'text', 'text', name == 'theme' ? undefined : 200)
             }
         },
     }
