@@ -109,6 +109,8 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         // console.log(echo)
     }
 
+    console.log(props)
+
     const toast = useRef<{ show(props: any): void }>(null);
 
     const notify = (props: ToastMessageOptions | ToastMessageOptions[]) => {

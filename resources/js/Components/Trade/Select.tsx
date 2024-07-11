@@ -9,13 +9,14 @@ import { create } from '@assets/fn/create-color';
 
 function Select<R = any>(props: SelectProps<R>) {
     const [selected, setSelected] = useState<R | undefined>(props.value);
+    const [state, setState] = useState(props.value);
 
     const button = useRef<HTMLButtonElement>();
     useEffect(() => {
         //@ts-ignore
         if (props.value?.[props.unique] === selected?.[props.unique]) return;
         if (props.value) setSelected(props.value);
-    }, [props.value]);
+    }, [state]);
 
     return (
         <Container outlined={props.outlined} container={props.container} className={props.className}>
@@ -77,7 +78,7 @@ export interface SelectProps<T = any> extends AppElement {
     items: T[];
     quick?: boolean;
     placeholder?: React.ReactNode
-    outlined?: boolean
+    outlined?: boolean;
     container?: string;
     trigger?: string;
 }

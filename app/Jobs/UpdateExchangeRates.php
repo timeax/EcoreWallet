@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Events\TradePriceUpdate;
 use App\Models\Currency;
+use App\Models\Exchange;
 use App\Models\Generalsetting;
 use App\Models\Rate;
 use Illuminate\Bus\Queueable;
@@ -22,7 +23,7 @@ class UpdateExchangeRates implements ShouldQueue
      */
     public function __construct()
     {
-        //
+        $this->onQueue('exchange-rates');
     }
 
     private function buildLink(string $code)
@@ -43,6 +44,9 @@ class UpdateExchangeRates implements ShouldQueue
             //---------
             if ($response->ok()) {
                 $data = json_encode($response['result']);
+
+                if (Exchange::where(['status' => 'pending'])->count() > 0)
+                    ExchangeLimitProcessor::dispatch(['id' => $curr->id, 'rates' => $data]);
 
                 $rates = Rate::where(['currency_id' => $curr->id])->first();
                 if ($rates) {

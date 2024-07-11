@@ -158,48 +158,62 @@ const AppTheme: PrimeReactPTOptions = {
 
     toast: {
         root: {
-          className: classNames('w-96', 'opacity-90')
+            className: classNames('w-96', 'opacity-90')
         },
         message: function message(_ref23) {
-          var state = _ref23.state,
-            index = _ref23.index;
-          return {
-            className: classNames('my-4 rounded-md w-full', {
-              'bg-info-100 border-solid border-0 border-l-4 border-blue-500 text-blue-700': state.messages[index] && state.messages[index].message.severity == 'info',
-              'bg-greensuccess-100 border-solid border-0 border-l-4 border-green-500 text-green-700': state.messages[index] && state.messages[index].message.severity == 'success',
-              'bg-warning-100 border-solid border-0 border-l-4 border-orange-500 text-orange-700': state.messages[index] && state.messages[index].message.severity == 'warn',
-              'bg-danger-100 border-solid border-0 border-l-4 border-red-500 text-red-700': state.messages[index] && state.messages[index].message.severity == 'error'
-            })
-          };
+            var state = _ref23.state,
+                index = _ref23.index;
+            return {
+                className: classNames('my-4 rounded-md w-full', {
+                    'bg-info-100 border-solid border-0 border-l-4 border-blue-500 text-blue-700': state.messages[index] && state.messages[index].message.severity == 'info',
+                    'bg-greensuccess-100 border-solid border-0 border-l-4 border-green-500 text-green-700': state.messages[index] && state.messages[index].message.severity == 'success',
+                    'bg-warning-100 border-solid border-0 border-l-4 border-orange-500 text-orange-700': state.messages[index] && state.messages[index].message.severity == 'warn',
+                    'bg-danger-100 border-solid border-0 border-l-4 border-red-500 text-red-700': state.messages[index] && state.messages[index].message.severity == 'error'
+                })
+            };
         },
         content: 'flex items-center py-5 px-7',
         icon: {
-          className: classNames('w-6 h-6', 'text-lg mr-2')
+            className: classNames('w-6 h-6', 'text-lg mr-2')
         },
         text: 'text-sm font-light flex flex-col flex-1 grow shrink ml-4',
         summary: 'font-medium block',
         detail: 'mt-1 block',
         closeButton: {
-          className: classNames('w-8 h-8 rounded-full bg-transparent transition duration-200 ease-in-out', 'ml-auto overflow-hidden relative', 'flex items-center justify-center', 'hover:bg-white/30')
+            className: classNames('w-8 h-8 rounded-full bg-transparent transition duration-200 ease-in-out', 'ml-auto overflow-hidden relative', 'flex items-center justify-center', 'hover:bg-white/30')
         },
         transition: {
-          timeout: {
-            enter: 300,
-            exit: 1000
-          },
-          classNames: {
-            enter: 'opacity-0 max-h-0 translate-x-0 translate-y-2/4 translate-z-0',
-            enterActive: '!max-h-40 !opacity-90 !translate-y-0 transition-transform transition-opacity duration-300',
-            exit: 'max-h-40 opacity-90',
-            exitActive: '!max-h-0 !opacity-0 !mb-0 overflow-hidden transition-all duration-1000 ease-in'
-          }
+            timeout: {
+                enter: 300,
+                exit: 1000
+            },
+            classNames: {
+                enter: 'opacity-0 max-h-0 translate-x-0 translate-y-2/4 translate-z-0',
+                enterActive: '!max-h-40 !opacity-90 !translate-y-0 transition-transform transition-opacity duration-300',
+                exit: 'max-h-40 opacity-90',
+                exitActive: '!max-h-0 !opacity-0 !mb-0 overflow-hidden transition-all duration-1000 ease-in'
+            }
         }
-      },
-    message: Tailwind.message,
+    },
+    message: {
+        root: function root(_ref22) {
+            var props = _ref22.props;
+            return {
+                className: classNames('inline-flex items-center justify-center align-top', 'p-2 m-0 rounded-md', {
+                    'bg-info-100 border-0 text-info-700': props.severity == 'info',
+                    'bg-success-100 border-0 text-success-700': props.severity == 'success',
+                    'bg-warning-100 border-0 text-warning-700': props.severity == 'warn',
+                    'bg-danger-100 border-0 text-danger-700': props.severity == 'error'
+                })
+            };
+        },
+        icon: 'text-base mr-2'
+    },
     messages: Tailwind.messages,
     avatar: Tailwind.avatar,
     checkbox: Tailwind.checkbox,
-    toolbar: Tailwind.toolbar
+    toolbar: Tailwind.toolbar,
+    progressspinner: Tailwind.progressspinner
 }
 
 export default AppTheme;

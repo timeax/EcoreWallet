@@ -1,15 +1,10 @@
-import { Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
-import { routeById } from '@routes/index';
-import { AddressState, Addresses, CryptomusService, PageProps, Wallet, Wallets } from '@typings/index';
+import { Addresses, CryptomusService, PageProps, Wallet, Wallets } from '@typings/index';
 import React, { useEffect, useState } from 'react';
 import { Title } from '@components/Trade';
 import Card from '@components/Card';
-import Text from '@components/Text';
-import { PiSealWarningFill } from 'react-icons/pi';
 import Select from '@components/Trade/Select';
 import { contentTemplate, menuTemplate } from './Deposit';
-import withdrawalForms from './Partials/WithdrawForms';
 import WithdrawForms from './Partials/WithdrawForms';
 import Note from '@components/Trade/Note';
 

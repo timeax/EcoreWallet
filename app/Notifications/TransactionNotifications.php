@@ -23,12 +23,7 @@ class TransactionNotifications extends Notification
 
         $isArray = is_array($transaction);
 
-        $this->data = [
-            'remark' => $isArray ? $transaction['remark'] : $transaction->remark,
-            'type' => $isArray ? $transaction['type'] : $transaction->type,
-            'amount' => !$isArray ? $transaction->amount : $transaction['amount'],
-            'ref' => !$isArray ? $transaction->ref : $transaction['ref']
-        ];
+        $this->data = $isArray ? $transaction : $transaction->toArray();
     }
 
     /**

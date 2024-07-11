@@ -40,8 +40,9 @@ interface LiveData {
     setHistoricalRange?: (id: string) => void;
     currencies?: Currencies;
     balance: Balance;
-    convert(from: string | number, to: string, amount: number | string, round?: number): number;
-    getRate(from: string, to: string): number
+    convert(from: string, to: string, amount: number | string, round?: number, fee?: number): number;
+    getRate(from: string, to: string, fee?: number): number
+    change(amount: number, rate: number, round?: number): number
 }
 
 interface Balance {
@@ -224,6 +225,43 @@ const LiveFeed: React.FC<LiveContextProviderProps> = ({ range = '1d', historical
 
     }, []);
 
+    const getRate: LiveData['getRate'] = (from, to, fee = 0) => {
+        let curr = currencies?.find(item => {
+            if (typeof from == 'number') return item.id === (from + '');
+            return item.code == from;
+        });
+
+        if (curr) {
+            if (rates) {
+                const rate = rates.find(item => item.id == curr.id)?.data.find(item => item.to == to);
+                if (rate) {
+                    const value = Calc.round(rate.course, 8);
+                    if (fee == 0) return value;
+                    //------
+                    let charges = Calc.times(Calc.divide(fee, 100), value);
+                    //--------
+                    return Calc.round(Calc.minus(value, charges), 8);
+                }
+            }
+        } else throw Error('Conversion Failed')
+
+        return 0;
+    }
+
+    const convert: LiveData['convert'] = (from, to, amount, round = 8, fee = 0) => {
+        const rate = getRate(from, to, fee)
+
+        if (rate) {
+            return Calc.round(Calc.times(rate, amount), round)
+        }
+
+        return Calc.round(amount, round)
+    }
+
+    const change: LiveData['change'] = (amount, rate, round = 8) => {
+        return Calc.round(Calc.times(rate, amount), round)
+    }
+
 
     return (
         <Context.Provider value={{
@@ -232,41 +270,12 @@ const LiveFeed: React.FC<LiveContextProviderProps> = ({ range = '1d', historical
             historicalData,
             setHistoricalId: (id) => setId(id as any),
             setHistoricalRange: (range) => setRange(range as any),
+            change,
             currencies,
             //@ts-ignore
             balance,
-            convert(from, to, amount, round = 8) {
-                let curr = currencies?.find(item => {
-                    if (typeof from == 'number') return item.id === (from + '');
-                    return item.code == from;
-                });
-
-                if (curr) {
-                    if (rates) {
-                        const rate = rates.find(item => item.id == curr.id)?.data.find(item => item.to == to);
-                        if (rate) {
-                            return Calc.round(Calc.times(rate.course, amount), round)
-                        }
-                    }
-                } else throw Error('Conversion Failed')
-
-                return Calc.round(amount, round)
-            },
-            getRate(from, to) {
-                let curr = currencies?.find(item => {
-                    if (typeof from == 'number') return item.id === (from + '');
-                    return item.code == from;
-                });
-
-                if (curr) {
-                    if (rates) {
-                        const rate = rates.find(item => item.id == curr.id)?.data.find(item => item.to == to);
-                        if (rate) return Calc.round(rate.course, 8);
-                    }
-                } else throw Error('Conversion Failed')
-
-                return 0;
-            },
+            convert,
+            getRate,
         }}>
             {children}
         </Context.Provider>

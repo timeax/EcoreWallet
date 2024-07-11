@@ -35,10 +35,12 @@ const StyledTag = styled.div
         return { ...cssProps, ...sx }
     });
 
-type TT = JSXElementConstructor<{}> | keyof React.JSX.IntrinsicElements;
+
+type TT = JSXElementConstructor<any> | keyof React.JSX.IntrinsicElements;
 
 //@ts-ignore
 function Tag<T extends TT>(args: TagProps<{ element?: T }> & StyledProps & { [x: string]: any }) {
+    //@ts-ignore
     const { element = 'div', sx, tagRef, ...props } = args;
     //@ts-ignore--- code here ---- //
     return <StyledTag sx={sx} as={element} {...(tagRef ? { ref: tagRef } : {})}  {...props} />;

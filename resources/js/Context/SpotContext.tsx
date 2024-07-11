@@ -24,12 +24,35 @@ const SpotProvider: React.FC<SpotProviderProps> = ({ children, ...values }) => {
         amount: 0,
     });
 
+    const [data, setData] = useState({});
+
+    const addData = (key: any, value?: any) => {
+        if (typeof key == 'string') return setData((data) => ({ ...data, [key]: value }));
+        if (typeof key == 'function') return setData((data) => key(data));
+        setData(key);
+    }
+
+    const setAmount = (amount: number) => {
+        if (Number.isNaN(amount)) return;
+        set1(amount);
+        addData('amount', amount);
+    }
+
+    const setToAmount = (toAmount: number) => {
+        if (Number.isNaN(toAmount)) return;
+
+        set2(toAmount);
+        addData('toAmount', toAmount);
+    }
+
 
     const [last, setLast] = useState(values.wallet);
     return (
         <SpotContext.Provider value={{
-            rate,
-            processing, setProcessing, setTemp: setRaw, tempAmount: raw, setAmount: set1, amount, toAmount, setToAmount: set2, lastFocused: last, setLastFocused: setLast, ...values
+            rate, data,
+            //@ts-ignore
+            setData: addData,
+            processing, setProcessing, setTemp: setRaw, tempAmount: raw, setAmount, amount, toAmount, setToAmount, lastFocused: last, setLastFocused: setLast, ...values
         }}>
             <RateController setRate={setRate} />
             {children}
@@ -43,6 +66,11 @@ const RateController: FC<{ setRate(v: ExchangeContextProps['rate']): void }> = (
 
     useEffect(() => {
         if (processing) {
+            setRate({
+                from: getRate(wallet.curr.code, to.curr.code),
+                to: getRate(to.curr.code, wallet.curr.code)
+            })
+        } else {
             setRate({
                 from: getRate(wallet.curr.code, to.curr.code),
                 to: getRate(to.curr.code, wallet.curr.code)
@@ -82,7 +110,7 @@ interface ExchangeContextProps extends Props {
     tempAmount: {
         toAmount: number,
         amount: number,
-        limt?: number
+        limit?: number
     }
 
     setTemp(v: {
@@ -99,4 +127,7 @@ interface ExchangeContextProps extends Props {
         from: number;
         to: number
     }
+
+    data: { [x: string]: any };
+    setData(data: { [x: string]: any } | string | ((data: any) => any), value?: any): void;
 }

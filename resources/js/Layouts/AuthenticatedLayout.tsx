@@ -8,11 +8,11 @@ import { showIf } from '@assets/fn';
 import { Title } from '@components/Trade';
 import BottomBar from './BottomBar';
 
-export default function AuthenticatedLayout({ pusher = true, user, header, children, title, onSearch, desc ='' }: PropsWithChildren<Props>) {
+export default function AuthenticatedLayout({ pusher = true, user, header, children, title, onSearch, desc = '', ...props }: PropsWithChildren<Props>) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
-        <AuthenticatedProvider usePusher={pusher} user={user}>
+        <AuthenticatedProvider usePusher={pusher} user={user} {...props}>
             <div className="min-h-screen max-h-screen overflow-hidden">
                 <div className={styles.bottombar}>
                     <BottomBar />

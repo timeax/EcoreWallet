@@ -4,19 +4,14 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
-use App\Models\Generalsetting;
+use App\Models\Exchange;
 use App\Models\Rate;
 use App\Models\Transaction;
-use App\Models\User;
-use App\Models\Wallet;
 use App\Models\Withdrawals;
-use App\Notifications\TransactionNotifications;
 use Cryptomus;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Cryptomus\Api\Client;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use Inertia\Inertia;
 
 class TradeController extends Controller
 {
@@ -139,13 +134,101 @@ class TradeController extends Controller
 
     public function exchange(Request $request)
     {
-        //-- get the wallet codes for the exchange
+        $user = Auth::user();
+        //-------
+        $request->validate([
+            'from' => "required",
+            'to' => "required",
+            'amount' => ['required', 'numeric', 'min_digits:0.00000001'],
+            'type' => ['required'],
+            'expire' => ['required_if:type,limit'],
+            'limitRate' => ['required_if:type,limit'],
+            'rate' => 'required_if:type,instant',
+        ]);
+
+        $data = $request->validated();
+
+        $from = $user->wallets()
+            ->where(['currency_id' => $data['from']])
+            ->with('curr')->get();
+
+        $to = $user->wallets()
+            ->where(['currency_id' => $data['to']])
+            ->with('curr')->get();
+
+        if (!$from || !$to) return back()->with(['error' => 'Something went wrong, try again later']);
+        //-------
+        //---
+        $charge = @$from->curr->charges->exchange_charge ?? 0;
+        $chargeType = @$from->curr->charges->exchange_charge_type ?? '%';
+        $amount = (float) $data['amount'];
+        $fee = getFee($amount, $charge, $chargeType);
+        $loss = $amount + $fee;
+        //----
+        if ($from->all_balance->available < $loss) return back()->with([
+            'error' => 'Insufficient funds'
+        ]);
+        //-------
+        if ($data['type'] == 'instant') {
+            $rate = (float) $data['rate'];
+            //--------
+            $gain = $amount * $rate;
+            //----
+            $from->balance -= $loss;
+            $to->balance += $gain;
+            //--
+            if ($from->save() && $to->save()) {
+                Exchange::create([
+                    'user_id' => $user->id,
+                    'transaction_id' => uuid($user->id, 'exchange'),
+                    'type' => 'instant',
+                    'amount' => $amount,
+                    'charges' => $fee,
+                    'total' => $loss,
+                    'from' => $from->curr->id,
+                    'to' => $to->curr->id,
+                    'status' => 'success',
+                    'rate' => $rate
+                ]);
+            } else return back()->with(['error' => 'Something went wrong, try again later']);
+
+            return back()->with('success', 'Withdraw request has been submitted successfully.');
+        }
+
+        $rate = (float) $data['limitRate'];
+        $expire = $data['expire'];
+
+        //--------
+        $loss = $amount + $fee;
+
+        Exchange::create([
+            'user_id' => $user->id,
+            'transaction_id' => uuid($user->id, 'exchange'),
+            'type' => 'limit',
+            'amount' => $amount,
+            'charges' => $fee,
+            'total' => $loss,
+            'from' => $from->curr->id,
+            'to' => $to->curr->id,
+            'status' => 'pending',
+            'rate' => $rate,
+            'limit_rate' => $rate,
+            'expire_in' => toTime($expire)
+        ]);
+
+        return back()->with('success', 'Withdraw request has been submitted successfully.');
+    }
+}
+
+
+/**
+//-- get the wallet codes for the exchange
         $with = $request->get('exchangeWith');
         $walletCode = $request->get('wallet');
         //---------
         $amount = (float) $request->get('amount');
         //----------
-        if ($with && $walletCode) {
+if ($with && $walletCode) {
             $exchangeWallet = Wallet::where(['code' => $with], '=')->with('curr')->first();
             $wallet = Wallet::where(['code' => $walletCode], '=')->with('curr')->first();
 
@@ -216,5 +299,5 @@ class TradeController extends Controller
                 ])));
             }
         }
-    }
-}
+
+ */

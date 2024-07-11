@@ -58,6 +58,7 @@ Route::name('user.')->middleware('maintenance')->group(function () {
                     Route::get('/trades/withdraw/{wallet?}', [TradeController::class, 'withdrawal'])->name('withdraw');
                     Route::post('/trades/withdraw', [TradeController::class, 'withdraw'])->name('process.withdraw');
                     Route::get('/trades/swap/{wallet?}', [TradeController::class, 'swap_ui'])->name('swap');
+                    Route::post('/trades/swap', [TradeController::class, 'exchange'])->name('process.swap');
 
                     Route::name('trades.')->group(function () {
                         Route::get('/trades/spot/{type}/{wallet}', [TradeController::class, 'wallets'])->name('spot');
@@ -95,11 +96,7 @@ Route::name('user.')->middleware('maintenance')->group(function () {
 Route::get('/myadmin', function () {
     // $rate = Rate::where(['currency_id' => 1])->get();
 
-    UpdateCryptoPrices::dispatch('historical-data');
-
-    $arr = [];
-
-    $arr = Arr::add($arr, 'name', 'Timmy');
+    $arr = Auth::user()->wallets()->get();
 
     return response()->json($arr);
 });

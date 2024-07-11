@@ -28,6 +28,16 @@ function getPhoto($filename)
     }
 }
 
+function getFee($amount, $fee, $type = 'fixed')
+{
+    if ($type == 'fixed') $fee;
+    //------------
+    $amount = (float) $amount;
+    $fee = (float) $fee;
+    //--------
+    return ($fee / 100) * $amount;
+}
+
 function admin()
 {
     return auth()->guard('admin')->user();
@@ -176,6 +186,34 @@ function uuid($id, string $identifier = 'ref')
     $randStr = Str::random(4);
     //---
     return $randStr . $currentTime . $identifier . $id;
+}
+function getHours(string $sym)
+{
+    $sym = Str::lower($sym);
+
+    switch ($sym) {
+        case 'y':
+            return 365 * 24;
+        case 'm':
+            return 30 * 24;
+        case 'd':
+            return 24;
+        case 'w':
+            return 7 * 24;
+        default:
+            return 1;
+    }
+}
+function toTime(string $frame)
+{
+    preg_match('/(?<digit>\d+)(?<name>\w+[^\s]*)/', $frame, $matches);
+    if ($matches) {
+        $hours = getHours($matches['name']);
+        $count = ((int) $matches['digit'] ?? 1) * $hours;
+        $name = $count > 1 ? 'hours' : 'hour';
+        //--------
+        return strtotime("+$count $name");
+    }
 }
 
 function getStatusMessage(string $status, string $prefix)

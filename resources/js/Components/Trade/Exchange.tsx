@@ -13,13 +13,12 @@ import { FaArrowRightLong } from 'react-icons/fa6';
 import { useLive } from '@context/LiveContext';
 import { BsInfoCircleFill } from 'react-icons/bs';
 
-const Exchange: React.FC<ExchangeProps> = ({ order, onChange, exchange, title }) => {
-    const { currencies, wallet, wallets, to, type } = useSpot();
+const Exchange: React.FC<ExchangeProps> = ({ order, exchange, title }) => {
+    const { currencies, wallet, to, type } = useSpot();
     const notify = useNotify();
     //----------------
     useEffect(() => {
         if (to.id == wallet.id) {
-            console.log('yes')
             notify({
                 closable: true,
                 severity: 'error',
@@ -51,10 +50,7 @@ const Exchange: React.FC<ExchangeProps> = ({ order, onChange, exchange, title })
                     <Tag sx={{
                         width: '45px',
                         height: '45px',
-                        // background: 'rgb(var(--color-theme-bgColor))',
-                        // borderRadius: '50%',
                         fontSize: '30px',
-                        // border: '1px solid rgba(128, 128, 128, 0.295)',
                         zIndex: 99,
                         margin: 'auto'
                     }} className='flex text-theme/55 items-center justify-center'>{showIf(exchange, <CgArrowsExchangeV />, <FaArrowDown />)}</Tag>

@@ -19,8 +19,8 @@ class Escrow extends Model
             $wallet = $escrow->wallet()->firstOrFail();
             //--------
             $status = $transaction->status;
-            $charge = $transaction->charge;
-            $type = (float) $escrow->type;
+            $charge = (float) $transaction->charge;
+            $type = $escrow->type;
             //--------
             if ($status === 'failed') return;
             //--------

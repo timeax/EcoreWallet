@@ -18,6 +18,11 @@ export type Wallet = (typeof JJ)["wallets"][number] & {
             withdraw_limit_min: string;
             withdraw_limit_max: string;
             withdraw_charge: string
+            exchange_charge: string
+            deposit_charge: string
+            withdraw_charge_type: 'fixed' | '%'
+            exchange_charge_type: 'fixed' | '%'
+            deposit_charge_type: 'fixed' | '%'
         }
     };
     all_balance: {
