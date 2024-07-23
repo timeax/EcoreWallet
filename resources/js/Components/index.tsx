@@ -5,7 +5,9 @@ import { type CSSProperties } from "react";
 import styled, { WebTarget } from "styled-components";
 import isPropValid from '@emotion/is-prop-valid';
 import cssprops from "@assets/fn/cssprops";
-import Button from "./Button";
+import { showIf } from "@assets/fn";
+import { classNames } from "primereact/utils";
+import calc from 'number-precision';
 
 
 
@@ -75,4 +77,38 @@ export default Tag;
 function verify(prop: string, element: WebTarget): boolean {
     if (typeof element !== 'string') return true;
     return prop === 'tabIndex' || (isPropValid(prop) && prop !== 'color')
+}
+
+
+export const Percent: React.FC<PercentProps> = ({ round, weight = 'normal', value, percent, size = '12px', variant = 'text', shape, ...props }) => {
+    //--- code here ---- //
+    const isLower = value < 0;
+    return (
+        //@ts-ignore
+        <Tag {...props} element='span' fontSize={size} fontWeight={weight} borderRadius={shape} className={classNames({
+            'px-3 py-2': variant == 'contained' || variant === 'outlined',
+            'bg-danger-300 text-white': variant == 'contained' && isLower,
+            'bg-success-300 text-white': variant == 'contained' && !isLower,
+            'border border-solid border-danger-300 text-danger': variant == 'outlined' && isLower,
+            'border border-solid border-success-300 text-success': variant == 'outlined' && !isLower,
+            'text-danger-600': variant == 'text' && isLower,
+            'text-success-600': variant == 'text' && !isLower,
+        })}>
+            {showIf(round, calc.round(value, round as number), value)}
+            {showIf(percent, '%')}
+        </Tag>
+    );
+}
+
+interface PercentProps extends AppElement {
+    value: number;
+    percent?: boolean;
+    size?: string;
+    variant?: 'contained' | "outlined" | 'text';
+    shape?: string;
+    weight?: string | number
+    px?: string | number;
+    py?: string | number;
+    sx?: SxProps
+    round?: number;
 }

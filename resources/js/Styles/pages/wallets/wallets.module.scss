@@ -1,24 +1,6 @@
-.col-1 {
-    flex-basis: 30%;
-}
-
-.col-2 {
-    flex-basis: 23.3%;
-}
-
-.col-3 {
-    flex-basis: 23.3%;
-    @include px(1rem)
-}
-
-.col-4 {
-    flex-basis: 23.3%;
-    @include px(1rem)
-}
-
 .wallet {
     &:hover {
-        background-color: rgb($rc-theme-bgColor / .6);
+        background-color: rgb($rc-theme-bgColor / 0.6);
         cursor: pointer;
         // border: 1px solid $color-theme-bgColor;
     }
@@ -27,3 +9,131 @@
         border: 1px solid $color-info-200;
     }
 }
+
+.summary {
+    flex-grow: 1;
+}
+
+.main {
+    display: flex;
+    column-gap: 3rem;
+
+    @include media("<=xxs-laptop") {
+        column-gap: 2rem;
+    }
+
+    @include media("<sm-tablet") {
+        flex-direction: column;
+        row-gap: 1rem;
+    }
+}
+
+.table {
+    flex-shrink: 0;
+    flex-grow: 0;
+    flex-basis: 40%;
+
+    @include media("<=sm-tablet") {
+        position: absolute;
+        width: 100%;
+        display: none;
+    }
+}
+
+.tradeButtons {
+    @include media(">sm-tablet") {
+        display: none;
+    }
+
+    margin-bottom: 1rem;
+    display: flex;
+    column-gap: 1rem;
+
+    @include media("<=298px") {
+        column-gap: 0.4rem;
+    }
+
+    #{attr(ui-button)} {
+        flex-grow: 1;
+    }
+}
+
+.walletCard {
+    position: relative;
+    @include media(">sm-tablet") {
+        display: none;
+    }
+
+    @include media("<=xs-mobile") {
+        #{attr(title)} {
+            font-size: 14px;
+        }
+
+        #{attr('icon')} {
+            width: 30px;
+            height: 30px;
+        }
+
+        .select {
+            font-size: 0.75em;
+        }
+
+        #{attr(balance)} {
+            font-size: 1.4em;
+        }
+
+        #{attr(balance-to-fiat)} {
+            font-size: 0.8em;
+        }
+
+        #{attr(hr-percent)} {
+            font-size: 0.6em;
+            font-weight: 600;
+        }
+    }
+
+    #{attr(wallet-mobile)} {
+        border-radius: 25px !important;
+        box-shadow: 0px 0px 1rem 1px rgba(128, 128, 128, 0.007);
+    }
+}
+
+.page {
+    margin-top: 1rem;
+    @extend %flex-y;
+    row-gap: 1rem;
+
+    @include media("<=lg-mobile") {
+        margin-top: 0px;
+    }
+}
+
+.toolbar {
+    @include media("<=sm-tablet") {
+        display: none;
+    }
+}
+
+.select {
+    margin-left: auto;
+    font-size: 13px;
+
+    #{attr(menu)} {
+        width: fit-content !important;
+    }
+}
+
+/*
+<!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '4fafbc2b855336f5eaacedb9978d099ace1cd45c';
+window.smartsupp||(function(d) {
+  var s,c,o=smartsupp=function(){ o..push(arguments)};o.=[];
+  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+  c.type='text/javascript';c.charset='utf-8';c.async=true;
+  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+<noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
+*/

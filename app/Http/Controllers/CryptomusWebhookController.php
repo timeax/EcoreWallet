@@ -32,6 +32,7 @@ class CryptomusWebhookController extends Controller
             'user_id' => $user->id,
             'currency_id' => $address->currency_id,
             'wallet_address' => $address->address,
+            'network' => $address->network,
             'total_amount' => $payment_amount,
             'charge' => $req->get('commission'),
             'cryptomus_uuid' => $uuid,

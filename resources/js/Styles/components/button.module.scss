@@ -68,10 +68,18 @@
 
     &-none {
         background: transparent !important;
+        align-items: center;
+        display: flex;
     }
 
     &-circle {
         padding: 0.5rem;
         border-radius: 50%;
+    }
+
+    &-icon {
+        border-radius: 12px;
+        padding: 0.5rem;
+        border: 1px solid grey;
     }
 }

@@ -9,6 +9,11 @@
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     <style>
+        .wrapper {
+            border: 1px solid rgb(226, 226, 226);
+            margin: 10px;
+        }
+
         @media only screen and (max-width: 600px) {
             .inner-body {
                 width: 100% !important;
@@ -17,11 +22,20 @@
             .footer {
                 width: 100% !important;
             }
+
+            .wrapper {
+                width: 90% !important
+            }
         }
 
         @media only screen and (max-width: 500px) {
             .button {
                 width: 100% !important;
+            }
+
+            .main-button {
+                width: 100% !important;
+                text-align: center;
             }
         }
     </style>

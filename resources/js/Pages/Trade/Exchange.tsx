@@ -5,10 +5,9 @@ import { Title } from '@components/Trade';
 import Exchange from '@components/Trade/Exchange';
 import Select from '@components/Trade/Select';
 import LiveFeed from '@context/LiveContext';
-import SpotProvider, { useSpot } from '@context/SpotContext';
+import SpotProvider, { SnapData, useSpot } from '@context/SpotContext';
 import { useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
-import { ButtonGroup } from '@mui/material';
 import { Currencies, PageProps, Wallet, Wallets } from '@typings/index';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
@@ -18,8 +17,7 @@ import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { FaClock } from 'react-icons/fa';
 import { FaArrowDownLong, FaArrowRightLong } from 'react-icons/fa6';
 import calc from 'number-precision';
-import { ProgressSpinner } from 'primereact/progressspinner';
-import { routeById } from '@routes/index';
+import styles from '@styles/pages/trade.module.scss';
 
 const Page: React.FC<ExchangeProps> = ({ auth, wallet, wallets, currencies }) => {
     //-----------
@@ -31,8 +29,8 @@ const Page: React.FC<ExchangeProps> = ({ auth, wallet, wallets, currencies }) =>
     >
 
         <LiveFeed wallets={wallets} currencies={currencies} rates>
-            <div className='mt-8'>
-                <div className="w-[40%] mx-auto">
+            <div className={classNames('mt-8', styles.mainSwap)}>
+                <div className={styles.swap}>
                     <TabView>
                         <TabPanel header='Market'>
                             <div className="mt-4"></div>
@@ -50,9 +48,8 @@ const Page: React.FC<ExchangeProps> = ({ auth, wallet, wallets, currencies }) =>
 }
 
 
-const Market: React.FC<MarketProps> = ({ wallet: walletProp, wallets, auth }) => {
+const Market: React.FC<MarketProps> = ({ wallet: walletProp, wallets, auth, currencies }) => {
     //--- code here ---- //
-    const currencies = wallets.map(item => item.curr);
     const [wallet, setWallet] = useState(walletProp);
     const [swap, setSwap] = useState<Wallet>(wallets.find(item => item.id !== wallet.id) as Wallet);
 
@@ -60,51 +57,69 @@ const Market: React.FC<MarketProps> = ({ wallet: walletProp, wallets, auth }) =>
     return (
         <SpotProvider
             user={auth.user}
-            wallet={wallet}
-            setWallet={setWallet}
-            setTo={setSwap}
-            to={swap}
             type='instant'
-            currencies={currencies}
-            wallets={wallets}
+            wallets={{
+                from: wallet,
+                to: swap
+            }}
+            list={{
+                currencies,
+                wallets
+            }}
         >
-            <form>
+            <div>
                 <div className="flex flex-col gap-8">
                     <Exchange
                         exchange
                         onChange={(e) => console.log(e)}
                         order={0}
                     />
-                    <Submit />
+                    <Submit type='instant' />
                 </div>
-            </form>
+            </div>
         </SpotProvider>
     );
 }
 
-const Submit = () => {
-    const { amount, toAmount, wallet, to, type, setProcessing, processing, rate, data } = useSpot();
+const Submit: React.FC<{ type: 'limit' | 'instant' }> = ({ type }) => {
+    const { fields, wallets, snap } = useSpot();
     const [disabled, setDisabled] = useState(true);
     const [total, setTotal] = useState(0);
     const [charges, setCharges] = useState(0);
+    const [processing, setProcessing] = useState(false);
+    const [data, getData] = useState<SnapData>()
 
     const [hide, setHide] = useState(true);
 
     const [time, setTime] = useState(6);
 
-    const { data: formData, setData, post, processing: formSending, errors, reset } = useForm({
-        from: wallet.curr.id,
-        to: to.curr.id,
-        amount: data.amount,
-        rate: rate?.from,
-        expire: data.expire,
-        limitRate: data.limit,
-        type
-    });
+    const { setData, processing: formSending, post, errors } = useForm<{
+        from?: any
+        to?: any
+        amount?: any
+        rate?: any
+        expire?: any
+        limitRate?: any
+        type?: any
+    }>({});
+
+    function snapData(data: any) {
+        setData({
+            from: wallets.from.curr.id,
+            to: wallets.to.curr.id,
+            amount: data?.amount,
+            expire: data?.expire?.label,
+            limitRate: data?.limit,
+            rate: data?.rates.from.rate,
+            type
+        });
+
+        getData(data);
+    }
 
     useEffect(() => {
-        setDisabled(amount <= 0 || toAmount <= 0);
-    }, [amount, toAmount]);
+        setDisabled(fields.from.converted <= 0 || fields.to.converted <= 0);
+    }, [fields.from.converted, fields.to.converted]);
 
     const [timer, setTimer] = useState<any>();
 
@@ -118,22 +133,21 @@ const Submit = () => {
         setProcessing(!hide);
     }, [hide]);
 
-    if (formSending) {
-        clear();
-    }
-
     useEffect(() => {
         if (processing) {
             if (timer) clear();
-
+            const wallet = wallets.from;
+            ///
             if (!hide) {
                 //-------
                 let fee = parseFloat(wallet.curr.charges.exchange_charge);
+                if (Number.isNaN(fee)) fee = 0;
+                //----------
                 const type = wallet.curr.charges.exchange_charge_type;
 
-                if (type == '%') fee = calc.times(amount, calc.divide(fee, 100));
+                if (type == '%') fee = calc.times(data?.amount || 0, calc.divide(fee, 100));
                 setCharges(fee);
-                setTotal(calc.plus(amount, fee));
+                setTotal(calc.plus(data?.amount || 0, fee));
                 //-----------
                 setTimer(setInterval(() => {
                     setTime((time) => {
@@ -148,57 +162,65 @@ const Submit = () => {
     useEffect(() => {
         if (time === -2) {
             clear();
+            snapData(snap());
             setProcessing(true);
         }
     }, [time]);
 
+    useEffect(() => {
+        console.log(errors)
+    }, [formSending])
+
     return <>
-        <Button type='button' onClick={() => setHide(false)} className={classNames({ 'opacity-50 cursor-not-allowed': disabled })} disabled={disabled} centered>{amount > 0 || toAmount > 0 ? 'Preview Conversion' : 'Enter an amount'}</Button>
+        <Button type='button' onClick={() => {
+            setHide(false)
+            snapData(snap());
+        }} className={classNames({ 'opacity-50 cursor-not-allowed': disabled })} disabled={disabled} centered>{fields.from.converted > 0 || fields.to.converted > 0 ? 'Preview Conversion' : 'Enter an amount'}</Button>
 
         <Dialog header='Confirm' visible={!hide} style={{ width: '30vw', height: 'fit-content' }} onHide={() => { if (hide) return; setHide(true); }}>
             <div className="m-0 flex flex-col gap-7">
                 <div className="flex gap-3 flex-col">
                     <div className="flex justify-between items-center">
                         <div className='flex gap-2 items-center'>
-                            <CryptoIcon height='25px' width='25px' size='12px' name={wallet.curr.curr_name} label={wallet.curr.symbol} />
-                            <Title bold noPad lg>{amount}</Title>
+                            <CryptoIcon height='25px' width='25px' size='12px' name={wallets.from.curr.curr_name} label={wallets.from.curr.symbol} />
+                            <Title bold noPad lg>{data?.amount}</Title>
                         </div>
 
-                        <Title noPad lg>{wallet.curr.code}</Title>
+                        <Title noPad lg>{wallets.from.curr.code}</Title>
                     </div>
                     <FaArrowDownLong />
                     <div className="flex justify-between items-center">
                         <div className='flex gap-2 items-center'>
-                            <CryptoIcon height='25px' width='25px' size='10px' name={to.curr.curr_name} label={to.curr.symbol} />
-                            <Title bold noPad lg>{toAmount}</Title>
+                            <CryptoIcon height='25px' width='25px' size='10px' name={wallets.to.curr.curr_name} label={wallets.to.curr.symbol} />
+                            <Title bold noPad lg>{data?.toAmount}</Title>
                         </div>
 
-                        <Title noPad lg>{to.curr.code}</Title>
+                        <Title noPad lg>{wallets.to.curr.code}</Title>
                     </div>
                 </div>
 
                 <div>
                     {showIf(type == 'limit', <>
-                        <DataList label='Expires in' value={<Text><Text>{data.expires?.label}</Text></Text>} />
+                        <DataList label='Expires in' value={<Text><Text>{data?.expire?.label}</Text></Text>} />
                         <DataList label='Limit Rate' value={<div className='flex gap-1'>
-                            <Text>1 {to.curr.code}</Text>
+                            <Text>1 {wallets.to.curr.code}</Text>
                             =
-                            <Text>{data.limit} {wallet.curr.code}</Text>
+                            <Text>{data?.limit} {wallets.from.curr.code}</Text>
                         </div>} />
                     </>, <>
                         <DataList label='Rate' value={<div className='flex gap-1'>
-                            <Text>1 {to.curr.code}</Text>
+                            <Text>1 {wallets.to.curr.code}</Text>
                             =
-                            <Text>{rate?.to} {wallet.curr.code}</Text>
+                            <Text>{data?.rates?.to.rate} {wallets.from.curr.code}</Text>
                         </div>} />
                         <DataList label='inverse Rate' value={<div className='flex gap-1'>
-                            <Text>1 {wallet.curr.code}</Text>
+                            <Text>1 {wallets.from.curr.code}</Text>
                             =
-                            <Text>{rate?.from} {to.curr.code}</Text>
+                            <Text>{data?.rates.from.rate} {wallets.to.curr.code}</Text>
                         </div>} />
                     </>)}
 
-                    <DataList label={`Transaction Fees (${wallet.curr.charges.exchange_charge_type || '%'})`} value={<Text>{<span className='flex gap-2 items-center'><b>{wallet.curr.charges.exchange_charge}</b> <FaArrowRightLong /> <span>{charges}</span></span> || 'No Fees'}</Text>} />
+                    <DataList label={`Transaction Fees (${wallets.from.curr.charges.exchange_charge_type || '%'})`} value={<Text>{showIf(charges > 0, <span className='flex gap-2 items-center'><b>{wallets.from.curr.charges.exchange_charge}</b> <FaArrowRightLong /> <span>{charges}</span></span>, 'No Fees')}</Text>} />
 
                     {showIf(type == 'instant', (
                         <DataList label='Total' value={<Text>{total}</Text>} />
@@ -207,24 +229,38 @@ const Submit = () => {
                 </div>
 
                 {showIf(type == 'instant', <div className='flex flex-col gap-2'>
-                    {showIf(parseFloat(wallet.all_balance.available) >= total, <Button disabled={!processing} centered size='normal' className={classNames({
+                    {showIf(parseFloat(wallets.from.all_balance.available) >= total, <Button disabled={!processing} centered size='normal' className={classNames({
                         'opacity-60': !processing
-                    })} onClick={() => post(route('user.crypto.process.swap'))} bgColor='primary'>{showIf(processing, <>Convert {time}s</>, 'Refreshing...')}</Button>, (
+                    })} onClick={(e) => {
+                        e.preventDefault()
+                        post(route('user.crypto.process.swap'));
+                    }} bgColor='primary'>{showIf(processing, <>Convert {time}s</>, 'Refreshing...')}</Button>, (
                         <div className='flex flex-col gap-2 !justify-start'>
                             <Message className='text-[13px]' text='Insufficient balance. Please fund your account.' severity='error' />
-                            <Button centered size='normal' bgColor='secondary'>Refresh Quote</Button>
+                            <Button onClick={() => getData(snap())} centered size='normal' bgColor='secondary'>Refresh Quote</Button>
                         </div>
                     ))}
 
                 </div>)}
-                {showIf(type == 'limit', <><Button centered size='normal' bgColor='primary'>Ok</Button></>)}
+
+                {showIf(type == 'limit', <div className='flex flex-col gap-2'>
+                    {showIf(parseFloat(wallets.from.all_balance.available) >= total, <Button centered size='normal' onClick={(e) => {
+                        e.preventDefault()
+                        post(route('user.crypto.process.swap'));
+                    }} bgColor='primary'>Ok</Button>, (
+                        <div className='flex flex-col gap-2 !justify-start'>
+                            <Message className='text-[13px]' text='Insufficient balance. Please fund your account.' severity='error' />
+                        </div>
+                    ))}
+
+                </div>)}
             </div>
         </Dialog>
     </>
 }
 
 
-const DataList: React.FC<DataListProps> = ({ data, value, label }) => {
+const DataList: React.FC<DataListProps> = ({ value, label }) => {
     //--- code here ---- //
     return (
         <div className='flex justify-between py-1'>
@@ -248,22 +284,23 @@ interface DataListProps {
 }
 
 
-const Limit: React.FC<MarketProps> = ({ wallet: walletProp, wallets, auth }) => {
+const Limit: React.FC<MarketProps> = ({ wallet: walletProp, wallets, auth, currencies }) => {
     //--- code here ---- //
-    const currencies = wallets.map(item => item.curr);
     const [wallet, setWallet] = useState(walletProp);
     const [swap, setSwap] = useState<Wallet>(wallets.find(item => item.id !== wallet.id) as Wallet);
     //--- code here ---- //
     return (
         <SpotProvider
             user={auth.user}
-            wallet={wallet}
-            setWallet={setWallet}
-            setTo={setSwap}
             type='limit'
-            to={swap}
-            currencies={currencies}
-            wallets={wallets}
+            wallets={{
+                from: wallet,
+                to: swap
+            }}
+            list={{
+                currencies,
+                wallets
+            }}
         >
             <form className='flex flex-col'>
                 <Timer />
@@ -273,7 +310,7 @@ const Limit: React.FC<MarketProps> = ({ wallet: walletProp, wallets, auth }) => 
                         onChange={(e) => console.log(e)}
                         order={0}
                     />
-                    <Submit />
+                    <Submit type='limit' />
                 </div>
             </form>
         </SpotProvider>
@@ -281,7 +318,7 @@ const Limit: React.FC<MarketProps> = ({ wallet: walletProp, wallets, auth }) => 
 }
 
 const Timer = () => {
-    const { setData } = useSpot();
+    const { setField } = useSpot();
     const def = {
         value: '30d',
         label: '30 Days'
@@ -302,10 +339,10 @@ const Timer = () => {
     }, def]
 
     useEffect(() => {
-        setData('expires', def);
+        setField('time', def);
     }, []);
 
-    return <Select className='!bg-transparent !w-[130px] mb-2 ml-auto' trigger='!h-[30px] !w-[30px] items-center flex !p-0 ml-2 hide-label' container='!p-0 gap-2' items={data}
+    return <Select className='!bg-transparent !w-[130px] mb-2 ml-auto' trigger='!h-[30px] !w-[30px] items-center flex !p-0 ml-2 hide-label' items={data}
         unique='label'
         value={{ value: '30d', label: '30 Days' }}
         placeholder={<div className='flex gap-1 items-center'><FaClock /> <Title noPad>Expires in</Title></div>}
@@ -314,7 +351,7 @@ const Timer = () => {
         quick
         onSelect={(e) => {
             const value = e.value;
-            setData('expires', value);
+            setField('time', value);
         }}
     />
 }

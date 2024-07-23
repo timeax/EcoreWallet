@@ -1,15 +1,50 @@
-import { useState, PropsWithChildren, ReactNode } from 'react';
+import { useState, PropsWithChildren, ReactNode, useEffect } from 'react';
 import { User } from '@typings/index';
 import AuthenticatedProvider from '@context/AuthenticatedContext';
 import styles from '@styles/layout/index.module.scss';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { showIf } from '@assets/fn';
-import { Title } from '@components/Trade';
 import BottomBar from './BottomBar';
+import { classNames } from 'primereact/utils';
+import { showIf } from '@assets/fn';
 
 export default function AuthenticatedLayout({ pusher = true, user, header, children, title, onSearch, desc = '', ...props }: PropsWithChildren<Props>) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
+    useEffect(() => {
+        const time = setInterval(() => {
+            const el = document.getElementById('smartsupp-widget-container');
+            if (el) {
+                clearInterval(time);
+                //-------
+                const chat = el.firstElementChild as HTMLElement;
+
+                if(!chat) return;
+
+                // chat.setAttribute('draggable', 'true');
+                // chat.setAttribute('inert', 'false');
+                // //-----
+                // chat.addEventListener('drag', () => {});
+                // chat.addEventListener('dragstart', () => {
+                //     console.log('dragging')
+                // });
+
+                // chat.addEventListener('dragend', () => {
+                //     console.log('stoped')
+                // });
+
+                // chat.addEventListener('click', e => {
+                //     console.log('clicked')
+                // })
+
+                chat.style.top = '85%'
+                // chat.style.left = '90%'
+                // console.log(chat)
+            }
+        }, 2000);
+
+        return () => clearInterval(time);
+    }, []);
 
     return (
         <AuthenticatedProvider usePusher={pusher} user={user} {...props}>
@@ -17,16 +52,19 @@ export default function AuthenticatedLayout({ pusher = true, user, header, child
                 <div className={styles.bottombar}>
                     <BottomBar />
                 </div>
-                <aside className={styles.sidebar + ` scontainer`}>
-                    <Sidebar />
+                {showIf(showingNavigationDropdown, <div className={styles.mask} onClick={() => setShowingNavigationDropdown(!showIf)}></div>)}
+                <aside className={classNames(styles.sidebar, `scontainer`, {
+                    [styles.open]: showingNavigationDropdown
+                })}>
+                    <Sidebar open={showingNavigationDropdown} />
                 </aside>
                 <div className={styles.main}>
                     {/*<ClassicSections id='app-overlay' />*/}
                     <div className='overflow-x-hidden overflow-y-auto bg-transparent z-50'>
-                        <Header desc={desc} title={title} header={header} />
+                        <Header desc={desc} title={title} header={header} toggleSidebar={() => setShowingNavigationDropdown(!showingNavigationDropdown)} />
                         <main>
                             <div className={styles.container}>
-                                {showIf(desc, <Title className={styles.mobileDesc} normal noPad>{desc}</Title>)}
+                                {/* {showIf(desc, <Title className={styles.mobileDesc} normal noPad>{desc}</Title>)} */}
                                 {children}
                                 {/* <footer className='p-1'>footer</footer> */}
                             </div>
@@ -38,7 +76,7 @@ export default function AuthenticatedLayout({ pusher = true, user, header, child
     );
 }
 
-interface Props {
+interface Props extends Record<string, any> {
     user: User,
     desc?: React.ReactNode
     header?: ReactNode,

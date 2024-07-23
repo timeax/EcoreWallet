@@ -14,20 +14,18 @@ import { useLive } from '@context/LiveContext';
 import { BsInfoCircleFill } from 'react-icons/bs';
 
 const Exchange: React.FC<ExchangeProps> = ({ order, exchange, title }) => {
-    const { currencies, wallet, to, type } = useSpot();
+    const { list, wallets, type, rates } = useSpot();
     const notify = useNotify();
     //----------------
     useEffect(() => {
-        if (to.id == wallet.id) {
+        if (wallets.to.id == wallets.from.id) {
             notify({
                 closable: true,
                 severity: 'error',
-                summary: `Cannot exchange ${wallet.curr.code} with ${to.curr.code}`,
+                summary: `Cannot exchange ${wallets.from.curr.code} with ${wallets.to.curr.code}`,
             })
         }
-    }, [to, wallet]);
-
-    const { rates, convert } = useLive();
+    }, [wallets]);
 
     //--- code here ----
     return (
@@ -40,11 +38,10 @@ const Exchange: React.FC<ExchangeProps> = ({ order, exchange, title }) => {
             <div className="flex relative flex-col gap-2">
                 <TradeInput
                     sx={{ order: order == -1 ? 1 : 0 }}
-                    isFrom={exchange}
-                    currencies={exchange ? currencies : undefined}
-                    wallet={wallet}
-                    limit={type == 'limit'}
-                    balance={wallet.all_balance.available}
+                    currencies={list.currencies}
+                    id='from'
+                    wallet='from'
+                    limit={type === 'limit'}
                 />
                 <Tag order={order == -1 ? 0 : 1} className='h-full relative w-full flex'>
                     <Tag sx={{
@@ -57,17 +54,17 @@ const Exchange: React.FC<ExchangeProps> = ({ order, exchange, title }) => {
                 </Tag>
                 <TradeInput
                     sx={{ order: order == -1 ? order : 2 }}
-                    currencies={currencies}
-                    wallet={to}
-                    balance={to.all_balance.available}
+                    currencies={list.currencies}
+                    id='to'
+                    wallet='to'
                 />
             </div>
             <div className="flex items-center justify-between">
                 <Title noPad lg bold bright className='flex gap-1'>{/*<BsInfoCircleFill />*/} Rate</Title>
                 <div className='flex items-center justify-between gap-2'>
-                    <Title noPad>1 {wallet?.curr.code}</Title>
+                    <Title noPad>1 {wallets.from?.curr.code}</Title>
                     <FaArrowRightLong />
-                    <Title bold noPad> {rates && convert(wallet.curr.code, to.curr.code, 1)} {to?.curr.code}</Title>
+                    <Title bold noPad> {rates && rates.from.rate} {wallets.to?.curr.code}</Title>
                 </div>
             </div>
         </div>

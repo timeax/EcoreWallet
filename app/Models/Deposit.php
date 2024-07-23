@@ -34,7 +34,7 @@ class Deposit extends Model
             $transaction = Transaction::create([
                 'trnx'    => $deposit->txid,
                 'user_id' => $deposit->user_id,
-                'charge'  => $deposit->charge,
+                'charge'  => 0.0, //$deposit->charge,
                 'amount'  => numFormat($deposit->total_amount, 8),
                 'remark'  => 'deposit',
                 'currency_id'  => $deposit->currency_id,
@@ -55,7 +55,7 @@ class Deposit extends Model
             $transaction = Transaction::where(['uuid' => $deposit->cryptomus_uuid])->findOrCreate([
                 'trnx'    => $deposit->txid,
                 'user_id' => $deposit->user_id,
-                'charge'  => $deposit->charge,
+                'charge'  =>  0.0, //$deposit->charge,
                 'amount'  => numFormat($deposit->total_amount, 8),
                 'remark'  => 'deposit',
                 'currency_id'  => $deposit->currency_id,

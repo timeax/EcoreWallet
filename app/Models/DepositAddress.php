@@ -16,6 +16,8 @@ class DepositAddress extends Model
         'url_id'
     ];
 
+    protected $guarded = [];
+
     public function curr()
     {
         return $this->belongsTo(Currency::class, 'currency_id')->withDefault(['code' => 'BTC']);

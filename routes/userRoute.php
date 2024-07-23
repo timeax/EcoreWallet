@@ -5,14 +5,14 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\User\ChatController;
 use App\Http\Controllers\User\OnboardingController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SupportTicketController;
 use App\Http\Controllers\User\TradeController;
-use App\Jobs\UpdateCryptoPrices;
 use App\Models\Currency;
-use Illuminate\Support\Arr;
+use App\Models\Language;
+use App\Models\Setting;
+use App\Notifications\OtpSent;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -22,15 +22,13 @@ Route::name('user.')->middleware('maintenance')->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        // Route::post('/chat', function (Cryptomus $cryptomus) {
-        //     auth()->user()->initiateUser($cryptomus);
-        //     return 'it worked';
-        // });
-
-        Route::post('/chat/connect', [ChatController::class, 'create'])->name('chat.connect');
 
         Route::get('/settings', function () {
-            return 'Settings';
+            $languages = Language::all();
+            $currencies = Currency::where(['type' => 1])->get();
+            $settings = Setting::where(['user_id' => Auth::id()]);
+
+            return Inertia::render('Settings/Page', compact('languages', 'currencies', 'settings'));
         })->name('settings.all');
 
         Route::get('/support', [SupportTicketController::class, 'view'])->name('support');
@@ -79,6 +77,10 @@ Route::name('user.')->middleware('maintenance')->group(function () {
             ->middleware('throttle:6,1')
             ->name('verification.send');
 
+        Route::get('/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+            ->middleware('throttle:6,1')
+            ->name('verification.send.redirect');
+
 
         Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
             ->name('password.confirm');
@@ -94,9 +96,8 @@ Route::name('user.')->middleware('maintenance')->group(function () {
 
 
 Route::get('/myadmin', function () {
-    // $rate = Rate::where(['currency_id' => 1])->get();
 
-    $arr = Auth::user()->wallets()->get();
+    $user = Auth::user();
 
-    return response()->json($arr);
+    return (new OtpSent(uuid('otp')))->toMail($user);
 });

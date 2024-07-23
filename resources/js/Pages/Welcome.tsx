@@ -1,6 +1,6 @@
+import { useParams } from '@context/index';
 import { Link, Head, usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
-import { useParams } from '@/Context';
+import { PageProps } from '@typings/index';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }: PageProps<{ laravelVersion: string, phpVersion: string } & Props>) {
 

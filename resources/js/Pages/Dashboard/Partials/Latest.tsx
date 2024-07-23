@@ -10,6 +10,7 @@ import { Title } from '@components/Trade';
 import Tag from '@components/index';
 import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { round } from 'number-precision';
+import CurrencyFormat from 'react-currency-format';
 
 const Latest: React.FC<LatestProps> = ({ currencies }) => {
     //--- code here ---- //
@@ -50,18 +51,18 @@ const Latest: React.FC<LatestProps> = ({ currencies }) => {
 
     return (
         <section>
-            <Card container={dashboard.prices} className={classNames('!rounded-lg max-h-[320px]')}>
+            <Card container={dashboard.prices} className={classNames('!rounded-lg max-h-[320px]', dashboard.latest)}>
                 <Cardheader variant='mini'>
-                    <>Latest Prices</>
+                    <>Market Trend</>
                 </Cardheader>
                 <div>
-                    {showIf(prices, (
+                    {showIf((prices?.length || 0) > 0, (
                         <>
                             {
                                 prices?.map(price => <LatestItem currencies={currencies} key={price.id} {...price} />)
                             }
                         </>
-                    ), <Title>Nothing to show here</Title>)}
+                    ), <Title noPad className='pb-4'>Nothing to show here</Title>)}
                 </div>
             </Card>
         </section>
@@ -75,19 +76,31 @@ const LatestItem: React.FC<LatestItemProps> = ({ currencies, id, data: { current
     //------------
     return (
         <div className={dashboard.price_element}>
-            <div className='flex items-center gap-1'>
+            <div className='flex items-center gap-2'>
                 <Tag element={'img'} src={image} alt="" />
-                <Title noPad>
-                    {curr?.code}
-                </Title>
+                <div>
+                    <Title noPad bold className={dashboard.price_name}>
+                        {curr?.curr_name}
+                    </Title>
+                    <Title noPad>
+                        {curr?.code}
+                    </Title>
+                </div>
             </div>
             <div className={dashboard.graph}>
-                <SparkLineChart colors={[getCrptoColor(curr?.curr_name || '')]} data={sparkline_in_7d.price} />
+                <SparkLineChart colors={[getCrptoColor(curr?.curr_name || '')]} height={35} data={sparkline_in_7d.price} />
             </div>
 
             <div className={dashboard.price_area}>
                 <Title className={dashboard.price_change} noPad>{round(price_change_percentage_24h, 2)}%</Title>
-                <Title bold noPad>${round(current_price, 4)}</Title>
+                <Title bold noPad>$
+                    <CurrencyFormat
+                        value={round(current_price, 4)}
+                        displayType="text"
+                        thousandSeparator
+                        renderText={value => <span>{value}</span>}
+                    />
+                </Title>
             </div>
         </div>
     );

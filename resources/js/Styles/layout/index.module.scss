@@ -8,15 +8,19 @@
     position: relative;
     @include mx($main-pl); // padding-bottom: 2rem;
 
+    @include media("<=xxs-laptop") {
+        @include px(0);
+    }
+
     @include media("<=xs-tablet") {
         @include mx(1rem);
         @include px(0.8rem);
     }
     @include media("<=mobile") {
-        @include mx(0.4rem);
+        @include mx(0.2rem);
     }
     @include media("<=xs-mobile") {
-        @include mx(0.2rem);
+        @include mx(0.1rem);
     }
 }
 .main {
@@ -45,17 +49,19 @@
         // padding-top: rem;
         width: 100%;
         position: relative;
-        overflow: auto;
+        overflow: hidden;
         overflow-x: hidden;
+        padding-bottom: 2rem;
 
-        @include media('<xs-tablet') {
-            padding-bottom: 6rem;
+        @include media("<xs-tablet") {
+            padding-bottom: 4rem;
         }
     }
 }
 
 .sidebar {
     width: $sidebar-width-closed;
+    transition: all .5s ease-in-out .1s;
     position: fixed;
     left: 0px;
     height: 100vh;
@@ -63,14 +69,27 @@
     z-index: 9999;
     &.open {
         width: $sidebar-width;
+        padding: 0;
+
+        @include media('<=lg-mobile') {
+            width: 70%;
+        }
+
+        @include media('<=250px') {
+            width: 90%;
+        }
     }
     top: 0px;
 }
 
-@include media("<=xs-tablet") {
+@include media("<=xxs-laptop") {
     .sidebar {
         right: 110%;
         left: unset;
+
+        &.open {
+            right: unset;
+        }
     }
 
     .main {
@@ -90,12 +109,14 @@
 
 .bottombar {
     position: fixed;
-    z-index: 9999;
+    z-index: 999;
     bottom: 0%;
     background-color: $color-theme-bgColor;
     width: 100%;
+    border-radius: 25px 25px 0px 0px;
+    box-shadow: 0px 0px 8rem 1px rgba(128, 128, 128, 0.171);
 
-    @include media(">=xs-tablet") {
+    @include media(">=lg-mobile") {
         display: none;
     }
 }
@@ -112,14 +133,14 @@
     flex-grow: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
 
     .b_navlink {
-        padding: 0.8rem 1rem;
+        padding: 1.3rem 1rem;
         @include media(">mobile") {
             @include px(1.3rem);
         }
 
-        font-size: 11px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -140,6 +161,9 @@
 .b_navgroup {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+    @include px(1rem);
 }
 
 .quick_actions {
@@ -169,4 +193,12 @@
             }
         }
     }
+}
+
+.mask {
+    background-color: rgba(0, 0, 0, 0.082);
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 999;
 }

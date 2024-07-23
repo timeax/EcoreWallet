@@ -183,9 +183,9 @@ function email($data)
 function uuid($id, string $identifier = 'ref')
 {
     $currentTime = strtotime('now');
-    $randStr = Str::random(4);
+    $randStr = Str::random(10);
     //---
-    return $randStr . $currentTime . $identifier . $id;
+    return str_shuffle($randStr . $currentTime . $identifier . $id);
 }
 function getHours(string $sym)
 {
@@ -223,7 +223,7 @@ function getStatusMessage(string $status, string $prefix)
         case 'success':
             return $prefix . ' Completed';
         case 'pending':
-            return 'Pending' . $prefix;
+            return 'Pending' . " $prefix";
         case 'failed':
             return $prefix . ' Failure';
         case 'refund':

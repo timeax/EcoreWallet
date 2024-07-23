@@ -50,8 +50,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::guard('web')->attempt(['email' => $request->email, 'password']);
+        Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password]);
         // Check that email verification is forced...
-        return redirect(route('user.verification.send'));
+        return redirect(route('user.verification.send.redirect'));
     }
 }

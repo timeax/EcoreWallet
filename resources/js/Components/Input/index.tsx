@@ -11,7 +11,7 @@ const Textfield: React.FC<TextfieldProps> = ({ className, label, floatLabel, onC
         <Tag element={floatLabel ? FloatLabel : 'div'} id={id} className={"flex flex-col gap-1 " + className} sx={sx}>
             {label ? <Tag fontSize={'14px'} element={'label'} color='rgb(var(--color-theme-title))' className='font-medium' htmlFor={htmlFor}>{label}</Tag> : ''}
             {/* @ts-ignore */}
-            <Tag element={inputElement} className={styles.textfield} id={htmlFor} aria-describedby={descId} onChange={onChange} {...props} />
+            <Tag element={inputElement} data-section='input' className={styles.textfield} id={htmlFor} aria-describedby={descId} onChange={onChange} {...props} />
             {desc ? <small id={descId}>{desc}</small> : ''}
 
             {errorText ? <Text className='!text-danger-700 !font-medium' variant="small">{errorText}</Text> : ''}

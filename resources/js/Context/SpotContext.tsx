@@ -12,74 +12,139 @@ export function useSpot() {
 
 
 
-const SpotProvider: React.FC<SpotProviderProps> = ({ children, ...values }) => {
+const SpotProvider: React.FC<SpotProviderProps> = ({ children, wallets: items, ...values }) => {
     //--- code here ---- //
-    const [amount, set1] = useState(0);
-    const [processing, setProcessing] = useState(false);
-    const [toAmount, set2] = useState(0);
-    const [rate, setRate] = useState<ExchangeContextProps['rate']>();
+    const [fields, setFields] = useState<ExchangeContextProps['fields']>({
+        from: {
+            converted: 0,
+            input: ''
+        },
 
-    const [raw, setRaw] = useState({
-        toAmount: 0,
-        amount: 0,
+        limit: {
+            converted: 0,
+            input: ''
+        },
+
+        to: {
+            converted: 0,
+            input: ''
+        },
+        time: {
+            converted: 0,
+            input: ''
+        }
+    });
+    const [rates, setRates] = useState<ExchangeContextProps['rates']>({ from: { fiat: { symbol: '$', rate: 0 }, rate: 0 }, to: { fiat: { symbol: '$', rate: 0 }, rate: 0 } });
+    const [wallets, setWallets] = useState<ExchangeContextProps['wallets']>({
+        from: items.from,
+        to: items.to
     });
 
-    const [data, setData] = useState({});
+    const { getRate, rates: liveData } = useLive();
 
-    const addData = (key: any, value?: any) => {
-        if (typeof key == 'string') return setData((data) => ({ ...data, [key]: value }));
-        if (typeof key == 'function') return setData((data) => key(data));
-        setData(key);
-    }
+    useEffect(() => {
+        if (rates) {
+            setRates(fns.getRate('from', 'to'))
+        }
+    }, [liveData, wallets]);
 
-    const setAmount = (amount: number) => {
-        if (Number.isNaN(amount)) return;
-        set1(amount);
-        addData('amount', amount);
-    }
+    const fns: ContextFn = {
+        getKey(key) {
+            return key == 'from' ? 'to' : 'from';
+        },
+        getField(key) {
+            return fields[key];
+        },
 
-    const setToAmount = (toAmount: number) => {
-        if (Number.isNaN(toAmount)) return;
+        setField(key, value) {
+            setFields((data) => {
+                if (key == 'from' || key == 'to')
+                    for (const key in data) {
+                        if (Object.prototype.hasOwnProperty.call(data, key)) {
+                            //@ts-ignore
+                            const element = data[key];
+                            element.current = false;
+                        }
+                    }
 
-        set2(toAmount);
-        addData('toAmount', toAmount);
-    }
+                return {
+                    ...data,
+                    [key]: {
+                        ...data[key],
+                        [key == 'time' ? 'timer' : 'input']: value,
+                        current: true
+                    }
+                }
+            })
+        },
 
+        setWallet(key, wallet) {
+            setWallets((items) => {
+                return {
+                    ...items,
+                    [key]: wallet
+                }
+            })
+        },
 
-    const [last, setLast] = useState(values.wallet);
-    return (
-        <SpotContext.Provider value={{
-            rate, data,
+        convert(key, value) {
+            setFields((data) => {
+                return {
+                    ...data,
+                    [key]: {
+                        ...data[key],
+                        converted: value
+                    }
+                }
+            })
+        },
+
+        getRate(...keys) {
+            let value: ExchangeContextProps['rates'] = {} as any;
             //@ts-ignore
-            setData: addData,
-            processing, setProcessing, setTemp: setRaw, tempAmount: raw, setAmount, amount, toAmount, setToAmount, lastFocused: last, setLastFocused: setLast, ...values
-        }}>
-            <RateController setRate={setRate} />
+            let def = values.list.currencies.find(item => item.default == 1) as unknown as Currencies[number];
+            keys.forEach((key: WalletId) => {
+                //@ts-ignore
+                let opp: typeof key = key == 'from' ? 'to' : 'from';
+                value = {
+                    ...value,
+                    [key]: {
+                        fiat: {
+                            symbol: def.symbol,
+                            rate: getRate(wallets[key].curr.code, def.code)
+                        },
+                        rate: getRate(wallets[key].curr.code, wallets[opp].curr.code)
+                    }
+                }
+            });
+
+            return value;
+        },
+
+        getCurrent() {
+            if (fields.from.current) return { ...fields.from, id: 'from' };
+            if (fields.limit.current) return { ...fields.from, id: 'from' };
+            if (fields.to.current) return { ...fields.to, id: 'to' };
+            return { ...fields.from, id: 'from' };
+        },
+
+        snap() {
+            return {
+                amount: fields.from.converted,
+                toAmount: fields.to.converted,
+                limit: fields.limit.converted || parseFloat(fields.limit.input || '0'),
+                rates: fns.getRate('from', 'to'),
+                expire: fields.time.timer
+            }
+        },
+    }
+
+    return (
+        <SpotContext.Provider value={{ ...values, ...fns, wallets, rates, fields }}>
             {children}
         </SpotContext.Provider>
     );
 }
-
-const RateController: FC<{ setRate(v: ExchangeContextProps['rate']): void }> = ({ setRate }) => {
-    const { wallet, to, processing } = useSpot();
-    const { getRate } = useLive();
-
-    useEffect(() => {
-        if (processing) {
-            setRate({
-                from: getRate(wallet.curr.code, to.curr.code),
-                to: getRate(to.curr.code, wallet.curr.code)
-            })
-        } else {
-            setRate({
-                from: getRate(wallet.curr.code, to.curr.code),
-                to: getRate(to.curr.code, wallet.curr.code)
-            })
-        }
-    }, [processing]);
-    return <></>;
-}
-
 
 interface SpotProviderProps extends PropsWithChildren, Props {
     [x: string]: any
@@ -89,45 +154,63 @@ export default SpotProvider
 
 
 interface Props {
-    wallets: Wallets;
+    list: {
+        wallets: Wallets,
+        currencies: Currencies
+    };
+    type: 'instant' | 'limit';
     user: User;
-    wallet: Wallet;
-    currencies: Currencies;
-    to: Wallet
-    setTo(value: Wallet): void
-    type: 'limit' | 'instant'
-    setWallet(value: Wallet): void;
+    wallets: {
+        from: Wallet,
+        to: Wallet
+    },
 }
 
-interface ExchangeContextProps extends Props {
-    to: Wallet;
-    amount: number;
-    setAmount(n: number): void;
-    toAmount: number;
-    setToAmount(n: number): void;
-    lastFocused: Wallet;
-    setLastFocused(wallet: Wallet): void;
-    tempAmount: {
-        toAmount: number,
-        amount: number,
-        limit?: number
+export type WalletType = 'to' | 'from' | 'limit' | 'time';
+export type WalletId = 'to' | 'from';
+
+type Timer = { label: string, value: string }
+
+interface ExchangeContextProps extends Props, ContextFn {
+    fields: {
+        [P in WalletType]: Field
     }
-
-    setTemp(v: {
-        toAmount: number,
-        amount: number,
-        limit?: number,
-    }): void;
-
-    processing?: boolean;
-    setProcessing(v: boolean): void
-    expire?: string;
-    setExpire?(n: string): void
-    rate?: {
-        from: number;
-        to: number
+    readonly rates: {
+        from: Rate;
+        to: Rate
     }
-
-    data: { [x: string]: any };
-    setData(data: { [x: string]: any } | string | ((data: any) => any), value?: any): void;
 }
+
+interface Rate {
+    fiat: {
+        symbol: string;
+        rate: number
+    },
+
+    rate: number
+}
+
+type Field = {
+    input?: string;
+    converted: number;
+    timer?: Timer;
+    current?: boolean
+}
+
+interface ContextFn {
+    setField(key: WalletType, value: any): void;
+    ///
+    convert(key: WalletType, value: any): void;
+    //
+    getField(key: WalletType): {
+        input?: string;
+        converted: number;
+    };
+    setWallet(key: keyof Props['wallets'], wallet: Wallet): void
+    getRate<T extends keyof Props['wallets']>(...keys: Array<T>): Record<T, Rate>;
+    snap(): SnapData;
+    getKey(key: WalletId): WalletId;
+    getCurrent(): Field & { id: WalletType };
+}
+
+export interface SnapData { amount: number, toAmount: number, limit: number, expire?: Timer, rates: ExchangeContextProps['rates'] }

@@ -8,7 +8,8 @@ import Dropdown from '@components/Dropdown';
 
 const BottomBar: React.FC<BottomBarProps> = () => {
     //--- code here ---- //
-    const [a, b] = getMobile();
+    // const [a, b] = getMobile();
+    const routes = getMobile().flat();
 
     function renderRoutes(routes: Route[]) {
         return routes.map((route, key) => {
@@ -20,11 +21,11 @@ const BottomBar: React.FC<BottomBarProps> = () => {
 
     return (
         <div className={classNames(styles.bottombar_nav, 'shadow-md')}>
-            <div className='grow flex justify-between'>
+            <div className='grow flex'>
                 <div className={styles.b_navgroup}>
-                    {renderRoutes(a)}
+                    {renderRoutes(routes)}
                 </div>
-                <div className={styles.quick_actions}>
+                {/* <div className={styles.quick_actions}>
                     <span className={styles.button}>
                         <Dropdown>
                             <Dropdown.Trigger>
@@ -37,10 +38,10 @@ const BottomBar: React.FC<BottomBarProps> = () => {
                             </Dropdown.Content>
                         </Dropdown>
                     </span>
-                </div>
-                <div className={styles.b_navgroup}>
+                </div> */}
+                {/* <div className={styles.b_navgroup}>
                     {renderRoutes(b)}
-                </div>
+                </div> */}
             </div>
         </div>
     );
@@ -53,12 +54,12 @@ const NavItem: FC<NavItemProps> = ({ route: href, label, icon, sidebarOpen, bott
             className={classNames(styles.b_navlink, { [styles.active]: route().current() === href })}
         >
             <span className={styles.b_icon}>{icon}</span>
-            <div className='relative'>
+            {/* <div className='relative'>
                 <span>
                     <span>{bottomLabel || label}</span>
                 </span>
                 <span className={classNames({ [styles.dot]: !sidebarOpen })}></span>
-            </div>
+            </div> */}
         </Link>
     )
 }

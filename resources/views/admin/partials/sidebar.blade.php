@@ -14,12 +14,12 @@
             </li>
         @endif
 
-        @if (access('live chats'))
+        {{-- @if (access('live chats'))
             <li class="nav-item {{ menu('admin.live.chats') }}">
                 <a href="{{ route('admin.live.chats') }}" class="nav-link"><i
                         class="fas fa-exchange-alt"></i><span>@langg('Live Chats')</span></a>
             </li>
-        @endif
+        @endif --}}
 
         <li class="menu-header">@langg('Manage')</li>
         @if (access('manage user'))

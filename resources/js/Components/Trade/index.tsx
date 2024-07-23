@@ -3,7 +3,7 @@ import Text from "@components/Text"
 import { classNames } from "primereact/utils"
 import { forwardRef, ForwardRefRenderFunction } from "react"
 
-export const Title = forwardRef<HTMLParagraphElement, TitleProps>(({ md, children, light, xs, sm, bold, bright, brighter, medium, lg, noPad, xl, white,
+export const Title = forwardRef<HTMLParagraphElement, TitleProps>(({ md, none, children, light, xs, sm, bold, bright, brighter, medium, lg, noPad, xl, white,
     "xl2": subheader,
     "xl3": header,
     "xl4": subtitle,
@@ -14,7 +14,7 @@ export const Title = forwardRef<HTMLParagraphElement, TitleProps>(({ md, childre
         'font-semibold': bold,
         'font-medium': medium,
         'font-normal': light,
-        'text-theme-emphasis': !bright,
+        'text-theme-emphasis': !none,
         'text-theme-icons': bright,
         'text-theme-icons/60': brighter,
         'text-[14px]': md,
@@ -35,10 +35,9 @@ export const Title = forwardRef<HTMLParagraphElement, TitleProps>(({ md, childre
     })}>{children}</Text>
 }
 )
-interface TitleProps {
+interface TitleProps extends AppElement {
     bold?: boolean,
     children: React.ReactNode,
-    className?: string,
     bright?: boolean,
     brighter?: boolean,
     medium?: boolean,
@@ -56,7 +55,8 @@ interface TitleProps {
     caps?: boolean;
     upper?: boolean;
     normal?: boolean;
-    white?: boolean
+    white?: boolean;
+    none?: boolean;
 }
 
 export const Container: React.FC<{ children: React.ReactNode, outlined?: boolean, className?: string, container?: string }> = ({ outlined, children, className = '', container = '!py-3 !px-3' }) => {

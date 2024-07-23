@@ -5,3 +5,7 @@
 @function attr($name) {
     @return "[data-section=" $name + "]";
 }
+
+@function ft($value) {
+    @return #{16px / $value}em;
+}

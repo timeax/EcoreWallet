@@ -41,7 +41,7 @@ class TransactionNotifications extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)->markdown('mail.system.notification', $this->transaction->toArray());
+        return (new MailMessage)->markdown('mail.system.notification', $this->data);
     }
 
     /**

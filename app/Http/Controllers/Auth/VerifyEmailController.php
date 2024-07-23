@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Notifications\OtpSent;
 use Auth;
 use Cryptomus;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class VerifyEmailController extends Controller
@@ -18,8 +21,9 @@ class VerifyEmailController extends Controller
         $user = Auth::user();
         //----
         session(['verification_code' => $request->verification_code]);
+
         if ($user->markEmailAsVerified()) {
-            //event(new Verified($user));
+            $user->notify(new OtpSent(''));
         } else {
             return redirect()->route('user.verify.email')->with([
                 'email.validation.error' => 'Invalid Verfication Code',
@@ -33,15 +37,16 @@ class VerifyEmailController extends Controller
         $user->initiateUser($cryptomus);
 
         session()->flush();
+        Log::info('it reached here');
 
-        return redirect()->intended(route('user.dashboard'));
+        return redirect()->intended('/login');
     }
 
 
     public function create(Request $request)
     {
         $user = $request->user();
-        if ($user->email_verified) return back();
+        if ($user->email_verified) return redirect()->intended('/dashboard');
 
         //--------
         $created_at = session('emailcode_sent_at');

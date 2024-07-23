@@ -1,6 +1,5 @@
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
-import { Currencies, PageProps, Trades, Transactions, Wallets } from '@typings/index';
-import ProfileBalance from '@widgets/ProfileBalance';
+import { Currencies, PageProps, Trades, Transactions, Wallet, Wallets } from '@typings/index';
 import ClassicSections from '@layouts/ClassicSections';
 import { cutArr } from '@assets/fn';
 import Card from '@components/Card';
@@ -11,19 +10,25 @@ import { routeById } from '@routes/index';
 import Button from '@components/Button';
 import Dropdown from '@components/Dropdown';
 import dashboard from '@styles/pages/dashboard.module.scss';
-import { WalletGroup } from './components';
+import { Portifolio, WalletGroup } from './components';
 import WalletSummary from './Partials/WalletSummary';
 import HistorySection from './Partials/HistorySection';
-import QuickActions from './Partials/QuickActions';
 import BalanceSummary from './Partials/BalanceSummary';
 import LiveFeed from '@context/LiveContext';
 import Latest from './Partials/Latest';
+import { FaArrowDownLong, FaArrowUpLong } from 'react-icons/fa6';
+import ProfileBalance from './Partials/ProfileBalance';
+import { useState } from 'react';
+import { Title } from '@components/Trade';
+import { Link } from '@inertiajs/react';
 
-export default function Dashboard({ auth, wallets, transactions, gs, currencies }: DashboardProps) {
+export default function Dashboard({ auth, wallets, transactions, gs, currencies, ...props }: DashboardProps) {
+    const [wallet, setWallet] = useState<Wallet>();
     return (
         <AuthenticatedLayout
             user={auth.user}
             title='Dashboard'
+            {...props}
             header={<Dropdown className='hidden' onSelect={(value) => {
                 window.axios.post(route('api.webhook'))
             }}>
@@ -47,10 +52,19 @@ export default function Dashboard({ auth, wallets, transactions, gs, currencies 
                             <ProfileBalance />
                         </section>
                         <BalanceSummary wallets={wallets} />
-                        <QuickActions />
-
+                        <section className={dashboard.wallets}>
+                            <div className='flex items-center justify-between'>
+                                <Title medium md bright noPad>Portifolio</Title>
+                                <Title className='items-center gap-2' noPad sm><Link href={route(routeById('wallets').route)}>view all</Link> <FaChevronRight /></Title>
+                            </div>
+                            <div className={dashboard.scrollx}>
+                                <div className='flex gap-4 overflow-visible'>
+                                    {wallets.slice(0, 4).map(item => <Portifolio key={item.id} wallet={item} />)}
+                                </div>
+                            </div>
+                        </section>
+                        {/*<QuickActions />*/}
                         <Latest currencies={wallets.map(item => item.curr)} />
-
                     </div>
                     <div className={dashboard.assets}>
                         <section>
@@ -59,10 +73,10 @@ export default function Dashboard({ auth, wallets, transactions, gs, currencies 
                                     <>Your Assets</>
                                     <IconButton href={route(routeById('wallets').route)}><FaChevronRight /></IconButton>
                                 </Cardheader>
-                                <WalletGroup wallets={wallets.slice(0, 4)} />
+                                <WalletGroup wallet={wallet || wallets[0]} change={setWallet} wallets={wallets.slice(0, 4)} />
                             </Card>
                         </section>
-                        <WalletSummary history={transactions} wallet={wallets[0]} />
+                        <WalletSummary history={transactions} wallet={wallet || wallets[0]} />
                     </div>
                 </ClassicSections>
                 <HistorySection transactions={cutArr(transactions, 5)} />

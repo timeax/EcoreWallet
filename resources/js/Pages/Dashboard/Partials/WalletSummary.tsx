@@ -16,28 +16,29 @@ import { PiHandCoinsBold } from 'react-icons/pi';
 import Button from '@components/Button';
 import calc from 'number-precision';
 import { MarketData, useLive } from '@context/LiveContext';
+import CurrencyFormat from 'react-currency-format';
 
 const WalletSummary: React.FC<WalletSummaryProps> = ({ history, wallet }) => {
     //--- code here ---- //
     let transactions = history.filter(item => item.currency_id == wallet.curr.id);
-    const { convert, marketData } = useLive();
+    const { convert, marketData, currency } = useLive();
     const [data, setData] = useState<MarketData>();
     //@ts-ignore
-    let totalIn = transactions.reduce((p, c) => {
+    let totalIn = transactions.length > 0 ? transactions.reduce((p, c) => {
         if (c.type === '+') {
             return {
                 amount: calc.plus(p.amount, c.amount, c.charge),
             }
         } else return p;
-    });
+    }) : { amount: 0 };
     //@ts-ignore
-    let totalOut = transactions.reduce((p, c) => {
+    let totalOut = transactions.length > 0 ? transactions.reduce((p, c) => {
         if (c.type === '-') {
             return {
                 amount: calc.plus(p.amount, c.amount, c.charge),
             }
         } else return p;
-    });
+    }) : { amount: 0 };
 
     useEffect(() => {
         if (marketData) {
@@ -64,30 +65,33 @@ const WalletSummary: React.FC<WalletSummaryProps> = ({ history, wallet }) => {
 
                 <div className='flex gap-2 mt-8'>
                     <Total
+                        symbol={currency?.symbol}
                         data={data}
                         icon={<GiCoins />}
                         change='+20%'
                         color='primary'
                         label='Total'
-                        value={convert(wallet.curr.code, 'USD', wallet.all_balance.total, 2)}
+                        value={convert(wallet.curr.code, currency?.code || 'USD', wallet.all_balance.total, 2)}
                     />
 
                     <Total
+                        symbol={currency?.symbol}
                         data={data}
                         icon={<PiHandCoinsBold />}
                         change='+20%'
                         color='success'
                         label='Available'
-                        value={convert(wallet.curr.code, 'USD', wallet.all_balance.available, 2)}
+                        value={convert(wallet.curr.code, currency?.code || 'USD', wallet.all_balance.available, 2)}
                     />
 
                     <Total
+                        symbol={currency?.symbol}
                         data={data}
                         icon={<MdPendingActions />}
                         change='+20%'
                         color='warning'
                         label='Pending'
-                        value={convert(wallet.curr.code, 'USD', wallet.all_balance.escrow, 2)}
+                        value={convert(wallet.curr.code, currency?.code || 'USD', wallet.all_balance.escrow, 2)}
                     />
                 </div>
 
@@ -102,7 +106,7 @@ const WalletSummary: React.FC<WalletSummaryProps> = ({ history, wallet }) => {
 
 
 
-export const Total: React.FC<TotalProps> = ({ icon, label, value, color = 'theme', data }) => {
+export const Total: React.FC<TotalProps> = ({ icon, label, value, color = 'theme', data, symbol = '$' }) => {
     //--- code here ---- //
     return (
         <Card className='w-[33%] shadow-2xl !rounded-xl shadow-black/5 overflow-hidden text-ellipsis' container='!px-4'>
@@ -117,7 +121,12 @@ export const Total: React.FC<TotalProps> = ({ icon, label, value, color = 'theme
                 </div>
                 <div className='flex flex-col gap-1'>
                     <Title noPad bold>{label}</Title>
-                    <Title className='text-ellipsis overflow-clip relative' noPad xl>${value}</Title>
+                    <Title className='text-ellipsis overflow-clip relative' noPad xl>{symbol} <CurrencyFormat
+                        value={value}
+                        displayType="text"
+                        thousandSeparator
+                        renderText={value => <span>{value}</span>}
+                    /></Title>
                     <Title noPad sm>{calc.round(data?.data.price_change_percentage_24h || '0', 2)}%</Title>
                 </div>
             </div>
@@ -131,7 +140,8 @@ interface TotalProps {
     icon: React.ReactNode;
     change: string;
     color: ColorNames;
-    data?: MarketData
+    data?: MarketData;
+    symbol?: string
 }
 
 

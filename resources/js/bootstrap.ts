@@ -10,29 +10,27 @@ window.axios = axios;
 
 window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
-
 const SUPPRESSED_WARNINGS = [
+    'ForwardRef(SparkLineChart2)',
+    'Warning: Failed %s type: %s%s',
     'If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase',
     'If you want to write it to the DOM, pass a string instead:',
-    'remove them from the element, or pass a string or number value to keep them in the DOM'
+    'remove them from the element, or pass a string or number value to keep them in the DOM',
+    'Support for defaultProps will be removed from function components in'
 ];
 
-const level: keyof typeof console = 'error';
+let level: keyof typeof console = 'error';
 
-const consoleWarn = console[level];
+let consoleWarn = console[level];
 console[level] = function filterWarnings(msg, ...args) {
     if (SUPPRESSED_WARNINGS.some((entry) => msg.includes(entry))) return;
     consoleWarn(msg, ...args);
 };
 
-//@ts-ignore
-var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-(function () {
-    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-    s1.async = true;
-    s1.src = 'https://embed.tawk.to/6683b45a9d7f358570d611bf/1i1p7h1d7';
-    s1.charset = 'UTF-8';
-    s1.setAttribute('crossorigin', '*');
-    //@ts-ignore
-    s0.parentNode.insertBefore(s1, s0);
-})();
+level = 'warn';
+
+const consoleWarn2 = console[level];
+console[level] = function filterWarnings(msg, ...args) {
+    if (SUPPRESSED_WARNINGS.some((entry) => msg.includes(entry))) return;
+    consoleWarn2(msg, ...args);
+};

@@ -1,7 +1,7 @@
 .main {
     height: 150px;
     width: 260px;
-    border-radius: .6rem;
+    border-radius: 0.6rem;
     margin-bottom: 4px;
     padding: 1rem 1.6rem;
     color: white;
@@ -21,6 +21,84 @@
 
         &:not(:first-child) {
             margin-left: -220px;
+
+            @include media("<=1320px") {
+                margin-left: -230px;
+            }
+
+            @include media("<=1181px") {
+                margin-left: -235px;
+            }
+
+            @include media("<=1145px") {
+                margin-left: -240px;
+            }
+
+            @include media("<=xxs-laptop") {
+                margin-left: -220px;
+            }
+
+            @include media("<=997px") {
+                margin-left: -230px;
+            }
+
+            @include media("<=925px") {
+                margin-left: -235px;
+            }
         }
+    }
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+    @include my(auto);
+
+    @include media("<=1375px") {
+        margin-right: 0px;
+    }
+
+    @include media("<=1309px") {
+        margin-right: auto;
+    }
+
+    @include media("<=1219px") {
+        margin-right: 0px;
+    }
+
+    .control {
+        // border-radius: 50%;
+        @include size(8px);
+        height: 30px;
+    }
+}
+
+.mobileWallet {
+    flex-basis: 13rem;
+    position: relative;
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+
+    .percent {
+        font-size: 11px;
+        padding: 2px 0.6rem;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+}
+
+.graph {
+    flex-grow: 1;
+    height: 30px;
+    position: absolute;
+    width: 10rem;
+    right: 0;
+    @include media(">=lg-mobile") {
+        display: none;
     }
 }

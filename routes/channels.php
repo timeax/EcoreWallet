@@ -27,7 +27,3 @@ Broadcast::channel('App.Models.Admin.{id}', function ($user, int $id) {
 Broadcast::channel('updates', function () {
     return Auth::check();
 });
-
-Broadcast::channel('live.chats.{id}', function (Admin|User $user, $id) {
-    return Auth::check() && $user->chat_ref === $id;
-});

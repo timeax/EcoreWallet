@@ -18,9 +18,119 @@
     a {
         padding: 1.5rem 2rem;
     }
+
+    overflow-y: auto;
+    position: relative;
 }
 
 .content {
     @include py(0.8rem, 1rem);
     @include px(2rem);
+    overflow-y: auto;
+    position: relative;
+}
+
+.main {
+    min-height: 20rem;
+    max-height: 30rem;
+    height: auto;
+    position: relative;
+    overflow: hidden;
+    @extend %flex-y;
+
+    #{attr(container)} {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #{prime(panelcontainer)} {
+        overflow: auto;
+        flex-grow: 1;
+        overflow-x: hidden;
+        &::-webkit-scrollbar {
+            display: none;
+            width: 6px;
+            &-track {
+                border-radius: 9px;
+            }
+
+            &-thumb {
+                background: rgba(128, 128, 128, 0.295);
+                border-radius: 10px;
+            }
+        }
+    }
+}
+
+.view {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.spacing {
+    @include px(2rem);
+
+    @include media("<=tablet2") {
+        padding: 0;
+        @include mx(auto);
+    }
+}
+
+.summary {
+    @include media("<=sm-tablet") {
+        display: none;
+    }
+}
+
+.select {
+    display: none;
+    padding: 0.3rem 0.8rem;
+    box-shadow: 0px 0px 1rem rgba(128, 128, 128, 0.062);
+    border-radius: 999px;
+    border: 1px solid rgba(128, 128, 128, 0.151);
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-between;
+    column-gap: 4px;
+    #{prime(button)} {
+        border-radius: 999px;
+        padding: 0.6rem 1.4rem;
+    }
+}
+
+.chart {
+    height: 100%;
+    #{attr(chart-container)} {
+        svg {
+            margin-top: -14px;
+            margin-left: -14px;
+        }
+    }
+}
+
+.stats {
+    display: flex;
+    flex-direction: column;
+    row-gap: 16px;
+
+    #{attr(stats-1)} {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        row-gap: 1rem;
+
+        @include media("<=610px") {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    #{attr(stats-2)} {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        @include media("<=610px") {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            row-gap: 1rem;
+        }
+    }
 }

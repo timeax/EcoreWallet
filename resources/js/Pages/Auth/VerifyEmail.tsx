@@ -1,12 +1,12 @@
 import GuestLayout from '@layouts/GuestLayout';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import React, { FormEventHandler, useState } from 'react';
 import { InputOtp } from 'primereact/inputotp';
 import { Button } from 'primereact/button';
 import { FaMinus } from 'react-icons/fa';
 
-export default function VerifyEmail({ status, code, error }: { status?: string, code: any, error?: string }) {
-    const { post, processing, setData, data } = useForm<{ verification_code: string | number | null | undefined }>({ verification_code: null });
+export default function VerifyEmail({ status, code, error, message = '' }: { message?: string; status?: string, code: any, error?: string }) {
+    const { post, processing, setData, data, wasSuccessful } = useForm<{ verification_code: string | number | null | undefined }>({ verification_code: null });
 
     const customInput = ({ events, props: { key, unstyled, invalid, ...props } }: any) => {
         return <React.Fragment key={key}><input
@@ -22,9 +22,14 @@ export default function VerifyEmail({ status, code, error }: { status?: string, 
         </React.Fragment>
     };
 
+    if (status == 'success') {
+        setTimeout(() => {
+            router.visit(route('user.dashboard'));
+        }, 2000);
+    }
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        console.log(data)
 
         post(route('user.verify.check'));
     };
@@ -36,12 +41,11 @@ export default function VerifyEmail({ status, code, error }: { status?: string, 
             {status && (
                 <div className="mb-4 font-medium text-sm text-green-600">
                     {status === 'sent'
-                        ? <>A new verification link has been sent to the email address you provided during registration.
-                            code: {code}</>
+                        ? <>A new verification link has been sent to the email address you provided during registration.</>
                         : status == 'expired'
                             ? <span className='text-orange-500'>Verification code has expired</span>
                             : status === 'error' ?
-                                <span className='text-red-500'>{error} {code}</span> : ''
+                                <span className='text-red-500'>{error}</span> : ''
                     }
                 </div>
             )}

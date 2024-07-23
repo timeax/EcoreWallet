@@ -33,7 +33,7 @@ class Withdrawals extends Model
                 'user_id' => $withdraw->user_id,
                 'charge' => $withdraw->charge,
                 'amount' => numFormat($withdraw->amount, 8),
-                'remark' => 'withdraw_money',
+                'remark' => 'withdraw',
                 'currency_id' => $withdraw->currency_id,
                 'type' => '-',
                 'status' => 'pending',

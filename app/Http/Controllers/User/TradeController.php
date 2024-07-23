@@ -7,6 +7,8 @@ use App\Models\Currency;
 use App\Models\Exchange;
 use App\Models\Rate;
 use App\Models\Transaction;
+use App\Models\Transfer;
+use App\Models\User;
 use App\Models\Withdrawals;
 use Cryptomus;
 use Illuminate\Http\Request;
@@ -22,8 +24,13 @@ class TradeController extends Controller
     {
         $user = Auth::user();
         $wallets = $user->wallets()->with('curr')->get();
+        $currencies = Currency::all();
+        $deposits = $user->deposits;
+        $withdrawals = $user->withdrawals;
+        $exchanges = $user->exchanges;
+        $transfers = $user->transfers;
 
-        return Inertia::render('Trade/Wallets', compact('wallets'));
+        return Inertia::render('Trade/Wallets', compact('wallets', 'currencies', 'deposits', 'withdrawals', 'exchanges', 'transfers'));
     }
 
 
@@ -77,12 +84,12 @@ class TradeController extends Controller
             return back()->withErrors(['amount' => 'Please follow the limit'])->withInput();
         }
 
+        $charge = 0;
+        $finalAmount = $request->amount;
 
-        $charge = ($request->amount * $curr->charges->withdraw_charge / 100) + $request->charge;
-        $finalAmount = numFormat($request->amount + $charge);
-
-        if ($request->type === '@ecore') {
-            $finalAmount = $request->amount;
+        if ($request->type !== '@ecore') {
+            $charge = ($request->amount * $curr->charges->withdraw_charge / 100) + $request->charge;
+            $finalAmount = $request->amount + $charge;
         }
 
         if ($wallet->balance < $finalAmount) {
@@ -91,11 +98,27 @@ class TradeController extends Controller
 
         if ($request->type === '@ecore') {
             ///--- verify the account number and debit user
-            return back()->with('success', 'Successfully transferred to ' . $request->ecoreuser);
+            $to = User::where(['account_no' => $request->ecoreuser])->get();
+            //---------
+            if (!$to) return back()->withErrors(['ecoreuser' => "User account does not exist"]);
+            if ($to->status == 0) return back()->withErrors(['ecoreuser' => "User account has be blocked"]);
+            if (!$to->account_no) return back()->withErrors(['ecoreuser' => "User account is not verified"]);
+            //------------
+            Transfer::create([
+                'user_id' => $user->id,
+                'to_user' => $to->id,
+                'account_no' => $to->account_no,
+                'currency_id' => $curr->id,
+                'status' => 'pending',
+                'transaction_ref' => uuid('transfer' . $user->id),
+                'amount' => $finalAmount
+            ]);
+            //--------
+            return back()->with('success', 'Transfer request submitted successfully');
         }
 
         Withdrawals::create([
-            'trx' => 'WR' . strtotime('now') . $user->id,
+            'trx' => uuid('withdraw'),
             'user_id' => $user->id,
             'amount' => $request->amount,
             'charge' => $charge,
@@ -109,8 +132,14 @@ class TradeController extends Controller
 
     public function history(Request $request)
     {
+        $user = Auth::user();
+        $currencies = Currency::all();
+        $deposits = $user->deposits;
+        $withdrawals = $user->withdrawals;
+        $exchanges = $user->exchanges;
+        $transfers = $user->transfers;
         $transactions = Transaction::where(['user_id' => $request->user()->id])->with('currency')->get();
-        return Inertia::render('Trade/History', compact('transactions'));
+        return Inertia::render('Trade/History', compact('transactions', 'currencies', 'deposits', 'withdrawals', 'exchanges', 'transfers'));
     }
 
     public function swap_ui(string $code = 'BTC')
@@ -139,22 +168,24 @@ class TradeController extends Controller
         $request->validate([
             'from' => "required",
             'to' => "required",
-            'amount' => ['required', 'numeric', 'min_digits:0.00000001'],
+            'amount' => ['required', 'numeric'],
             'type' => ['required'],
             'expire' => ['required_if:type,limit'],
             'limitRate' => ['required_if:type,limit'],
             'rate' => 'required_if:type,instant',
         ]);
 
-        $data = $request->validated();
+        $data = $request->all();
 
         $from = $user->wallets()
-            ->where(['currency_id' => $data['from']])
-            ->with('curr')->get();
+            ->with('curr')
+            ->where(['crypto_id' => $data['from']])
+            ->first();
 
         $to = $user->wallets()
-            ->where(['currency_id' => $data['to']])
-            ->with('curr')->get();
+            ->with('curr')
+            ->where(['crypto_id' => $data['to']])
+            ->first();
 
         if (!$from || !$to) return back()->with(['error' => 'Something went wrong, try again later']);
         //-------
@@ -165,7 +196,7 @@ class TradeController extends Controller
         $fee = getFee($amount, $charge, $chargeType);
         $loss = $amount + $fee;
         //----
-        if ($from->all_balance->available < $loss) return back()->with([
+        if ($from->all_balance['available'] < $loss) return back()->with([
             'error' => 'Insufficient funds'
         ]);
         //-------
@@ -192,7 +223,7 @@ class TradeController extends Controller
                 ]);
             } else return back()->with(['error' => 'Something went wrong, try again later']);
 
-            return back()->with('success', 'Withdraw request has been submitted successfully.');
+            return back()->with('success', 'Exchange request has been submitted successfully.');
         }
 
         $rate = (float) $data['limitRate'];
@@ -219,85 +250,3 @@ class TradeController extends Controller
         return back()->with('success', 'Withdraw request has been submitted successfully.');
     }
 }
-
-
-/**
-//-- get the wallet codes for the exchange
-        $with = $request->get('exchangeWith');
-        $walletCode = $request->get('wallet');
-        //---------
-        $amount = (float) $request->get('amount');
-        //----------
-if ($with && $walletCode) {
-            $exchangeWallet = Wallet::where(['code' => $with], '=')->with('curr')->first();
-            $wallet = Wallet::where(['code' => $walletCode], '=')->with('curr')->first();
-
-            $exchange = Rate::where(['currency_id' => $wallet->curr->id], '=')
-                ->firstOr(function () {
-                    return Rate::where(['currency_id' => '*'])->firstOrCreate([
-                        'currency_id' => '*',
-                        'charge' => Generalsetting::first()->exchange_rate
-                    ]);
-                });
-
-            $charge = (float) $exchange->charge;
-
-            $rates = json_decode($exchange->rates || '[]');
-
-            $rate = -1;
-
-            foreach ($rates as $item) {
-                if ($item['to'] === $with) {
-                    $rate = $item['course'];
-                    break;
-                }
-            }
-
-            if ($rate === -1) {
-                return back()->with(['error' => 'Something went wrong, try again later.']);
-            }
-
-            if ($wallet && $exchangeWallet) {
-                $balance = (float) $wallet->balance;
-                // total amount with charges
-                $total = $amount + $charge;
-                //----
-                if ($balance < $total) {
-                    return back()->with(['error' => 'Insufficient Funds']);
-                }
-
-
-                $wallet->balance = numFormat($balance - $total, 8);
-                $wallet->save();
-                //--------
-                $balance = (float) $exchangeWallet->balance;
-                $exchangeWallet->balance = numFormat(($balance + $amount) * $rate);
-                $exchange->save();
-                //-------
-                $user = Auth::user();
-                $ref = strtotime('now') . $user->id;
-                // --
-                $user->notify(new TransactionNotifications(Transaction::create([
-                    'trnx' => null,
-                    'user_id' => $user->id,
-                    'charge' => $charge,
-                    'amount' => $total,
-                    'remark' => 'swap',
-                    'type' => '-',
-                    'ref' => 'debit' . $ref,
-                    'currency_id' => $wallet->curr->id
-                ])));
-
-                $user->notify(new TransactionNotifications(Transaction::create([
-                    'trnx' => null,
-                    'user_id' => $user->id,
-                    'amount' => $amount * $rate,
-                    'remark' => 'swap',
-                    'type' => '+',
-                    'ref' => 'credit' . $ref,
-                    'currency_id' => $exchangeWallet->curr->id
-                ])));
-            }
-        }
-
- */

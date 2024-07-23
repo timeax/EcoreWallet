@@ -2,13 +2,6 @@ import Colors from "../colors";
 
 export type ColorNames = keyof typeof Colors;
 
-interface Theming {
-    name: ColorNames,
-    theme: {
-
-    }
-}
-
 export type Color =
     | `rgb(var(--color-${ColorNames}))`
     | `rgb(var(--color-${ColorNames}-${string | number}))`
@@ -203,4 +196,4 @@ function shadow(name: ColorNames, weights: ColorWeight = {}, opacity: Opacity = 
     }
 }
 
-export { textColor, color, create, gradiant, shadow };
+export { textColor, color, create, gradiant, shadow, bgColor };

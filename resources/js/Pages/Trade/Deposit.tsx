@@ -1,26 +1,21 @@
-import Card from '@components/Card';
 import CryptoIcon from '@components/CryptoIcon';
-import Text from '@components/Text';
-import { Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
-import { routeById } from '@routes/index';
 import { AddressState, Addresses, CryptomusService, PageProps, Wallet, Wallets } from '@typings/index';
-import { Button } from 'primereact/button';
 import UiButton from '@components/Button';
 import { classNames } from 'primereact/utils';
-import React, { FC, useEffect, useState } from 'react';
-import { FaChevronDown, FaCopy } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaCopy } from 'react-icons/fa';
 import { SelectButton } from 'primereact/selectbutton';
 import { CiClock2 } from 'react-icons/ci';
 import QRCode, { QRCodeProps } from 'react-qr-code';
-import { RiErrorWarningFill, RiErrorWarningLine } from 'react-icons/ri';
-import copy from 'copy-to-clipboard';
 import { Container, Title } from '@components/Trade';
-import Dropdown from '@components/Dropdown';
 import Select from '@components/Trade/Select';
 import Note from '@components/Trade/Note';
+import styles from '@styles/pages/trade.module.scss';
+import { showIf } from '@assets/fn';
+import { Copy } from '@context/TransactionDetail';
 
-const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: code, services }) => {
+const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: code, services, ...props }) => {
     //--- code here ---- //
     const [wallet, setWallet] = useState<Wallet | undefined>();
     const [serviceList, setServiceList] = useState<AddressState[] | undefined>();
@@ -54,46 +49,50 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
     return (
         <AuthenticatedLayout
             user={auth.user}
+            {...props}
             desc='Add Crypto to your Ecorewallet account!'
             title='Fund Account'>
-            <div className="grid mt-8 grid-cols-9 gap-12">
-                <div className="col-span-6">
-                    <div className="flex flex-col gap-6">
+            <div className={styles.deposit}>
+                <div className={styles.select}>
+                    <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-3">
                             <Title medium bright>
                                 Select Coin
                             </Title>
-                            <Select
-                                quick
-                                contentTemplate={contentTemplate}
-                                menuItemTemplate={menuTemplate}
-                                items={wallets}
-                                unique='id'
-                                value={wallet}
-                                onSelect={(e) => setWallet(e.value)}
-                            />
+                            <Container>
+                                <Select
+                                    quick
+                                    contentTemplate={contentTemplate}
+                                    menuItemTemplate={menuTemplate}
+                                    items={wallets}
+                                    unique='id'
+                                    placeholder='Wallet'
+                                    value={wallet}
+                                    onSelect={(e) => setWallet(e.value)}
+                                />
+                            </Container>
                         </div>
                         <div className="flex gap-4 pl-4">
                             <Title>Total Balance:</Title>
                             <Title md bold>{wallet?.balance} {wallet?.curr.code}</Title>
                         </div>
-                        <div className="flex flex-col gap-3">
+                        <div className={classNames("flex flex-col gap-3", styles.coin_address)}>
                             <Title medium bright>
                                 {wallet?.curr.code} Address
                             </Title>
                             <Container>
                                 <div className='flex justify-between'>
-                                    <Title lg medium normal>
+                                    <Title md medium normal>
                                         {service?.address || 'Please Select A Network'}
                                     </Title>
                                     <div>
                                         <UiButton onClick={() => {
                                             if (service) {
                                                 navigator.clipboard?.writeText(service.address).then((e) => {
-                                                    alert('it is done')
+
                                                 });
                                             }
-                                        }} sx={{ fontSize: '15px !important' }} iconLoc='right' iconSize='16px' size='sm' icon={<FaCopy />} rounded>Copy</UiButton>
+                                        }} iconLoc='right' iconSize='16px' size='normal' icon={<FaCopy />} rounded>Copy</UiButton>
                                     </div>
                                 </div>
                             </Container>
@@ -101,9 +100,9 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
                     </div>
                 </div>
                 {/* Address Section */}
-                <div className='col-span-3'>
+                <div className={styles.address}>
                     <div className='mb-4'>
-                        <Title xl medium>Deposit Network</Title>
+                        <Title bright className={styles.address_title} medium>Deposit Network</Title>
                     </div>
                     <div className='flex flex-col gap-4'>
                         <div>
@@ -139,8 +138,11 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
                         </div>
                         <div className="flex flex-col gap-5 items-center">
                             <Title lg bold>{wallet?.curr.code} Address</Title>
-                            <div className='flex items-center justify-center'>
-                                {show<QRCodeProps>(QRCode, { value: service?.address as string, size: 230 })}
+                            <div className='flex flex-col gap-4 items-center justify-center'>
+                                <div className={styles.coin_address_mobile}>
+                                    {showIf(service?.network, <Copy value={service?.address} />)}
+                                </div>
+                                {show<QRCodeProps>(QRCode, { value: service?.address as string, size: 220 })}
                             </div>
                         </div>
 
@@ -159,8 +161,8 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
 export const menuTemplate = (item: Wallet) => {
     return <div className='flex w-fit items-center gap-5'>
         <div className="flex items-center gap-2 py-1 px-3 rounded-[999px]">
-            <CryptoIcon width='2.5rem' height='2.5rem' name={item?.curr.curr_name} label={item?.curr.symbol} />
-            <Text className='!text-theme-emphasis font-medium'>{item.curr.curr_name}</Text>
+            <CryptoIcon width='2rem' curr={item.curr} name={item?.curr.curr_name} label={item?.curr.symbol} />
+            <Title md noPad medium>{item.curr.curr_name}</Title>
         </div>
         {/* <Text variant={'other'} size='12px' className=''>{item.curr.code}</Text> */}
     </div>
@@ -169,10 +171,10 @@ export const menuTemplate = (item: Wallet) => {
 export const contentTemplate = (wallet: Wallet) => {
     return <div className='flex w-fit items-center gap-5'>
         <div className="flex items-center gap-1 bg-theme-bgContent py-2 px-3 rounded-[999px]">
-            <CryptoIcon width='2.2rem' height='2.2rem' size='12px' name={wallet?.curr.curr_name} label={wallet?.curr.symbol} />
-            <Text className='!text-theme-emphasis font-medium'>{wallet.curr.curr_name}</Text>
+            <CryptoIcon curr={wallet.curr} width='2.2rem' height='2.2rem' size='12px' name={wallet?.curr.curr_name} label={wallet?.curr.symbol} />
+            <Title md noPad medium>{wallet.curr.curr_name}</Title>
         </div>
-        <Text variant={'other'} size='12px' className=''>{wallet.curr.code}</Text>
+        <Title xs>{wallet.curr.code}</Title>
     </div>
 }
 

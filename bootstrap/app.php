@@ -30,13 +30,12 @@ $app = Application::configure(basePath: $_ENV['APP_BASE_PATH'] ?? dirname(__DIR_
         //
     })->withExceptions(function (Exceptions $exceptions) {
         $exceptions->respond(function ($response) {
-            if ($response->getStatusCode() === 419) {
-                Log::info('there was an error ' . $response->getContent());
-                return back()->with([
-                    'toast' => [
-                        'type'
-                    ],
-                ]);
+            if ($response && $response->getStatusCode() === 419) {
+                return back()->with(['error' => 'Session expired']);
+            }
+
+            if (is_null($response)) {
+                return back()->with(['error' => 'Something went wrong']);
             }
 
             return $response;
@@ -45,7 +44,7 @@ $app = Application::configure(basePath: $_ENV['APP_BASE_PATH'] ?? dirname(__DIR_
         //---- update
         $schedule->job(new UpdateCryptoPrices('market-data'))->everyFiveMinutes();
         //--- update the historical data of the wallets
-        $schedule->job(new UpdateCryptoPrices('historical-data'))->dailyAt('1:00');
+        // $schedule->job(new UpdateCryptoPrices('historical-data'))->dailyAt('1:00');
         //--- update the exchange rates of the cryptomus api
         $schedule->job(new UpdateExchangeRates())->everyTenSeconds();
     })->create();

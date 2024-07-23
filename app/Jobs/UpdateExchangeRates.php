@@ -31,6 +31,20 @@ class UpdateExchangeRates implements ShouldQueue
         return "https://api.cryptomus.com/v1/exchange-rate/{$code}/list";
     }
 
+    private function buildLink2(string $name, string $days = '1')
+    {
+        $curr = @Currency::where(['default' => '1'])->first()->code;
+        $def = @str($curr)->lower() ?? 'usd';
+        return "https://api.coingecko.com/api/v3/coins/{$name}/market_chart?vs_currency={$def}&days={$days}&precision=8";
+    }
+
+    private function addHistoricalData(array $rates = [])
+    {
+        if(count($rates) > 0) {
+
+        }
+    }
+
     /**
      * Execute the job.
      */
@@ -45,7 +59,7 @@ class UpdateExchangeRates implements ShouldQueue
             if ($response->ok()) {
                 $data = json_encode($response['result']);
 
-                if (Exchange::where(['status' => 'pending'])->count() > 0)
+                if (Exchange::where(['status' => 'pending', 'to' => $curr->id])->count() > 0)
                     ExchangeLimitProcessor::dispatch(['id' => $curr->id, 'rates' => $data]);
 
                 $rates = Rate::where(['currency_id' => $curr->id])->first();

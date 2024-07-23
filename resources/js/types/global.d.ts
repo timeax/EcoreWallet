@@ -11,10 +11,10 @@ declare global {
     }
     var route: typeof ziggyRoute;
 
+    var domainName: string;
 
 
-
-    interface Empty {}
+    interface Empty { }
 
     type AppElement<T = Empty> = BaseElement & T;
 
@@ -23,7 +23,10 @@ declare global {
         children?: React.ReactNode;
         id?: string;
         tabIndex?: number;
+        'data-section'?: string | number;
     }
+
+    type Nothing = null | undefined;
 
     type HTMLTags = [
         "a",
@@ -211,3 +214,46 @@ declare global {
         zcash: string;
     }
 }
+
+
+type MBxParams = {
+    header: string;
+    body: any[];
+    isPhone: boolean;
+  };
+  type ChatBoxParams = {
+    isAgent?: boolean;
+    message: any;
+    time?: string;
+  };
+
+  type TkVData = {
+    id: string;
+    cs: {
+      name: string;
+      role: string;
+    };
+    divison: any;
+    date: string;
+    subject: string;
+    category: string;
+    status: string;
+  };
+
+  type STData = {
+    id: string;
+    date: Date;
+    subject: string;
+    status: string;
+  };
+
+  type UtrackType = {
+    zimg: number;
+    ztxtStyl: boolean;
+    zB: number;
+    killStyle: boolean;
+    newbie: Node[];
+    lastRange?: Range;
+    zCtrl: boolean;
+    killUpload: boolean;
+  };

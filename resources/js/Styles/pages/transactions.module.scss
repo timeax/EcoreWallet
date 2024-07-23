@@ -1,4 +1,3 @@
-
 .main {
     border-spacing: 1px;
     border-collapse: collapse;
@@ -17,7 +16,7 @@
     th,
     td {
         text-align: left;
-        padding: .8rem 1rem;
+        padding: 0.8rem 1rem;
     }
     thead tr {
         height: 60px;
@@ -27,7 +26,7 @@
             display: flex;
             column-gap: 4px;
             align-items: center;
-            color: rgb($rc-theme-emphasis / .6);
+            color: rgb($rc-theme-emphasis / 0.6);
             font-weight: 600;
             font-size: 14px;
         }
@@ -49,7 +48,9 @@
         &:last-child {
             border: 0;
         }
-        &:nth-child(odd){background-color: #f2f2f228;}
+        &:nth-child(odd) {
+            background-color: #f2f2f228;
+        }
     }
 }
 
@@ -58,4 +59,92 @@
     border-radius: 16px;
     background: $color-theme-bgColor;
     box-shadow: 0px 0px 9px 1px rgba(128, 128, 128, 0.041);
+}
+
+.icon {
+    display: flex;
+}
+
+.history {
+    @include media("<=tablet2") {
+        margin-top: 0;
+    }
+}
+
+.curr_code {
+    font-weight: 500;
+}
+
+@include media("<=sm-tablet") {
+    .hideMd {
+        display: none;
+    }
+}
+
+@include media(">=sm-tablet") {
+    .showMd {
+        display: none;
+    }
+}
+
+@include media("<=530px") {
+    .hideSm {
+        display: none;
+    }
+
+    .balance {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        // justify-content: end;
+    }
+}
+
+@include media(">530px") {
+    .showSm {
+        display: none;
+    }
+}
+
+.calender {
+    position: absolute;
+}
+
+.totals {
+    @include media("<=745px") {
+        column-gap: 6px;
+    }
+
+    @include media("<=660px") {
+        display: none;
+    }
+}
+
+.filters {
+    @include media("<=xxs-laptop") {
+        padding-left: 0;
+    }
+}
+
+.dateRangeLaptop {
+    @include media("<=807px") {
+        // display: none;
+    }
+}
+
+.filterContainer {
+    display: flex;
+    column-gap: 6px;
+    align-items: center;
+
+    @include media("<=330px") {
+        justify-content: space-around;
+        width: 100%;
+    }
+}
+
+.dateRangeMobile {
+    @include media(">=807px") {
+        display: none;
+    }
 }

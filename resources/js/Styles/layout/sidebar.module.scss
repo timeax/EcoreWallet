@@ -116,6 +116,20 @@
     }
 }
 
+.sidebarOpen {
+    .active {
+        &::before {
+            content: "";
+            display: none;
+        }
+    }
+
+    .navlink {
+        gap: 1rem;
+        display: flex;
+    }
+}
+
 .nav-item-icon {
     font-size: 18px;
 }

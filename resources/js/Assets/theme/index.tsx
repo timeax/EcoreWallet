@@ -6,6 +6,7 @@ import button from "./button";
 import { classNames } from "primereact/utils";
 import tab from '@styles/components/tabview.module.scss'
 import dashboard from '@styles/pages/dashboard.module.scss';
+import sidebar from "./sidebar";
 
 
 export function classList(options: any = {}): string[] {
@@ -213,7 +214,33 @@ const AppTheme: PrimeReactPTOptions = {
     avatar: Tailwind.avatar,
     checkbox: Tailwind.checkbox,
     toolbar: Tailwind.toolbar,
-    progressspinner: Tailwind.progressspinner
+    progressspinner: Tailwind.progressspinner,
+    sidebar: sidebar,
+    tooltip: {
+        root: function root(_ref19) {
+          var context = _ref19.context;
+          return {
+            className: classNames('absolute shadow-md', {
+              'py-0 px-1': context.right || context.left || !context.right && !context.left && !context.top && !context.bottom,
+              'py-1 px-0': context.top || context.bottom
+            })
+          };
+        },
+        arrow: function arrow(_ref20) {
+          var context = _ref20.context;
+          return {
+            className: classNames('absolute w-0 h-0 border-transparent border-solid', {
+              '-mt-1 border-y-[0.25rem] border-r-[0.25rem] border-l-0 border-r-gray-600': context.right,
+              '-mt-1 border-y-[0.25rem] border-l-[0.25rem] border-r-0 border-l-gray-600': context.left,
+              '-ml-1 border-x-[0.25rem] border-t-[0.25rem] border-b-0 border-t-gray-600': context.top,
+              '-ml-1 border-x-[0.25rem] border-b-[0.25rem] border-t-0 border-b-gray-600': context.bottom
+            })
+          };
+        },
+        text: {
+          className: 'p-3 text-sm bg-gray-600 text-white rounded-md whitespace-pre-line break-words'
+        }
+      },
 }
 
 export default AppTheme;

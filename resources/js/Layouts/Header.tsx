@@ -7,13 +7,17 @@ import ClassicSections from './ClassicSections';
 import IconButton from '@components/Button/IconButton';
 import { CiSearch } from 'react-icons/ci';
 import { FiBell } from 'react-icons/fi';
-import { MdOutlineLightMode } from 'react-icons/md';
+import { MdOutlineDarkMode, MdOutlineLightMode } from 'react-icons/md';
 import { Avatar } from 'primereact/avatar';
 import { showIf } from '@assets/fn';
 import Dropdown from '@components/Dropdown';
 import styles from '@styles/layout/header.module.scss';
+import { CgMenuMotion } from 'react-icons/cg';
+import Tag from '@components/index';
+import { routeById } from '@routes/index';
+import { router } from '@inertiajs/react';
 
-const Header: React.FC<HeaderProps> = ({ title, header, desc }) => {
+const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) => {
     //--- code here ---- //
     const [notifications, setNotifications] = useState([])
 
@@ -27,17 +31,20 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc }) => {
     return (
         <header className={classNames(`flex items-center justify-between relative`)}>
             <div className={classNames(layout.container, 'justify-center')}>
-                <ClassicSections className={styles.headernav}>
+                <div className={styles.headernav}>
                     <div className={classNames("items-center", styles.titlebar)}>
-                        <div>
+                        <Tag className={styles.menuButton} element='div' onClick={() => toggleSidebar()}>
+                            <CgMenuMotion />
+                        </Tag>
+                        <div className='flex items-center '>
                             <Title noPad xl4>{title}</Title>
-                            {showIf(desc, <Title noPad bright className={styles.desc}>{desc}</Title>)}
+                            {/*showIf(desc, <Title noPad bright className={styles.desc}>{desc}</Title>) */}
                         </div>
                         <div className={classNames('flex items-center', { 'mb-3': Boolean(desc) })}>{showIf(header, header)}</div>
                     </div>
 
-                    <div className={classNames('flex items-center', styles.nav)}>
-                        <div className={styles.search}>
+                    <div className={classNames('flex items-center justify-end', styles.nav)}>
+                        {/* <div className={styles.search}>
                             <IconButton
                                 bgColor='theme'
                                 shape='circle'
@@ -47,32 +54,38 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc }) => {
                             >
                                 <CiSearch />
                             </IconButton>
-                        </div>
-                        <div className='flex gap-4'>
-                            <IconButton
-                                bgColor='theme'
-                                shape='circle'
-                                size='17px'
-                                color='rgb(var(--color-theme-emphasis))'
-                            // variant='contained'
-                            >
-                                <FiBell />
-                            </IconButton>
-                            <IconButton
-                                bgColor='theme'
-                                shape='circle'
-                                size='16px'
-                                color='rgb(var(--color-theme-emphasis))'
-                                variant='contained'
-                                className={styles.themeBtn}
-                            >
-                                <MdOutlineLightMode />
-                            </IconButton>
-                            <UserWidget />
+                        </div> */}
+                        <div className='flex gap-12 ml-auto items-center'>
+                            <div className='flex gap-4 items-center'>
+                                <IconButton
+                                    bgColor='primary'
+                                    shape='icon'
+                                    size='16px'
+                                    variant='contained'
+                                    data-section='icon'
+                                    className={styles.themeBtn}
+                                >
+                                    <MdOutlineDarkMode />
+                                    <span>|</span>
+                                    <MdOutlineLightMode />
+                                </IconButton>
+                            </div>
 
+                            <div className='flex gap-4 items-center'>
+                                <IconButton
+                                    bgColor='primary'
+                                    shape='icon'
+                                    size='18px'
+                                    variant='contained'
+                                    data-section='icon'
+                                >
+                                    <FiBell />
+                                </IconButton>
+                                <UserWidget />
+                            </div>
                         </div>
                     </div>
-                </ClassicSections>
+                </div>
             </div>
         </header>
     );
@@ -87,17 +100,17 @@ const UserWidget: React.FC<UserWidgetProps> = () => {
     const [first, last = 'User'] = user.name.split(' ');
 
     return (
-        <Dropdown>
+        <Dropdown className={styles.user}>
             <Dropdown.Trigger>
                 <div className='flex gap-1 cursor-pointer'>
-                    <Avatar shape='circle' label={last.charAt(0).toUpperCase()} style={{ backgroundColor: 'rgb(var(--color-primary))', color: '#ffffff' }} />
+                    <Avatar shape='circle' label={last.charAt(0).toUpperCase()} style={{ backgroundColor: 'rgb(var(--color-primary-800))', color: '#ffffff' }} />
                     <Title noPad className={styles.avatarText}>
                         {first}
                     </Title>
                 </div>
             </Dropdown.Trigger>
             <Dropdown.Content>
-                <Dropdown.Link>
+                <Dropdown.Link onClick={e => router.post(route('user.logout'))}>
                     Log out
                 </Dropdown.Link>
             </Dropdown.Content>
@@ -113,7 +126,8 @@ interface UserWidgetProps {
 interface HeaderProps {
     title: string;
     header?: React.ReactNode;
-    desc?: React.ReactNode
+    desc?: React.ReactNode;
+    toggleSidebar(): void
 }
 
 export default Header

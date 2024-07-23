@@ -34,16 +34,27 @@
     );
 }
 
+.transaction_icon {
+    @include size(30px);
+    font-size: 1.2em;
+    background: $color-info-800;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    display: none;
+    #{attr(crypto-icon)} {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+}
+
 .history {
     table {
         width: 100%;
         @include media("<=xs-tablet") {
-            display: none;
-        }
-    }
-
-    .history_mobile {
-        @include media(">xs-tablet") {
             display: none;
         }
     }
@@ -57,28 +68,92 @@
     td {
         @include py(0.6rem);
     }
+
+    @include media("<=lg-mobile") {
+        background-color: transparent !important;
+        #{attr(container)} {
+            padding: 0 !important;
+        }
+    }
+
+    &_mobile {
+        .transaction_icon {
+            @include size(40px);
+            font-size: 1.6em;
+            background: $color-info-800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+
+            #{attr(crypto-icon)} {
+                position: absolute;
+            }
+        }
+
+        @include media(">xs-tablet") {
+            display: none;
+        }
+
+        @include media("<=lg-mobile") {
+            display: flex;
+            z-index: 9999;
+            flex-direction: column;
+            row-gap: 8px;
+            .history_item {
+                background-color: $color-theme-bgColor;
+                padding: 0.6rem 0.8rem;
+                border-radius: 12px;
+            }
+        }
+    }
 }
 
 .overlay {
     :global {
         #app-dashboard {
-            column-gap: 70px;
+            column-gap: 60px;
 
             #{attr(classic-light)} {
                 width: 62%;
-                padding-top: 2.8rem;
-                @include media("<=xs-tablet") {
+                padding-top: 2.3rem;
+
+                @include media("<=xs-laptop") {
+                    width: 60%;
+                }
+
+                @include media("<=xxs-laptop") {
+                    width: 55%;
+                }
+
+                @include media("<=tablet2") {
                     width: 100%;
                     padding-top: 0;
                 }
             }
 
             #{attr(classic-dark)} {
-               flex-grow: 1;
+                flex-grow: 1;
+                @include media("<=tablet2") {
+                    display: none;
+                }
             }
 
-            @include media("<=1185px") {
-                column-gap: 50px;
+            @include media("<=1366px") {
+                column-gap: 40px;
+            }
+
+            @include media("<=xxs-laptop") {
+                column-gap: 30px;
+            }
+
+            @include media("<=1082px") {
+                column-gap: 25px;
+            }
+
+            @include media("<=xxs-laptop") {
+                column-gap: 30px;
             }
 
             @include media("<=xs-tablet") {
@@ -92,6 +167,7 @@
     @include media("<=xs-tablet") {
         display: none;
     }
+    justify-content: space-between;
 }
 
 .total_container {
@@ -104,13 +180,26 @@
     width: 33.3%;
 }
 
-.prices {
+.latest {
     @include media("<=lg-mobile") {
-        padding: 0.8rem !important;
+        background-color: transparent !important;
     }
 
+    .price_name {
+        font-weight: 600;
+        @include media(">=lg-mobile") {
+            display: none;
+        }
+    }
+}
+
+.prices {
     padding-bottom: 0px !important;
     overflow-y: auto;
+
+    @include media("<=lg-mobile") {
+        padding: 0rem !important;
+    }
 }
 
 .price_element {
@@ -124,11 +213,6 @@
     padding: 0.8rem 0;
     img {
         width: 40px;
-
-        @include media("<=mobile") {
-            width: 20px;
-            height: 20px;
-        }
     }
 
     justify-content: space-between;
@@ -142,6 +226,12 @@
         @include media("<=xs-tablet") {
             flex-direction: column;
             align-items: end;
+        }
+
+        @include media("<=lg-mobile") {
+            .price_change {
+                order: 2;
+            }
         }
     }
 }
@@ -159,5 +249,61 @@
 
     @include media(">=xs-mobile") {
         @include px(1rem);
+    }
+
+    // @include media("<=lg-mobile") {
+    //     display: none;
+    // }
+}
+
+.quickButton {
+    display: flex;
+    column-gap: 12px;
+    margin-top: 10px;
+    button {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        background-color: rgba(168, 168, 168, 0.171);
+        padding: 0.8rem 0;
+        justify-content: center;
+        border-radius: 3px;
+        color: $color-theme-button-text;
+
+        @include media(">=lg-mobile") {
+            display: none;
+        }
+
+        span {
+            @include px(10px);
+        }
+    }
+}
+
+.profile_balance {
+    margin-bottom: 0.8rem;
+}
+
+.wallets {
+    @include media(">=tablet2") {
+        display: none;
+    }
+
+    padding-right: 12px;
+    row-gap: 10px;
+    display: flex;
+    overflow: visible;
+    flex-direction: column;
+
+    .scrollx {
+        width: 106%;
+        overflow-x: auto;
+        &::-webkit-scrollbar {
+            width: 5px;
+            display: none;
+            height: 8px;
+            background-color: #aaa;
+        }
     }
 }

@@ -1,3 +1,4 @@
+import { classNames } from 'primereact/utils';
 import { forwardRef, useEffect, useImperativeHandle, useRef, InputHTMLAttributes } from 'react';
 
 export default forwardRef(function TextInput(
@@ -21,7 +22,7 @@ export default forwardRef(function TextInput(
             <input
                 {...props}
                 type={type}
-                className={className}
+                className={classNames(className, 'border py-1 rounded-sm px-2')}
                 ref={localRef}
             />
         </div>

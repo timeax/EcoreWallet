@@ -1,0 +1,64 @@
+.mxdc-parent {
+    display: inline;
+
+    .drop-card {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 5px;
+        width: 53%;
+
+        div[data-pc-section="body"] {
+            padding-top: 0;
+        }
+
+        div[data-pc-section="content"] {
+            display: flex;
+            flex-direction: column;
+            row-gap: 4px;
+            padding-bottom: 8px;
+        }
+
+        div[data-pc-section="footer"] {
+            padding: 0;
+        }
+
+        .check-grp {
+            display: flex;
+            justify-content: space-between;
+
+            .id {
+                text-transform: capitalize;
+                font-size: 0.95em;
+                font-weight: 500;
+                color: rgb(0, 0, 0, 0.6);
+            }
+
+            >input {
+                width: 1.1em;
+            }
+        }
+
+        .btn-parent {
+            display: flex;
+            justify-content: end;
+
+            .btn {
+                background-color: rgb(34, 88, 153, 0.9);
+                font-size: 0.8em;
+                font-weight: 500;
+                color: white;
+                padding: 5px 9px;
+                border-radius: 6px;
+                width: fit-content;
+
+                &:hover {
+                    background-color: rgb(34, 88, 153, 0.8);
+                    box-shadow: 0 0 0 0.1rem rgba(191, 219, 254, 1);
+
+                }
+            }
+        }
+
+    }
+}

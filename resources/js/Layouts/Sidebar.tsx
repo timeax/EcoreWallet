@@ -1,27 +1,31 @@
 import React, { FC } from 'react';
 import styles from '@styles/layout/sidebar.module.scss';
 import { getSidebar, Route } from '@routes/index';
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import logo from '@assets/images/icon.png';
+import dark from '@assets/images/logo1.png';
+import light from '@assets/images/logo2.png';
 import Tag from '@components/index';
-import Button from '@components/Button';
-import Dropdown from '@components/Dropdown';
-import { useAuth } from '@context/AuthenticatedContext';
 import { classNames } from 'primereact/utils';
 
-const Sidebar: React.FC<SidebarProps> = () => {
+const Sidebar: React.FC<SidebarProps> = ({ open }) => {
     //--- code here ---- //
-    const user = useAuth();
     return (
         <div className={styles.main}>
             <div className={styles.header}>
-                <Tag element={'img'} width={'30px'} src={logo} alt="" />
+                <Tag element={'img'} width={classNames({
+                    '30px': !open,
+                    '120px': open
+                })} src={classNames({
+                    [logo]: !open,
+                    [dark]: open
+                })} alt="" />
             </div>
             {/* <Button className='!bg-primary-800 w-fit !px-12 !rounded-[999px]'>Quick</Button> */}
             <div className='grow flex gap-y-12 flex-col'>
                 {getSidebar().map((routes, key) => {
                     return <div className={`${styles.navlist}`} key={key}>
-                        {routes.map(item => <NavItem {...item} key={item.id} />)}
+                        {routes.map(item => <NavItem sidebarOpen={open} {...item} key={item.id} />)}
                     </div>
                 })}
 
@@ -54,7 +58,7 @@ interface NavItemProps extends Route {
 }
 
 interface SidebarProps {
-
+    open?: boolean
 }
 
 export default Sidebar

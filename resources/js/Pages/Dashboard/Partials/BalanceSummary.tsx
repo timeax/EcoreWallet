@@ -3,21 +3,23 @@ import IconButton from '@components/Button/IconButton';
 import Card from '@components/Card';
 import { Title } from '@components/Trade';
 import { useWrapper } from '@context/AuthenticatedContext';
-import { Wallets } from '@typings/index';
+import { Currencies, Wallets } from '@typings/index';
 import React from 'react';
 import { GiCoins } from 'react-icons/gi';
 import styles from '@styles/pages/dashboard.module.scss';
 import { classNames } from 'primereact/utils';
 import { useLive } from '@context/LiveContext';
+import CurrencyFormat from 'react-currency-format';
 
 const BalanceSummary: React.FC<BalanceSummaryProps> = ({ wallets }) => {
     //--- code here ---- //
-    const { balance } = useLive()
+    const { balance, currency } = useLive()
     //------------
     return (
         <section>
             <div className={classNames("flex gap-4", styles.total_container)}>
                 <Total
+                    currency={currency}
                     change='20%'
                     color='info'
                     icon={<GiCoins />}
@@ -26,6 +28,7 @@ const BalanceSummary: React.FC<BalanceSummaryProps> = ({ wallets }) => {
                 />
 
                 <Total
+                    currency={currency}
                     change='20%'
                     color='success'
                     icon={<GiCoins />}
@@ -34,6 +37,7 @@ const BalanceSummary: React.FC<BalanceSummaryProps> = ({ wallets }) => {
                 />
 
                 <Total
+                    currency={currency}
                     change='20%'
                     color='warning'
                     icon={<GiCoins />}
@@ -45,7 +49,7 @@ const BalanceSummary: React.FC<BalanceSummaryProps> = ({ wallets }) => {
     );
 }
 
-export const Total: React.FC<TotalProps> = ({ change, icon, label, value, color = 'theme' }) => {
+export const Total: React.FC<TotalProps> = ({ change, icon, label, value, color = 'theme', currency }) => {
     //--- code here ---- //
     return (
         <Card className={classNames('shadow-sm !rounded-xl shadow-black/5 overflow-hidden text-ellipsis', styles.total)} container='!px-4'>
@@ -62,7 +66,14 @@ export const Total: React.FC<TotalProps> = ({ change, icon, label, value, color 
                     <div className='flex justify-between'>
                         <Title noPad bold>{label}</Title>
                     </div>
-                    <Title className='text-ellipsis' noPad xl>${value}</Title>
+                    <Title className='text-ellipsis' noPad xl>{currency?.symbol}
+                        <CurrencyFormat
+                            value={value}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={value => <span>{value}</span>}
+                        />
+                    </Title>
                 </div>
             </div>
         </Card>
@@ -75,6 +86,7 @@ interface TotalProps {
     icon: React.ReactNode;
     change: string;
     color: ColorNames
+    currency?: Currencies[number]
 }
 
 interface BalanceSummaryProps {

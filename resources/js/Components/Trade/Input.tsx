@@ -4,129 +4,168 @@ import { Currencies, Wallet } from '@typings/index';
 import styles from '@styles/components/trade-input.module.scss';
 import Tag, { SxProps } from '..';
 import { FaChevronDown, FaStar } from 'react-icons/fa';
-import { useSpot } from '@context/SpotContext';
+import { useSpot, WalletId, WalletType } from '@context/SpotContext';
 import { classNames } from 'primereact/utils';
 import { Title } from '.';
 import { Dialog } from 'primereact/dialog';
-import { useLive } from '@context/LiveContext';
 import calc from 'number-precision';
 import { TbArrowsExchange } from 'react-icons/tb';
 import Textfield from '@components/Input';
 import CryptoIcon from '@components/CryptoIcon';
 import IconButton from '@components/Button/IconButton';
 import { showIf } from '@assets/fn';
-const TradeInput: React.FC<TradeInputProps> = ({ value: initValue = 0.00, elementRef, className = '', isFrom, wallet, balance, error = '', min = 0.00000001, max = 100000, currencies, onChange, sx, limit, isLimit }) => {
+const TradeInput: React.FC<TradeInputProps> = ({
+    value: initValue = 0.00,
+    elementRef,
+    className = '',
+    error = '',
+    min = 0.00000001,
+    max = 100000,
+    currencies,
+    sx, id: key, wallet: accountId, limit
+}) => {
     //--- code here ---- //
-    balance = typeof balance == 'string' ? parseFloat(balance) : balance;
+    const { list, setWallet, wallets, getKey, setField, fields, rates, convert: setConvert, getCurrent, type, getField } = useSpot();
     const [message, setMessage] = useState(error);
-    const { processing, data, setWallet, wallets, setTo, to: account2, setAmount, setToAmount, toAmount, wallet: account, setLastFocused, tempAmount: raw, setTemp: setRaw, setData, type } = useSpot();
-
-    let [initLimit] = useState(data.limit);
-
     const [value, setValue] = useState(initValue);
-
 
     const [hide, setHide] = useState(true);
 
     const ref = elementRef || useRef<HTMLDivElement | undefined>();
     const conversion: React.RefObject<HTMLParagraphElement> = useRef() as any;
 
-    const { convert, rates, getRate, change } = useLive();
+    const isLimit = key === 'limit';
+    const other = getKey(accountId);
 
-    const changeFunc = (changeValue: number) => {
-        const limit = data.limit || 0;
-        if (!isFrom) {
-            return calc.round(calc.divide(changeValue, limit), 8);
-        } else return change(changeValue, limit);
+    const [wallet, setAcct] = useState<Wallet>(wallets[accountId]);
+
+    useEffect(() => {
+        setAcct(wallet);
+    }, [wallets]);
+
+    function convert(value: any, deep: boolean = false) {
+        const { rate } = rates[other];
+        const { fiat } = rates[accountId];
+
+        if (conversion.current) {
+            conversion.current.innerText = fiat.symbol + calc.round(calc.times(fiat.rate, value), 2);
+        }
+
+        if (deep) {
+            if (type === 'limit') {
+                if (!isLimit) {
+                    if (!limit) {
+                        return calc.round(calc.divide(calc.times(1, fields[other].converted), fields.limit.input || fields.limit.converted), 8);
+                    }
+                    return calc.round(calc.times(fields.limit.input || 0, value), 8);
+                }
+                return;
+            }
+            return calc.round(calc.times(rate, value), 8);
+        }
+    }
+
+    function changeLimit() {
+        const value = calc.minus(rates[other].rate, .0000009);
+        setValue(value);
+        //--------
+        setField(key, value || 0);
     }
 
     useEffect(() => {
-        if (isLimit) return;
-        if (processing) return;
+        if (key !== 'limit') return;
+        changeLimit();
+    }, [])
+
+    useEffect(() => {
+        const field = getCurrent();
+        if (key !== 'limit') convert(value);
+        //--------
+        if (field.id === key) return;
+        if (key == 'limit') {
+            const limit = fields.limit;
+            //---
+            if (limit.converted) return;
+            return changeLimit();
+        }
+        //--------
+        const handler = fields[other];
+        const changed = convert(handler.converted, true);
+        //-----------
+        if (typeof changed !== 'number') return;
+
+        setConvert(key, changed);
+        setValue(changed);
+    }, [rates]);
+
+    useEffect(() => {
+        if (isLimit) {
+            if (value > rates.to.rate) setMessage('The price you set to buy is higher than the current market price, which results in a loss.');
+            else setMessage('')
+        }
+    }, [fields.limit]);
+
+    useEffect(() => {
+        const field = getCurrent();
+        //---
+        if (key == 'limit') {
+            if (field.id == key) setField('from', getField('from').converted)
+        } else if (!(key === field.id)) {
+            let value = fields[other].input
+            //----------
+            let changed = convert(value, true);
+            if (typeof changed !== 'number') return;
+
+            setConvert(key, changed);
+            setValue(changed);
+        }
+        //---
         //---------
-        let changedValue = isFrom ? raw.amount : raw.toAmount, toCard = isFrom ? account2 : account;
-        let temp = changedValue;
-        //----------
-        if (changedValue === -1) changedValue = value || 0;
-        const usd = convert(wallet.curr.code, 'USD', changedValue || 0, 2);
-        let actualValue = changedValue;
-        ///==---
-        if (temp > -1) {
-            actualValue = type == 'instant'
-                ? convert(toCard.curr.code, wallet.curr.code, changedValue)
-                : changeFunc(changedValue);
-            setValue(actualValue);
-        };
-        //----------
-        const err = (actualValue < min) || (actualValue > max) || (actualValue > balance);
-        temp = actualValue;
-        ///--------------
-        isFrom ? ((err && (temp = -1)), setAmount(temp)) : setToAmount(actualValue);
-        //
-        if (isFrom && actualValue) {
+    }, [fields[other].input]);
+
+    useEffect(() => {
+        if (key == 'from') {
+            const balance = (wallets.from.all_balance.available as unknown as number);
+            const actualValue = getField('from').converted;
+            const err = actualValue < min ||
+                actualValue > max ||
+                actualValue > balance
+            //=============
             if (!err && message) setMessage('');
-            if (actualValue < min) setMessage(`Amount is less than the minimum amount (${min})`)
-            if (actualValue > max) setMessage(`Amount is more than the maximum amount (${max})`);
-            if (actualValue > balance) setMessage('Amount is more than current funds');
+            else if (fields.from.input || fields.to.input) {
+                if (actualValue < min) setMessage(`Amount is less than the minimum amount (${min})`)
+                if (actualValue > max) setMessage(`Amount is more than the maximum amount (${max})`);
+                if (actualValue > balance) setMessage('Amount is more than current funds');
+            } else setMessage('');
         }
-        //-------
-        if (conversion.current) conversion.current.innerText = `\$${usd > 0 ? usd : '0.00'}`;
-        //----
-    }, [rates, raw, processing]);
-
-
-    useEffect(() => {
-        if (isLimit) {
-            setValue(calc.round(calc.minus(getRate(account2.curr.code, account.curr.code), 0.0000009), 8));
-        }
-    }, [account2])
-
-
-    useEffect(() => {
-        if (isLimit) {
-            setData('limit', value);
-        }
-    }, [value]);
+    }, [fields.from.converted])
 
     const changeEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = parseFloat(e.target.value);
+        let value = e.target.value.trim();
+        if (value == '.') value = '0.';
+        //------------
+        else if (value.startsWith('0')) {
+            if (value.length > 1) {
+                if (value.charAt(1) === '0') value = '0';
+                else if (value.charAt(1) !== '.') value = value.substring(1);
+            }
+        } else if (value.startsWith('-')) value = '0';
+        else if (value.startsWith('.')) value = '0' + value;
         //@ts-ignore
-        setValue(e.target.value || '');
-
-        const msg = onChange?.({ ...e, value }, setMessage);
-        if (msg?.break) return;
-        ///----
-        if (msg?.error) setMessage(msg.error);
+        setValue(value || '');
         //---
-        setLastFocused(wallet);
+        convert(value);
         //-------
-        if (!isFrom) {
-            setRaw({
-                amount: value || 0,
-                toAmount: -1
-            });
-        } else if (!isLimit) {
-            setRaw({
-                amount: -1,
-                toAmount: value || 0
-            });
-        } else {
-            setRaw({
-                amount: -1,
-                toAmount: -1,
-                limit: value
-            })
-        }
+        setField(key, value || 0);
+        setConvert(key, value);
 
-        if (!msg?.error) setMessage('');
     }
 
     function changeWallet(value: Currency): void {
-        setWallet(wallets.find(item => item.curr.code == value.code) as Wallet);
-    }
-
-    function changeSwap(value: Currency) {
-        setTo(wallets.find(item => item.curr.code == value.code) as Wallet);
+        const acct = list.wallets.find(item => item.curr.id == value.id) as Wallet;
+        setAcct(acct);
+        //------------
+        setWallet(accountId, acct);
     }
 
 
@@ -146,7 +185,7 @@ const TradeInput: React.FC<TradeInputProps> = ({ value: initValue = 0.00, elemen
                             onClick={() => setHide(false)}
                             size='16px'
                             className={'!font-medium !flex items-center gap-1 ' + (currencies ? 'cursor-pointer' : '')}>
-                            <span>{wallet.curr.code}</span> {currencies ? <FaChevronDown /> : ''}
+                            <span>{wallets[accountId].curr.code}</span> {currencies ? <FaChevronDown /> : ''}
                         </Text>
 
                         <div className='flex justify-between items-center w-full py-2'>
@@ -159,46 +198,32 @@ const TradeInput: React.FC<TradeInputProps> = ({ value: initValue = 0.00, elemen
                                 ), (
                                     <Title noPad sm className='gap-1'>
                                         Market Price:
-                                        <Title noPad sm>{rates && getRate(account2.curr.code, account.curr.code)} {account.curr.code}</Title>
+                                        <Title noPad sm>{rates[other].rate} {wallets[accountId].curr.code}</Title>
                                     </Title>
                                 ))}
                             </div>
                             {showIf(!isLimit, <div className='flex gap-1 items-center'>
                                 <Title noPad>Balance:</Title>
                                 <Title noPad medium>
-                                    {calc.round(wallet.all_balance.available || balance, 8)}
+                                    {calc.round(wallet.all_balance.available || 0, 8)}
                                 </Title>
                                 <Title noPad medium sm>{wallet.curr.code}</Title>
                             </div>)}
                         </div>
-                        {currencies ? <CurrencyList set={setHide} value={wallet} hide={hide} list={currencies} onChange={!isFrom ? changeSwap : changeWallet} /> : ''}
+                        {currencies ? <CurrencyList set={setHide} value={wallet} hide={hide} list={currencies} onChange={changeWallet} /> : ''}
                     </div>
                     {showIf(limit, (
                         <div className='flex flex-col mt-3 gap-3'>
                             <hr />
                             <div className="flex flex-col gap-2">
                                 <Title md medium noPad className='gap-1'>
-                                    When 1 <b>{account2.curr.code}</b> is worth
+                                    When 1 <b>{wallets[getKey(accountId)].curr.code}</b> is worth
                                 </Title>
                                 <TradeInput
-                                    wallet={account}
-                                    balance={account.all_balance.available}
-                                    isLimit
-                                    value={initLimit}
+                                    value={0}
                                     elementRef={ref}
-                                    onChange={(e, setErr) => {
-                                        const value = e.value;
-                                        if (value > getRate(account2.curr.code, account.curr.code)) {
-                                            setErr('The price you set to buy is higher than the current market price, which results in a loss');
-                                        } else {
-                                            //@ts-ignore
-                                            setErr((err) => {
-                                                if (err) return '';
-                                            });
-                                        }
-                                        //--------
-                                        return { break: true }
-                                    }}
+                                    id='limit'
+                                    wallet={accountId}
                                 />
                             </div>
                         </div>
@@ -211,38 +236,21 @@ const TradeInput: React.FC<TradeInputProps> = ({ value: initValue = 0.00, elemen
 }
 
 
-const CurrencyList: React.FC<CurrencyListProps> = ({ list, onChange, hide, value, set }) => {
+const CurrencyList: React.FC<CurrencyListProps> = ({ list, onChange, hide, set }) => {
     //--- code here ---- //
+    const [currencies, setCurrs] = useState<Currencies>(list);
 
-    /**
-     *
-      <div className={classNames(styles.menu, 'absolute w-full overflow-auto ', { 'hidden': hide })}>
-                {list.map(item => {
-                    return (
-                        <div key={item.id} onClick={() => change(item)} className={classNames(styles.menuitem)
-                        }>
-                            <div className='flex gap-2 items-center'>
-                                <CryptoIcon name={item.curr_name} label={item.symbol} size='13px' width='2.1rem' height='2rem' />
-                                <div className="flex flex-col">
-                                    <Title bold lg brighter noPad>{item.curr_name}</Title>
-                                    <Text variant="small">Balance: {get(item).all_balance.available} {item.code}</Text>
-                                </div>
-                            </div>
-
-                            <Tag element={'span'} className='text-success text-2xl'>
-                                {selected.curr.code === item.code ? <ImCheckmark /> : ''}
-                            </Tag>
-                        </div>
-                    )
-                })}
-            </div >
-     */
     return (
-        <Dialog header='Select Currency' visible={!hide} style={{ width: '30vw', height: '60vh' }} onHide={() => { if (hide) return; set(true); }}>
+        <Dialog header='Select Currency' className={styles.currencyList} visible={!hide} style={{ height: '60vh' }} onHide={() => { if (hide) return; set(true); }}>
             <div className="m-0">
-                <Textfield placeholder='Search' />
+                <Textfield placeholder='Search' onChange={(e) => {
+                    //@ts-ignore
+                    const value: string = (e.target.value || '').toLowerCase();
+                    if (value.trim() == '') return setCurrs(list);
+                    setCurrs(list.filter(item => item.code.toLowerCase().includes(value) || item.curr_name.toLowerCase().includes(value)));
+                }} />
                 <div className="mt-4 flex flex-col">
-                    {list.map(item => {
+                    {currencies.map(item => {
                         return (
                             <div key={item.id} className='flex px-3 py-2 rounded-md hover:bg-theme-button cursor-pointer items-center' onClick={() => {
                                 set(true);
@@ -277,22 +285,21 @@ interface CurrencyListProps {
 type Currency = Currencies[number];
 
 interface TradeInputProps {
-    wallet: Wallet;
-    onChange?: TradeChangeEvent;
-    balance: number | string;
     currencies?: Currencies;
     value?: number;
-    isFrom?: boolean;
+    wallet: WalletId
     error?: string;
     min?: number;
     max?: number;
     className?: string;
-    limit?: boolean
     sx?: SxProps;
-    isLimit?: boolean;
-    elementRef?: any
+    elementRef?: any;
+    id: WalletType;
+    limit?: boolean
 }
 
 export default TradeInput
 
 export type TradeChangeEvent = (event: React.ChangeEvent<HTMLInputElement> & { value: number }, setError: (msg: string) => void) => { error?: string, break?: boolean } | void | undefined;
+
+

@@ -21,6 +21,12 @@ export const styles: DataTablePassThroughOptions = {
             )
         },
 
+        current(options) {
+            return {
+                className: 'text-sm'
+            }
+        },
+
         firstPageButton: function firstPageButton(args) {
             var context = args?.context;
             return {
@@ -72,7 +78,7 @@ export const styles: DataTablePassThroughOptions = {
         pageButton: function pageButton(args) {
             var context = args?.context;
             return {
-                className: classNames('relative inline-flex items-center justify-center user-none overflow-hidden leading-none', 'border-0 text-gray-500 min-w-[3rem] h-12 m-[0.143rem] rounded-full', 'transition duration-200', '',
+                className: classNames('text-sm relative inline-flex items-center justify-center user-none overflow-hidden leading-none', 'border-0 text-gray-500 min-w-[2.6rem] h-10 m-[0.143rem] rounded-full', 'transition duration-200', '',
                     // Dark Mode
                     'focus:outline-none focus:outline-offset-0 focus:shadow-[0_0_0_0.2rem_rgba(191,219,254,1)]',
                     // Focus
@@ -86,7 +92,7 @@ export const styles: DataTablePassThroughOptions = {
                 var props = args?.props,
                     state = args?.state;
                 return {
-                    className: classNames('inline-flex relative cursor-pointer user-none', 'bg-white border rounded-md', 'transition duration-200', 'h-12 mx-2', '',
+                    className: classNames('inline-flex items-center relative cursor-pointer user-none', 'bg-white border rounded-md', 'transition duration-200', 'h-10 mx-2', '',
                         //DarkMode
                         {
                             'outline-none outline-offset-0 shadow-[0_0_0_0.2rem_rgba(191,219,254,1)] border-blue-500': state?.focused && !props?.disabled,
@@ -98,7 +104,7 @@ export const styles: DataTablePassThroughOptions = {
             },
 
             input: {
-                className: classNames('font-sans text-base text-gray-600 p-3 m-0 rounded-md apperance-none', 'block whitespace-nowrap overflow-hidden flex-auto w-[1%] cursor-pointer text-ellipsis border-0 pr-0', 'focus:outline-none focus:outline-offset-0', '' //Dark Mode
+                className: classNames('font-sans text-base text-gray-600 py-0 p-3 m-0 rounded-md apperance-none', 'block whitespace-nowrap overflow-hidden flex-auto w-[1%] cursor-pointer text-ellipsis border-0 pr-0', 'focus:outline-none focus:outline-offset-0', '' //Dark Mode
                 )
             },
 
@@ -131,7 +137,7 @@ export const styles: DataTablePassThroughOptions = {
             root: 'inline-flex mx-2',
             input: {
                 //@ts-ignore
-                className: classNames('font-sans text-base text-gray-600 p-3 m-0 rounded-md apperance-none', 'block whitespace-nowrap overflow-hidden flex-auto w-[1%] cursor-pointer text-ellipsis border border-gray-300 pr-0', 'focus:outline-none focus:outline-offset-0 focus:shadow-[0_0_0_0.2rem_rgba(191,219,254,1)] focus:border-blue-300', '',
+                className: classNames('font-sans text-base text-gray-600 py-2 p-3 m-0 rounded-md apperance-none', 'block whitespace-nowrap overflow-hidden flex-auto w-[1%] cursor-pointer text-ellipsis border border-gray-300 pr-0', 'focus:outline-none focus:outline-offset-0 focus:shadow-[0_0_0_0.2rem_rgba(191,219,254,1)] focus:border-blue-300', '',
                     //Dark Mode
                     'm-0 flex-auto max-w-[3rem]')
             }
@@ -154,7 +160,7 @@ export const styles: DataTablePassThroughOptions = {
             },
 
             input: {
-                className: classNames('font-sans text-base text-gray-600 p-3 m-0 rounded-md apperance-none', 'block whitespace-nowrap overflow-hidden flex-auto w-[1%] cursor-pointer text-ellipsis border-0 pr-0', 'focus:outline-none focus:outline-offset-0', '' //Dark Mode
+                className: classNames('font-sans text-base text-gray-600 py-2 p-3 m-0 rounded-md apperance-none', 'block whitespace-nowrap overflow-hidden flex-auto w-[1%] cursor-pointer text-ellipsis border-0 pr-0', 'focus:outline-none focus:outline-offset-0', '' //Dark Mode
                 )
             },
 

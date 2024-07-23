@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import colors from '@styles/utils/crypo_colors.module.scss';
 import Tag from '.';
 import styled from 'styled-components';
-import { showIf } from '@assets/fn';
+import { assets, showIf } from '@assets/fn';
+import { Currencies } from '@typings/index';
 
 const keys = Object.keys(colors).map(key => key.split('__').join(' ').trim().toLowerCase());
 
@@ -12,7 +13,7 @@ function getColor(name: string) {
     return colors[colorKey.split(' ').join('__')]
 }
 
-const CryptoIcon: React.FC<CryptoIconProps> = ({ name: coin, shape = 'circle', label = coin, ...props }) => {
+const CryptoIcon: React.FC<CryptoIconProps> = ({ name: coin = '', shape = 'circle', label = coin, curr, img, ...props }) => {
     //--- code here ---- //
     let classes = ['flex items-center justify-center'];
     //---
@@ -20,29 +21,38 @@ const CryptoIcon: React.FC<CryptoIconProps> = ({ name: coin, shape = 'circle', l
     if (shape === 'pill') classes.push('rounded-[999px]')
     if (shape === 'smooth') classes.push('rounded');
 
+    if (curr) {
+        coin = curr.curr_name;
+        label = curr.symbol;
+        //@ts-ignore-----------
+        if (!img) img = assets(curr.icon);
+    }
+
     const [loaded, setLoaded] = useState<boolean>();
     const ref = useRef<HTMLDivElement>();
     useEffect(() => {
         if (ref.current) {
             const image = ref.current.querySelector('img');
-            if (image) setLoaded(image.complete);
+            if (image) {
+                setLoaded(image.complete);
+            };
         }
-    })
+    }, []);
 
     return (
         <Coin tagRef={ref} loaded={loaded} className={classes.join(' ')} name={coin} {...props}>
-            {showIf(props.img, <img src={props.img} />)}
+            {showIf(img, <img src={img} />)}
             {showIf(!loaded, label)}
         </Coin>
     );
 }
 
-const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', loaded, height = '3rem', shape = 'circle', variant = 'contained', name }) => {
+const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', loaded, height = '3rem', shape = 'circle', variant = 'contained', name = '' }) => {
     const color = getColor(name);
 
     const img = {
         background: 'none',
-        width: '100%'
+        img: { width: '100%' }
     }
 
     const contained = {
@@ -58,6 +68,8 @@ const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', loaded, height = '3r
     return {
         ...(variant === 'contained' ? contained : outlined),
         minWidth: width,
+        width,
+        display: 'flex',
         height,
         position: 'relative',
         ...(loaded ? img : {}),
@@ -65,14 +77,15 @@ const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', loaded, height = '3r
     }
 });
 
-interface DefProps {
+interface DefProps extends AppElement {
     width?: string;
     size?: string;
     height?: string;
     variant?: 'contained' | 'outlined';
     shape?: 'circle' | 'pill' | 'smooth' | 'sqaure';
-    name: string;
+    name?: string;
     img?: string;
+    curr?: Currencies[number]
 }
 
 interface CryptoIconProps extends DefProps {

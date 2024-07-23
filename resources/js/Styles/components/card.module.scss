@@ -1,6 +1,6 @@
 .main {
     background-color: $color-theme-bgColor;
-    border-radius: 25px;
+    border-radius: 10px;
     // box-shadow: 0px 0px 10px 0px rgb($rc-theme-shadow / .1);
     // border: 1px solid rgb($rc-theme-cardBorderColor / .2);
 }
@@ -13,9 +13,8 @@
     // color: $color-theme-emphasis;
     font-weight: 500 !important;
     font-size: 18px;
-    margin-bottom: 8px;
 
-    @include media('<=mobile') {
+    @include media("<=lg-mobile") {
         font-size: 15px;
     }
 }
@@ -23,10 +22,14 @@
 .mini {
     color: $color-theme-text;
     font-weight: 500 !important;
-    font-size: 14px !important;
+    font-size: 15px;
 
-    @include media('<=mobile') {
-        color: $color-theme-button-text;
+    @include media("<=lg-mobile") {
+        color: $color-theme-emphasis;
+    }
+
+    @include media("<=mobile") {
+        font-size: 15px;
     }
 }
 
@@ -39,5 +42,12 @@
     justify-content: space-between;
     width: 100%;
     @include px(0, 0.4rem);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
+
+// .borderBottom {
+//     .header {
+//         padding-bottom: 1rem;
+//         border-bottom: 1px solid rgba(128, 128, 128, 0.144);
+//     }
+// }

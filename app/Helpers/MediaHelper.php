@@ -92,7 +92,7 @@ class MediaHelper
     {
         $extension = $image->getClientOriginalExtension();
         $old_name  = explode('.', $image->getClientOriginalName());
-        $new_name = rand() . time() . '.' . $extension;
+        $new_name = $old_name . rand() . time() . '.' . $extension;
         return $new_name;
     }
 

@@ -45,7 +45,7 @@ class DataController extends Controller
         preg_match('/(?<digit>\d+)(?<name>\w+[^\s]*)/', $range, $matches);
         //-------
         if ($matches) {
-            $num = $this->getDays($matches['name']);
+            $num = $this->getDays(str($matches['name'])->lower());
             $count = (int) $matches['digit'] ?? 1;
             //---
             $sum = $num * $count;

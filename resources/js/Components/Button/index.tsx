@@ -16,7 +16,7 @@ const Button: React.FC<ButtonProps> = ({ id,
     icon, shape = 'smooth',
     size = 'md', spacing = '10px', icc: icoClass = '',
     variant = 'contained', linkComponent = Link, iconStyle = 'none',
-    sx, iconLoc = 'left', iconSize = '12px', inset, height, centered,
+    sx, iconLoc = 'left', iconSize = '12px', inset, height, centered, "data-section": section = 'ui-button',
     ...rest
 }) => {
     //--- code here ---- //
@@ -45,6 +45,7 @@ const Button: React.FC<ButtonProps> = ({ id,
         <StyledButton
             {...styleProps}
             id={id}
+            data-section={section}
             className={classNames(
                 styles.btn,
                 className,

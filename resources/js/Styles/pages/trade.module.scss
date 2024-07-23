@@ -1,0 +1,107 @@
+.swap {
+    width: 40%;
+    @include mx(auto);
+
+    @include media("<=sm-tablet") {
+        width: 60%;
+    }
+
+    @include media("<=xs-tablet") {
+        width: 100%;
+    }
+}
+
+.mainSwap {
+    @include media('<=xxs-laptop') {
+        margin-top: 0px;
+    }
+}
+
+.deposit {
+    display: flex;
+    gap: 3rem;
+    margin-top: 1rem;
+
+    @include media("<=tablet2") {
+        gap: 1rem;
+        flex-direction: column;
+    }
+
+    .select {
+        width: 80%;
+
+        @include media("<=tablet2") {
+            width: 100%;
+        }
+    }
+
+    .address {
+        flex-grow: 1;
+
+        // &_title {
+        //     // @include media('<=tablet2') {
+        //         font-size: .8em;
+        //         color: $color-theme-text;
+        //     // }
+        // }
+    }
+}
+
+.coin_address {
+    @include media("<=tablet2") {
+        display: none;
+    }
+    &_mobile {
+        @include media(">=tablet2") {
+            display: none;
+        }
+    }
+}
+
+.withdrawForm {
+    flex-grow: 1;
+    @include media("<=sm-tablet") {
+        display: none;
+    }
+
+    &_mobile {
+        @include media(">=sm-tablet") {
+            display: none;
+        }
+
+        #{attr(card)} {
+            background-color: transparent;
+            #{attr(container)} {
+                padding: 0px;
+            }
+        }
+    }
+}
+
+.mobileNetwork {
+    @include media("<=sm-tablet") {
+        background-color: $color-theme-bgColor;
+        padding: 0.8rem 10px;
+        border-radius: 10px;
+    }
+}
+
+.withdraw {
+    width: 60%;
+    @include media("<=sm-tablet") {
+        width: 100%;
+
+        #{attr(input)} {
+            background-color: $color-theme-bgColor;
+            padding: 0.8rem 10px;
+            border-radius: 10px;
+            border: none;
+        }
+    }
+}
+
+.withdrawals {
+    @include media('<=tablet2') {
+        margin-top: 0px;
+    }
+}

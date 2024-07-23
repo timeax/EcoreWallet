@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\EmailVerificationSent;
+use App\Notifications\OtpSent;
 use Cryptomus;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -57,12 +58,12 @@ class User extends Authenticatable
 
     public function chats()
     {
-        return $this->hasMany(Chat::class);
+        // return $this->hasMany(Chat::class);
     }
 
     public function chat()
     {
-        return $this->belongsTo(Chat::class, 'chat_ref');
+        // return $this->belongsTo(Chat::class, 'chat_ref');
     }
 
     public function trades()
@@ -116,16 +117,10 @@ class User extends Authenticatable
             $this->verify_code = randNum();
             $this->save();
 
-            @email([
-                'email'   => $this->email,
-                'name'    => $this->name,
-                'subject' => translate('Email Verification Code'),
-                'message' => translate('Email Verification Code is : ') . $this->verify_code,
-            ]);
+            $this->notify(new OtpSent($this->verify_code));
 
             session()->flash('emailcode_sent_at', strtotime('now'));
             session()->flash('status', 'sent');
-            session()->flash('code', $this->verify_code);
             // event(new EmailVerificationSent($this));
         }
     }
@@ -169,6 +164,26 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(DepositAddress::class);
+    }
+
+    public function deposits()
+    {
+        return $this->hasMany(Deposit::class);
+    }
+
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawals::class);
+    }
+
+    public function exchanges()
+    {
+        return $this->hasMany(Exchange::class);
+    }
+
+    public function transfers()
+    {
+        return $this->hasMany(Transfer::class);
     }
 
     public function receivesBroadcastNotificationsOn(): string

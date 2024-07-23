@@ -53,7 +53,7 @@ const Trigger = ({ children }: PropsWithChildren) => {
 
     return (
         <>
-            <div className={open ? 'open' : ''} onClick={toggleOpen}>{children}</div>
+            <div data-section='trigger' className={open ? 'open' : ''} onClick={toggleOpen}>{children}</div>
 
             {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>}
         </>
@@ -115,6 +115,7 @@ const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-whit
             //@ts-ignore
             >
                 <div
+                    data-section='menu'
                     className={`absolute drop-menu z-50  mt-2 rounded-md shadow-lg ${alignmentClasses} ${auto} ${widthClasses}`}
                     onClick={() => setOpen(false)}
                 >
@@ -129,6 +130,7 @@ const DropdownLink = ({ className = '', children, value, ...props }: LinkProps) 
     const { onSelect } = useContext(DropDownContext);
 
     return (
+        //@ts-ignore
         <Tag
             //@ts-ignore
             element={props.href ? Link : 'span'}

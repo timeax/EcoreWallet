@@ -31,7 +31,7 @@ class UpdateCryptoPrices implements ShouldQueue
     public string $names;
     public array $store = [];
     public string $href;
-    public function __construct(public string $type)
+    public function __construct(public string $type, public array $rates = [])
     {
         //
         $this->run($type);

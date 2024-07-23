@@ -1,0 +1,12 @@
+.main {
+    position: relative;
+}
+
+.dot {
+    border: 4px solid;
+    border-radius: 50%;
+    line-height: 0;
+    @include my(auto);
+    padding: 0;
+    font-size: 0;
+}

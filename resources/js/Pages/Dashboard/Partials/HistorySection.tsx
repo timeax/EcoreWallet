@@ -3,34 +3,34 @@ import Cardheader from "@components/Card/Cardheader";
 import Card from "@components/Card";
 import CryptoIcon from "@components/CryptoIcon";
 import { Title } from "@components/Trade";
-import { Transactions } from "@typings/index";
+import { Currencies, Transactions } from "@typings/index";
 import NoData from "@widgets/NoData";
 import { classNames } from "primereact/utils";
 import React from 'react';
 import { FaChevronRight } from "react-icons/fa";
 import Button from "@components/Button";
 import dashboard from '@styles/pages/dashboard.module.scss';
+import { Link } from "@inertiajs/react";
+import { routeById } from "@routes/index";
+import CurrencyFormat from 'react-currency-format';
+import calc from 'number-precision';
+import { TbArrowCurveLeft, TbArrowsLeftRight, TbArrowCurveRight, TbArrowMoveRight } from "react-icons/tb";
+import { color, Color, ColorNames } from "@assets/fn/create-color";
+import Tag from "@components/index";
+import { BsCurrencyExchange } from "react-icons/bs";
+import { BiTransfer } from "react-icons/bi";
+import { LiaLongArrowAltDownSolid } from "react-icons/lia";
 
 const HistorySection: React.FC<HistorySectionProps> = ({ transactions }) => {
     //--- code here ---- //
     return (
         <section>
-            <Card className={classNames(dashboard.history, '!rounded-lg')}>
+            <Card bb className={classNames(dashboard.history, '!rounded-lg')}>
                 <Cardheader variant='title'>
                     <>Recent Transactions</>
-                    <div className='flex gap-4'>
-                        <div>
-                            <Button
-                                className='shadow-inner'
-                                icon={<FaChevronRight />}
-                                iconLoc='right'
-                                size='normal'
-                                variant='none'
-                            // bgColor='theme'
-                            // color='black'
-                            >See All</Button>
-                        </div>
-                    </div>
+                    <Title noPad md bright>
+                        <Link href={route(routeById('history').route)}>See all</Link>
+                    </Title>
                 </Cardheader>
                 {showIf(transactions.length > 1, <History transactions={transactions} />, (
                     <NoData>
@@ -56,11 +56,11 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
         const d = getDate(date)
         return (
             <>
+                <Title bright noPad xs>{d.time}</Title>
                 <Title bright noPad>{rd ? (() => {
                     let date = d.date;
                     return date.split(' ').slice(1, -1).join(' ')
                 })() : d.date}</Title>
-                <Title bright noPad sm>{d.time}</Title>
             </>
         )
     }
@@ -72,7 +72,7 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
                         return <tr key={item.id}>
                             <td>
                                 <div className="flex gap-2">
-                                    <CryptoIcon size="13px" height='30px' width='30px' label={item.currency.symbol} name={item.currency.curr_name} />
+                                    <CryptoIcon size="13px" height='30px' width='30px' curr={item.currency} />
                                     <Title bold brighter noPad>{item.currency.code}</Title>
                                 </div>
                             </td>
@@ -81,13 +81,20 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
                                 <div>{formatDate(item.created_at)}</div>
                             </td>
                             <td>
-                                <Title>{item.details}</Title>
+                                <Title noPad>{item.details}</Title>
                             </td>
                             <td>
-                                <Title>{item.amount}</Title>
+                                <Title noPad>
+                                    <CurrencyFormat
+                                        value={item.amount}
+                                        displayType="text"
+                                        thousandSeparator
+                                        renderText={value => <span>{value}</span>}
+                                    />
+                                </Title>
                             </td>
                             <td>
-                                <Title className={classNames({
+                                <Title noPad className={classNames({
                                     '!text-success': (item.status == 'success') || item.status == '',
                                     '!text-warning': item.status == 'pending',
                                     '!text-danger': item.status == 'failed',
@@ -100,18 +107,20 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
 
             <div className={dashboard.history_mobile}>
                 {transactions.map(item => {
-                    return <div key={item.id} className="flex py-2 justify-between">
+                    return <div key={item.id} className={classNames("flex py-2 justify-between", dashboard.history_item)}>
                         <div className="flex gap-2 items-center">
-                            <CryptoIcon
+                            {/* <CryptoIcon
                                 name={item.currency.curr_name}
                                 height="30px"
                                 width="30px"
                                 label={item.currency.symbol}
                                 size="13px"
-                            />
+                            /> */}
+                            {/* @ts-ignore */}
+                            <TransactionIcon type={item.remark.toLowerCase()} />
                             <div>
                                 <Title noPad>
-                                    {item.details}
+                                    {item.remark}
                                 </Title>
                                 <div className="flex gap-1">
                                     {formatDate(item.updated_at || item.created_at, true)}
@@ -120,8 +129,14 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
                         </div>
                         <div className="flex items-center">
                             {item.type}
-                            <Title noPad>
-                                {item.amount}
+                            <Title noPad className="flex gap-1">
+                                <CurrencyFormat
+                                    value={calc.round(item.amount, 8)}
+                                    displayType="text"
+                                    thousandSeparator
+                                    renderText={value => <span>{value}</span>}
+                                />
+                                {item.currency.code}
                             </Title>
                         </div>
                     </div>
@@ -130,6 +145,45 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
         </div>
     );
 }
+
+
+export const TransactionIcon: React.FC<TransactionIconProps> = ({ type, curr, className }) => {
+    //--- code here ---- //
+    const icon = type === 'deposit'
+        ? <LiaLongArrowAltDownSolid />
+        : type === 'exchange'
+            ? <BsCurrencyExchange />
+            : type == 'withdraw'
+                ? <TbArrowCurveRight />
+                : <BiTransfer />;
+    const background: ColorNames = type === 'deposit'
+        ? 'success'
+        : type === 'exchange'
+            ? 'primary'
+            : type == 'withdraw'
+                ? 'warning'
+                : 'info';
+
+    const cl = color('background')(background, { normal: 300 });
+    return (
+        <div style={{ color: cl.color }} className={classNames(dashboard.transaction_icon, className)}>
+            {icon}
+
+            {showIf(curr, (
+                <div data-section='crypto-icon'>
+                    <CryptoIcon curr={curr} width="12px" size="9px" />
+                </div>
+            ))}
+        </div>
+    );
+}
+
+interface TransactionIconProps {
+    type: 'deposit' | 'withdraw' | 'exchange' | 'transfer';
+    curr?: Currencies[number];
+    className?: string
+}
+
 
 interface HistoryProps {
     transactions: Transactions

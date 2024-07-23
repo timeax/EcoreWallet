@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Notifications\TransactionNotifications;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Exchange extends Model
 {
@@ -16,14 +17,13 @@ class Exchange extends Model
         parent::boot();
         static::created(function (self $exchange) {
             $type = $exchange->type;
-            if ($type == 'instant') return;
             //-----------
             $to = $exchange->to;
             $from = $exchange->from;
             //---------
             $user = User::find($exchange->user_id);
-            $transferTo = $user->wallets()->where(['currency_id' => $to->id])->first();
-            $transferFrom = $user->wallets()->where(['currency_id' => $from->id])->first();
+            $transferTo = $user->wallets()->where(['crypto_id' => $to])->first();
+            $transferFrom = $user->wallets()->where(['crypto_id' => $from])->first();
             $ref = $exchange->transaction_id;
             $amount = (float) $exchange->amount;
             $total = $exchange->total;
@@ -34,12 +34,12 @@ class Exchange extends Model
                 'ref' => $ref . 'in',
                 'user_id' => $user->id,
                 'charge' => 0.00,
-                'currency_id' => $to->id,
+                'currency_id' => $to,
                 'remark' => 'exchange',
-                'details' => 'Pending exchange',
+                'details' => getStatusMessage($exchange->status, 'Exchange'),
                 'status' => $exchange->status,
                 'type' => '+',
-                'amount' => numFormat($amount * (float) $exchange->rate, 8)
+                'amount' => $amount * (float) $exchange->rate
             ]);
 
             Transaction::create([
@@ -47,21 +47,23 @@ class Exchange extends Model
                 'ref' => $ref . 'out',
                 'user_id' => $user->id,
                 'charge' => $fee,
-                'currency_id' => $from->id,
+                'currency_id' => $from,
                 'remark' => 'exchange',
-                'details' => 'Pending exchange',
+                'details' => getStatusMessage($exchange->status, 'Exchange'),
                 'status' => $exchange->status,
                 'type' => '-',
                 'amount' => $total
             ]);
 
+            //------------
+            if ($type == 'instant') return;
             //-------
             Escrow::create([
                 'type' => 'in',
                 'wallet_id' => $transferTo->id,
                 'user_id' => $user->id,
                 'transaction_ref' => $ref . 'in',
-                'amount' => numFormat($amount * (float) $exchange->rate, 8)
+                'amount' => $amount * (float) $exchange->rate
             ]);
 
             Escrow::create([
@@ -87,28 +89,36 @@ class Exchange extends Model
 
         static::saved(function (self $exchange) {
             if ($exchange->status == 'pending') return;
+            Log::info('came here');
             //----
             $user = $exchange->user()->get();
+            $to = $exchange->transferTo;
+            $from = $exchange->transferFrom;
             $transactions = $exchange->transactions()->get();
+
+            //------------
             foreach ($transactions as $transaction) {
-                if ($transaction->status !== 'peniding') return;
+                if ($transaction->status !== 'pending') return;
                 //--------
-                $escrow = $transaction->escrow()->get();
+                $escrow = $transaction->escrow;
 
                 if ($transaction->type === '+') {
-                    $amount = numFormat($exchange->amount * (float) $exchange->rate, 8);
+                    $amount = $exchange->amount * (float) $exchange->rate;
                     $transaction->amount = $amount;
                     //---
                     @$escrow->amount = $amount;
+                } else {
+                    // $amount = numFormat($exchange->amount * (float) $exchange->rate, 8);
+                    // $transaction->amount = $amount;
+                    // //---
+                    // @$escrow->amount = $amount;
                 }
-
-                if ($exchange->status !== 'success') $escrow->status = 'failed';
 
                 $transaction->status = $exchange->status;
                 $transaction->details = getStatusMessage($exchange->status, 'Exchange');
                 //------------------
                 $transaction->save();
-                @$escrow->save();
+                @$escrow->delete();
             }
 
             $transactions->each(function ($item) {
@@ -120,8 +130,8 @@ class Exchange extends Model
                 'type' => '+-',
                 'amount' => $exchange->amount,
                 'extra' => [
-                    'to' => $exchange->to->code,
-                    'from' => $exchange->from->code,
+                    'to' => $to->code,
+                    'from' => $from->code,
                     'rate' => $exchange->rate,
                     'fee' => $exchange->charges
                 ],
@@ -148,6 +158,6 @@ class Exchange extends Model
 
     public function transferFrom()
     {
-        return $this->hasMany(Currency::class, 'id', 'from');
+        return $this->hasOne(Currency::class, 'id', 'from');
     }
 }

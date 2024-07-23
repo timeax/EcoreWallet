@@ -109,7 +109,7 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         // console.log(echo)
     }
 
-    console.log(props)
+    console.log(props?.errors, props?.flash)
 
     const toast = useRef<{ show(props: any): void }>(null);
 

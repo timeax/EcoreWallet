@@ -34,13 +34,13 @@
 }
 
 .activeButton {
-    background: $color-primary-800;
+    background: $color-primary-300;
     color: white;
 }
 
 .selectRoot {
     display: flex;
-    border-radius: 6px;
+    // border-radius: 6px;
     overflow: hidden;
     position: relative;
 }

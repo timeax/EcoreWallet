@@ -1,11 +1,11 @@
 import Textfield from "@components/Input"
-import { Title, Container } from "@components/Trade"
+import { Title } from "@components/Trade"
 import Select, { SelectProps } from "@components/Trade/Select"
 import Tag from "@components/index"
 import { CryptomusService, Wallet } from "@typings/index"
 import { FC, PropsWithChildren, useEffect, useState } from "react"
 import { FaArrowRightLong } from "react-icons/fa6"
-
+import styles from '@styles/pages/trade.module.scss';
 
 import React from 'react';
 import UiButton from "@components/Button"
@@ -113,7 +113,7 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
         case 'wallet': return (
             <form onSubmit={onWalletSubmit} className="flex flex-col gap-3">
                 <div>
-                    {showIf(err, <Message className="w-full !justify-start" severity="warn" text="Warning Message" />)}
+                    {showIf(err, <Message className="w-full !justify-start" severity="warn" text={err} />)}
                 </div>
                 <div>
                     <Textfield desc={showIf(service, <>Min: {service?.limit.min_amount}, Max: {service?.limit.max_amount}</>)} errorText={errors.network} label='Network' inputElement={() => {
@@ -129,7 +129,7 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
                         }}
                             unique="network"
                             outlined
-                            className="!rounded-none"
+                            className={styles.mobileNetwork}
                             quick
                             trigger="!bg-transparent"
                             value={service}
@@ -154,6 +154,7 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
                         label='Wallet address'
                         placeholder="Enter wallet address" type="text"
                         errorText={errors.wallet_address}
+
                         onChange={(e: any) => setData('wallet_address', e.target.value)}
                     />
                 </div>

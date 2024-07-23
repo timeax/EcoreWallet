@@ -25,6 +25,7 @@ export type Wallet = (typeof JJ)["wallets"][number] & {
             deposit_charge_type: 'fixed' | '%'
         }
     };
+    transactions?: Transactions;
     all_balance: {
         total: string;
         available: string;
@@ -85,4 +86,56 @@ export type CryptomusService = {
         fee_amount: string;
         percent: string;
     }
+}
+
+
+type Deposits = {
+    id: any;
+    user_id: any;
+    currency_id: any;
+    wallet_address: string;
+    cryptomus_uuid: string;
+    status: string;
+}[];
+
+type Withdrawals = {
+    trx: string;
+    user_id: any;
+    amount: number;
+    charge: number;
+    total_amount: number;
+    wallet_address: string;
+    currency_id: string;
+    ref: string;
+    status: string;
+    reject_reason: string;
+}[];
+
+type Exchanges = {
+    transaction_id: any;
+    user_id: any;
+    type: string;
+    amount: number;
+    charges: number;
+    total: number;
+    to: string;
+    from: string;
+    rate: number
+    limit_rate?: number
+    status: string;
+    expire_in: string;
+    updated_at: string;
+    created_at: string;
+}[];
+
+type Transfer = {
+    user_id: any;
+    to_user: any;
+    account_no: number;
+    currency_id: any;
+    transaction_ref: string;
+    created_at: string;
+    updated_at: string;
+    status: 'pending' | 'failed' | 'success'
+    amount: number;
 }

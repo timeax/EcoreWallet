@@ -127,7 +127,10 @@ const cssprops = [
     "zIndex",
     'order',
     'background',
-    'backgroundColor'
+    'backgroundColor',
+    'gap',
+    'column-gap',
+    'row-gap'
  ] as const;
 
  export default cssprops;
