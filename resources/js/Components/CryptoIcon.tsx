@@ -35,6 +35,10 @@ const CryptoIcon: React.FC<CryptoIconProps> = ({ name: coin = '', shape = 'circl
             const image = ref.current.querySelector('img');
             if (image) {
                 setLoaded(image.complete);
+
+                setTimeout(() => {
+                    setLoaded(image.complete);
+                }, 1000)
             };
         }
     }, []);

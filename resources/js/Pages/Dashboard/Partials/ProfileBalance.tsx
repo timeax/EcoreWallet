@@ -28,6 +28,7 @@ const ProfileBalance: React.FC<ProfileBalanceProps> = ({ }) => {
                     //@ts-ignore
                     items={currencies.filter(item => wallets.find(item => item.crypto_id == item.id) || item.type == 1)}
                     value={currency}
+                    quick
                     placeholder='coin'
                     label='code'
                     onSelect={(e) => setCurr(e.value)}

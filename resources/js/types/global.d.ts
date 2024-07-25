@@ -220,34 +220,34 @@ type MBxParams = {
     header: string;
     body: any[];
     isPhone: boolean;
-  };
-  type ChatBoxParams = {
+};
+type ChatBoxParams = {
     isAgent?: boolean;
     message: any;
     time?: string;
-  };
+};
 
-  type TkVData = {
+type TkVData = {
     id: string;
     cs: {
-      name: string;
-      role: string;
+        name: string;
+        role: string;
     };
     divison: any;
     date: string;
     subject: string;
     category: string;
     status: string;
-  };
+};
 
-  type STData = {
+type STData = {
     id: string;
     date: Date;
     subject: string;
     status: string;
-  };
+};
 
-  type UtrackType = {
+type UtrackType = {
     zimg: number;
     ztxtStyl: boolean;
     zB: number;
@@ -256,4 +256,61 @@ type MBxParams = {
     lastRange?: Range;
     zCtrl: boolean;
     killUpload: boolean;
-  };
+};
+
+type KYCAtom = {
+    label: string
+    optional?: boolean
+    value?: any
+}
+
+type KYCPersonalkeys = 'fname' | "lname" | 'email' | 'phone' | "dob" | "tgram"
+type KYCAddresskeys = 'home1' | "home2" | 'city' | 'state' | "country" | "zip"
+
+type KYCPersonal = {
+    [key in KYCPersonalkeys]: KYCAtom
+}
+type KYCAddress = {
+    [key in KYCAddresskeys]: KYCAtom
+}
+
+
+type KYCCategory = {
+    personal: {
+        title: string;
+        info: string;
+        fields: KYCPersonal;
+
+    };
+    address: {
+        title: string;
+        info: string;
+        fields: KYCAddress
+    };
+    document: {
+        title: string;
+        info: any;
+        fields?: string[];
+    };
+};
+
+
+type KYCTFormParams = {
+    header: string;
+    info: string;
+    fields: KYCCategory;
+};
+
+type CatKey = "personal" | "address" | "document";
+
+type FormDataType = KYCAddress & KYCPersonal & {
+    front: any, back: any
+}
+
+
+
+// type FormDataTyp = {
+//     name: string;
+//     value: any;
+//     required: boolean;
+// }[];

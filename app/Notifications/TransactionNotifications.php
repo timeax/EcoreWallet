@@ -66,4 +66,14 @@ class TransactionNotifications extends Notification
     {
         return 'user.transactions.notifications';
     }
+
+    /**
+     * Get the notification's database type.
+     *
+     * @return string
+     */
+    public function databaseType(object $notifiable): string
+    {
+        return 'Transactions';
+    }
 }

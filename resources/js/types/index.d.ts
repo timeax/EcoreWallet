@@ -5,11 +5,31 @@ export type PageProps<
 > = T & {
     auth: {
         user: User;
+        notifications: Notifications[]
     };
+
+    flash: { message: Messgae };
+    errors?: any[]
 };
 
+interface Messgae {
+    text: string,
+    color?: ColorNames;
+    variant?: 'contained' | 'outlined';
+}
+
+interface Notifications {
+    type: string;
+    data: {
+        text: string;
+        props: any
+    };
+    id: string;
+    created_at: string;
+}
 
 
+import { ColorNames } from "@assets/fn/create-color";
 import JJ from "../../../db/db.json";
 
 export type Wallet = (typeof JJ)["wallets"][number] & {
@@ -69,7 +89,11 @@ export type Transactions = Array<{
 export type Transaction = Transactions[number];
 
 export type Currencies = (typeof JJ)["currencies"];
-export type User = typeof JJ['users'][number]
+export type User = typeof JJ['users'][number] & {
+    account_no?: number | string;
+    lang?: string;
+    currency?: string | number;
+}
 export type Addresses = Array<Address>
 
 

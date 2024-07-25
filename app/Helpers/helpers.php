@@ -28,6 +28,16 @@ function getPhoto($filename)
     }
 }
 
+function message(string $text, string $color = 'success', $variant = 'outlined')
+{
+    return ['message' => compact('text', 'color', 'variant')];
+}
+
+function msg(string $text, string $color = 'success', $variant = 'outlined')
+{
+    return compact('text', 'color', 'variant');
+}
+
 function getFee($amount, $fee, $type = 'fixed')
 {
     if ($type == 'fixed') $fee;
@@ -502,6 +512,31 @@ function kycTradeLimit()
 
 
 
+function mText(string $value, $format = [])
+{
+    return [
+        'type' => 'text',
+        'value' => [
+            'text' => $value,
+            'options' => $format
+        ]
+    ];
+}
+
+function mButton(string $value, string $url, string $color = 'primary', $align = 'center')
+{
+    return [
+        'type' => 'button',
+        'value' => [
+            'text' => $value,
+            'options' => [
+                'color' => $color,
+                'align' => $align
+            ],
+            'url' => $url
+        ]
+    ];
+}
 
 function sysVersion()
 {

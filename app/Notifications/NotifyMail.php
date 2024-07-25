@@ -7,14 +7,14 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AppNotifications extends Notification
+class NotifyMail extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(public string $subject, public array $data)
     {
         //
     }
@@ -26,7 +26,7 @@ class AppNotifications extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['broadcast', 'database'];
+        return ['mail'];
     }
 
     /**
@@ -35,9 +35,8 @@ class AppNotifications extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject($this->subject)
+            ->markdown('mail.system.send', ['data' => $this->data]);
     }
 
     /**

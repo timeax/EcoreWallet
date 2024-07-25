@@ -7,7 +7,8 @@ const Chart: React.FC<ChartProps> = ({ height, width, ...props }) => {
     const ref = useRef<HTMLDivElement>();
 
     const [state, setState] = useState<typeof props>(props);
-
+    // const [init] = useState<typeof props>(props);
+    //-------------
     useEffect(() => {
         if (props?.series)
             if (props.series !== state?.series) {
@@ -17,9 +18,11 @@ const Chart: React.FC<ChartProps> = ({ height, width, ...props }) => {
     //---
     useEffect(() => {
         try {
-            var chart = new Apexcharts(ref.current, props);
+            var chart = new Apexcharts(ref.current, state);
             chart.render();
-        } catch (e) { }
+        } catch (e) {
+            console.log(state)
+        }
 
         return () => {
             chart.destroy();

@@ -1,9 +1,10 @@
-import { User } from '@typings/index';
-import { Head } from '@inertiajs/react';
+import { Notifications, PageProps, User } from '@typings/index';
+import { Head, usePage } from '@inertiajs/react';
 import React, { PropsWithChildren, createContext, useContext, useEffect, useRef, useState } from 'react';
 import Echo from 'laravel-echo';
 import icon from '@assets/images/ecore-favi.ico'
 import { Toast, ToastMessageOptions } from 'primereact/toast';
+import { ColorNames } from '@assets/fn/create-color';
 
 //@ts-ignore
 const Context = createContext<AuthenticatedContextProps>();
@@ -24,12 +25,7 @@ type Event<T extends string, O> = {
 }
 
 interface Events {
-    notifications: Event<'user.notify', {
-        label: string;
-        desc: string;
-        category: string;
-        href: string
-    }>;
+    notifications: Event<'user.notify', Notifications[]>;
 
     cryptoUpdates: Event<'live.updates.crypto', string[]>
 
@@ -47,28 +43,32 @@ interface Events {
 }
 
 export function useWrapper() {
-    const { echo, user } = useContext(Context);
+    const { echo, user, notifications } = useContext(Context);
 
     return {
         get user() {
             return user;
         },
 
-        async liveChatConnect() {
-            const chat = await window.axios.post(route('user.chat.connect'));
-            // console.log(chat.data);
+        get notifications() {
+            return notifications
         },
 
         onChange<T extends keyof Events>(event: T, callback: (e: Events[T]) => void) {
             switch (event) {
                 case 'notifications': {
+                    callback({
+                        data: notifications,
+                        event: 'user.notify'
+                    } as any)
                     echo?.private(`user.${user.id}`).notification((notification: any) => {
-                        console.log(notification)
-                        //@ts-ignore
-                        callback({
-                            data: notification,
-                            event: `user.${user.id}`,
-                        })
+                        window.axios.get(route('data.notifications', { userId: user.id })).then((data => {
+                            const notifications = data.data;
+                            callback({
+                                data: notifications,
+                                event: `user.${user.id}`,
+                            } as any)
+                        }));
                     })
                     break;
                 }
@@ -109,16 +109,30 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         // console.log(echo)
     }
 
-    console.log(props?.errors, props?.flash)
+    useEffect(() => {
+        if (!localStorage.getItem('theme')) {
+            localStorage.setItem('theme', 'light');
+        }
+    }, []);
 
+
+    const { auth: { notifications }, flash: { message } } = usePage<PageProps>().props;
+    //------------
     const toast = useRef<{ show(props: any): void }>(null);
+    //-----------
 
     const notify = (props: ToastMessageOptions | ToastMessageOptions[]) => {
         toast.current?.show(props);
     }
 
+    useEffect(() => {
+        if (message) {
+            notify({ closable: true, severity: message.color as any, summary: message.text })
+        }
+    }, [message]);
+
     return (
-        <Context.Provider value={{ ...props, echo, config, notify }}>
+        <Context.Provider value={{ ...props, echo, config, notify, notifications }}>
             <Head title={title}>
                 <link rel="shortcut icon" type={icon} href="favicon.ico" />
                 {usePusher ? <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> : ''}
@@ -130,6 +144,7 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         </Context.Provider >
     );
 }
+
 
 
 export function useEcho() {
@@ -147,12 +162,14 @@ interface AuthenticatedContextProps {
     echo?: Echo;
     config: Array<Store>;
     notify(props: ToastMessageOptions): void
+    notifications: Notifications[]
 }
 
 interface Store {
     name: string;
     value: any
 }
+
 
 
 export default AuthenticatedContextProvider

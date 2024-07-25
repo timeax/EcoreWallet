@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ChatNotification extends Notification
+class PasswordIsReset extends Notification
 {
     use Queueable;
 
@@ -35,9 +35,8 @@ class ChatNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject('Password Has Been Reset')
+            ->markdown('mail.reset.complete');
     }
 
     /**

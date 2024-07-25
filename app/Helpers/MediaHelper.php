@@ -5,6 +5,7 @@ namespace App\Helpers;
 // use Illuminate\Support\Str;
 // use Intervention\Image\ImageManagerStatic as Image;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Image;
 
@@ -92,7 +93,7 @@ class MediaHelper
     {
         $extension = $image->getClientOriginalExtension();
         $old_name  = explode('.', $image->getClientOriginalName());
-        $new_name = $old_name . rand() . time() . '.' . $extension;
+        $new_name = Arr::join($old_name ?? [], '') . rand() . time() . '.' . $extension;
         return $new_name;
     }
 

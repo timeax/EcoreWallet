@@ -1,38 +1,40 @@
-import { useState, createContext, useContext, Fragment, PropsWithChildren, Dispatch, SetStateAction, useEffect, useRef, Ref } from 'react';
+import React, { useState, createContext, useContext, Fragment, PropsWithChildren, Dispatch, SetStateAction, useEffect, useRef, Ref } from 'react';
 import { Link, InertiaLinkProps } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import Tag from '.';
 
 const DropDownContext = createContext<{
     open: boolean;
-    setOpen: Dispatch<SetStateAction<boolean>>;
     ref?: React.MutableRefObject<HTMLDivElement | undefined>
-    toggleOpen: () => void;
+    toggleOpen: (value?: any) => void;
     onSelect(value?: string): void
     event?(callback: Function): void
 }>({
     open: false,
-    setOpen: () => { },
-    toggleOpen: () => { },
+    toggleOpen: (value) => { },
     onSelect(value) { },
 });
 
-const Dropdown = ({ children, className = '', onSelect }: PropsWithChildren<{ className?: string, onSelect?: (value?: any) => void }>) => {
+const Dropdown = ({ dropRef, children, className = '', onSelect }: PropsWithChildren<{ dropRef?: React.MutableRefObject<boolean>, className?: string, onSelect?: (value?: any) => void }>) => {
     const [open, setOpen] = useState(false);
 
     const ref = useRef<HTMLDivElement>();
 
-    const toggleOpen = () => {
-        setOpen((previousState) => {
-            let newState = !previousState;
-
-            return newState;
-        });
+    const toggleOpen = (value?: boolean) => {
+        if (typeof value !== 'boolean')
+            setOpen((previousState) => {
+                let newState = !previousState;
+                return newState;
+            });
+        else {
+            setOpen(value);
+            // if (dropRef)
+        }
     };
 
     useEffect(() => {
-
-    }, [])
+        if (dropRef) dropRef.current = open;
+    }, [open])
 
     const select = (value: string) => {
         onSelect?.(value)
@@ -49,19 +51,19 @@ const Dropdown = ({ children, className = '', onSelect }: PropsWithChildren<{ cl
 };
 
 const Trigger = ({ children }: PropsWithChildren) => {
-    const { open, setOpen, toggleOpen } = useContext(DropDownContext);
+    const { open, toggleOpen } = useContext(DropDownContext);
 
     return (
         <>
             <div data-section='trigger' className={open ? 'open' : ''} onClick={toggleOpen}>{children}</div>
 
-            {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>}
+            {open && <div className="fixed inset-0 z-40" onClick={() => toggleOpen(false)}></div>}
         </>
     );
 };
 
 const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-white', children }: PropsWithChildren<{ align?: 'left' | 'right', width?: string, contentClasses?: string }>) => {
-    const { open, setOpen, ref } = useContext(DropDownContext);
+    const { open, toggleOpen: setOpen, ref } = useContext(DropDownContext);
     let alignmentClasses = 'origin-top';
 
     if (align === 'left') {

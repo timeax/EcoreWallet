@@ -34,10 +34,12 @@ const Page: React.FC<ExchangeProps> = ({ auth, wallet, wallets, currencies }) =>
                     <TabView>
                         <TabPanel header='Market'>
                             <div className="mt-4"></div>
+                            {/* @ts-ignore */}
                             <Market {...{ auth, wallet, wallets, currencies }} />
                         </TabPanel>
                         <TabPanel header='Limit'>
                             <div className="mt-4"></div>
+                            {/* @ts-ignore */}
                             <Limit {...{ auth, wallet, wallets, currencies }} />
                         </TabPanel>
                     </TabView>

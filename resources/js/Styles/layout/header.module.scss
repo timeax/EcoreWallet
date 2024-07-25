@@ -85,6 +85,12 @@
     }
 }
 
+.avatarText {
+    @extend %flex-y;
+    align-items: flex-start;
+    justify-items: center;
+}
+
 @include media("<=xs-tablet") {
     .desc,
     .avatarText,
@@ -126,4 +132,8 @@
     @include media("<=lg-mobile") {
         display: none;
     }
+}
+
+.drop {
+   display: none;
 }

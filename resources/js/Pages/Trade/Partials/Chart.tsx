@@ -33,7 +33,8 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
     ];
 
     useEffect(() => {
-        setTime(timeData.find(item => item.label.toLowerCase() == range)?.value || 'today')
+        setTime(timeData.find(item => item.label.toLowerCase() == range)?.value || 'today');
+        setColor(getCrptoColor(initV?.curr.curr_name || ''))
     }, []);
 
     useEffect(() => {
@@ -57,6 +58,7 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
 
     useEffect(() => {
         if (!historicalData) return;
+        let colorValue = color || getCrptoColor(initV?.curr.curr_name || '');
 
         setChartData([{
             name: `1 ${wallet?.curr.code}`,
@@ -95,12 +97,12 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
 
             stroke: {
                 width: 1,
-                colors: [color]
+                colors: [colorValue]
             },
 
             fill: {
                 type: 'gradient',
-                colors: [color],
+                colors: [colorValue],
                 gradient: {
                     shadeIntensity: 1,
                     inverseColors: false,

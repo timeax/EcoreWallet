@@ -18,7 +18,7 @@ export function upc0(str: string) {
 }
 
 function title({ title, info }) {
-    const className = `title-${title}`;
+    const className = `title-${title.replace(/[^A-Z0-9]+/ig, "_")}`;
     return (
         <div className="n-d-box">
             <Title noPad bright className="name gap-2">

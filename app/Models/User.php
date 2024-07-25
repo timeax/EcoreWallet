@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\EmailVerificationSent;
 use App\Notifications\OtpSent;
+use App\Notifications\PasswordReset;
 use Cryptomus;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -26,9 +27,13 @@ class User extends Authenticatable
         'phone',
         'country',
         'city',
+        'username',
         'email_verified',
         'verification_link',
         'address',
+        'account_no',
+        'lang',
+        'currency',
         'status',
         'zip',
         'password',
@@ -159,6 +164,11 @@ class User extends Authenticatable
         }
 
         DepositAddress::initiateUser($this, $cryptomus);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new PasswordReset($token));
     }
 
     public function addresses()

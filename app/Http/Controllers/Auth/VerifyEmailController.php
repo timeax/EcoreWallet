@@ -37,7 +37,6 @@ class VerifyEmailController extends Controller
         $user->initiateUser($cryptomus);
 
         session()->flush();
-        Log::info('it reached here');
 
         return redirect()->intended('/login');
     }

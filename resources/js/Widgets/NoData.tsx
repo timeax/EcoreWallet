@@ -9,10 +9,7 @@ const NoData: React.FC<NoDataProps> = ({ icon, children: [title, desc, action] }
         <Tag element={'div'} py={'2rem'} className='flex flex-col h-full grow gap-3 w-full justify-center items-center'>
             <Tag fontSize={80} color='rgb(var(--color-theme-emphasis))'>{icon}</Tag>
             <Title noPad xl bold className='text-center'>{title}</Title>
-            <Text size={'16px'} sx={{
-                width: '50%',
-                textAlign: 'center'
-            }}>{desc}</Text>
+            <Title lg className='noData-p w-[50%] justify-center text-center' brighter>{desc}</Title>
             <div>{action}</div>
         </Tag>
     );

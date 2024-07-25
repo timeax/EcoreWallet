@@ -43,7 +43,7 @@ export function getDate(date: string) {
     }
 }
 
-export function assets(resource?: string) {
+export function assets(resource?: string | null) {
     if (resource) {
         resource = resource.replace(/\\/g, '/');
         //@ts-ignore

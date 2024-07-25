@@ -137,7 +137,7 @@
     column-gap: 6px;
     align-items: center;
 
-    @include media("<=330px") {
+    @include media("<=449px") {
         justify-content: space-around;
         width: 100%;
     }

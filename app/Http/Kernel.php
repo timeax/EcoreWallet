@@ -59,6 +59,7 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'module' => \App\Http\Middleware\Module::class,
         'email_verified' => \App\Http\Middleware\EmailVerify::class,
+        'active_accounts' => \App\Http\Middleware\LogoutDiactivatedAccounts::class,
         '2fa' => \App\Http\Middleware\TwoStep::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,

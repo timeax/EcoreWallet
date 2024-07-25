@@ -15,7 +15,7 @@ class SystemNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public array $message = [])
+    public function __construct(public string $subject, public string $message)
     {
         //
     }
@@ -55,11 +55,21 @@ class SystemNotification extends Notification
      */
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        return new BroadcastMessage($this->message);
+        return new BroadcastMessage(['message' => $this->message]);
     }
 
     public function broadcastType()
     {
         return 'site.notifications';
+    }
+
+    /**
+     * Get the notification's database type.
+     *
+     * @return string
+     */
+    public function databaseType(object $notifiable): string
+    {
+        return 'Other';
     }
 }

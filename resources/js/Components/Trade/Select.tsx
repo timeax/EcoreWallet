@@ -30,6 +30,7 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
     const [prev] = useState(props.value);
 
     const button = useRef<HTMLButtonElement>();
+    const isOpen = useRef<boolean>(false);
 
     useEffect(() => {
         if (!props.value) return;
@@ -48,22 +49,26 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
             'px-2 py-2 bg-theme-bgColor': props.contained,
             '!bg-transparent': props.transaparent
         })}>
-            <Tag element='div' column-gap={gap ? gap + 'px' : undefined} className='flex items-center justify-between'>
-                <Tag element='div' color={textColor} className='flex items-center grow' {...(props.quick ? {
-                    onClick: () => {
-                        let btn = button.current?.parentElement;
-                        if (btn && !btn.classList.contains('open')) btn.click();
-                    }
-                } : {})}>
+            <Tag element='div' {...(props.quick ? {
+                onClick: () => {
+                    console.log('clicked', isOpen.current)
+                    if (isOpen.current) return;
+                    let btn = button.current?.parentElement;
+                    if (btn) btn.click();
+                }
+            } : {})} column-gap={gap ? gap + 'px' : undefined} className='flex items-center justify-between'>
+                <Tag element='div' color={textColor} className='flex items-center grow'>
                     {
                         selected
                             ? contentTemplate(selected, label) : props.placeholder || 'Make Selection'
                     }
                 </Tag>
                 <div className='self-center items-center flex'>
-                    <Dropdown className='!static'>
+                    <Dropdown
+                        //@ts-ignore
+                        dropRef={isOpen} className='!static'>
                         <Dropdown.Trigger>
-                            <Tag element='span' color={textColor} onClick={(e: any) => e.preventDefault()} className={props.trigger}>{props.icon || <FaChevronDown />}</Tag>
+                            <Tag tagRef={button} element='span' color={textColor} onClick={(e: any) => e.preventDefault()} className={props.trigger}>{props.icon || <FaChevronDown />}</Tag>
                         </Dropdown.Trigger>
                         <Dropdown.Content width={classNames('w-full', props.content)}>
                             {props.items.map((item, index) => {
@@ -114,10 +119,10 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
 export interface SelectProps<T = any> extends AppElement {
     contentTemplate?: React.FC<T>,
     menuItemTemplate?: React.FC<T>,
+    items: T[];
     value?: T,
     unique: string;
     onSelect?(value: React.MouseEvent & { value: T }): void;
-    items: T[];
     quick?: boolean;
     placeholder?: React.ReactNode
     trigger?: string

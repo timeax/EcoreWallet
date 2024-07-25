@@ -22,7 +22,7 @@ class Authenticate extends Middleware
                 return route('merchant.login');
             }
             else{
-                return route('user.login');
+                return route('login');
             }
         }
     }

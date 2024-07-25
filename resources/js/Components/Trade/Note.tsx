@@ -5,7 +5,7 @@ import { Title } from '.';
 import { create } from '@assets/fn/create-color';
 import { classNames } from 'primereact/utils';
 
-const Note: React.FC<PropsWithChildren<WarningProps>> = ({ title, children, variant = 'disclaimer', lg }) => {
+const Note: React.FC<PropsWithChildren<WarningProps>> = ({ title, children, variant = 'disclaimer', lg, className, contentClass, iconClass, titleClass }) => {
     //--- code here ---- //
     let icon: ReactNode;
     switch (variant) {
@@ -21,10 +21,10 @@ const Note: React.FC<PropsWithChildren<WarningProps>> = ({ title, children, vari
     }
 
     return (
-        <div className='flex flex-col gap-2 p-4 mt-4'>
-            <Text variant={'other'} size='30px'>{icon}</Text>
-            <Title noPad bold xl>{title}</Title>
-            <Title noPad brighter className={classNames({
+        <div className={classNames('flex flex-col gap-2 p-4 mt-4', className)}>
+            <Text className={iconClass} variant={'other'} size='30px'>{icon}</Text>
+            <Title className={titleClass} noPad bold xl>{title}</Title>
+            <Title noPad brighter className={classNames(contentClass, {
                 'text-[16px]': lg,
                 '': !lg
             })}>{children}</Title>
@@ -36,6 +36,10 @@ interface WarningProps {
     title: ReactNode,
     variant?: 'disclaimer' | 'warning' | 'tip';
     lg?: boolean
+    className?: string;
+    titleClass?: string;
+    contentClass?: string;
+    iconClass?: string;
 }
 
 export default Note

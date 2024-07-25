@@ -2,7 +2,7 @@ import Card from '@components/Card';
 import CryptoIcon from '@components/CryptoIcon';
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
 import { Currencies, PageProps, Transactions, Wallet, Wallets as WalletList } from '@typings/index';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from '@styles/pages/wallets/wallets.module.scss';
 import WalletInfo from './Partials/WalletInfo';
 import { classNames } from 'primereact/utils';
@@ -21,7 +21,8 @@ import IconButton from '@components/Button/IconButton';
 import { getCrptoColor } from '@assets/fn';
 import Color from 'color';
 import Button from '@components/Button';
-import { CurrencyProvider, useWallets } from './Currency';
+import { CurrencyProvider, useWallets } from '@context/Currency';
+import { routeById } from '@routes/index';
 
 const Wallets: React.FC<WalletsProps> = ({ auth, wallets, currencies, deposits, withdrawals, exchanges, transfers, ...props }) => {
     //--- code here ---- //
@@ -46,12 +47,39 @@ const Wallets: React.FC<WalletsProps> = ({ auth, wallets, currencies, deposits, 
 const Page: React.FC<MainPageProps> = ({ wallets }) => {
     //--- code here ---- //
     const [wallet, setWallet] = useState(wallets[0]);
+    const [walletList, setList] = useState(wallets);
     const [checked, setChecked] = useState<boolean | undefined>(false);
+
+    const filters = useRef({ value: '' })
+
+    const [filter, setFilter] = useState<number>(0);
+
+    useEffect(() => {
+        const value = filters.current.value;
+        //-------
+        setList(wallets.filter(item => {
+            let isGood = true;
+            if (value.trim().length > 0) {
+                isGood = item.curr.code.toLowerCase().includes(value) || item.curr.curr_name.toLowerCase().includes(value);
+            }
+
+            if (isGood && checked) isGood = parseFloat(item.all_balance.total) > 0;
+
+            return isGood;
+        }));
+    }, [filter, checked]);
+
 
     return (
         <div className={styles.page}>
             <div className={classNames('flex gap-4', styles.toolbar)}>
-                <Textfield placeholder='Search All Wallets' />
+                <Textfield placeholder='Search All Wallets' onChange={e => {
+                    //@ts-ignore
+                    const value: string = (e.target.value || '').toLowerCase();
+
+                    filters.current.value = value;
+                    setFilter(filter + 1);
+                }} />
                 <div className="flex items-center gap-2">
                     <Checkbox checked={checked as boolean} onChange={(e) => setChecked(e.checked)} />
                     <Title noPad lg>Hide all zero values</Title>
@@ -63,7 +91,7 @@ const Page: React.FC<MainPageProps> = ({ wallets }) => {
                 </div>
                 <div className={styles.table}>
                     <div className={'flex gap-y-2 flex-col'}>
-                        {wallets.map(item => <WalletDesktop current={wallet.id} key={item.id} wallet={item} change={setWallet} />)}
+                        {walletList.map(item => <WalletDesktop current={wallet.id} key={item.id} wallet={item} change={setWallet} />)}
                     </div>
                 </div>
                 <div className={styles.summary}>
@@ -73,9 +101,9 @@ const Page: React.FC<MainPageProps> = ({ wallets }) => {
                     </div>
                 </div>
                 <div className={styles.tradeButtons}>
-                    <Button centered size='normal' shape='pill'>Swap</Button>
-                    <Button centered size='normal' shape='pill'>Deposit</Button>
-                    <Button centered size='normal' shape='pill'>Send</Button>
+                    <Button href={route(routeById('swap').route, { code: wallet.curr.code })} centered size='normal' shape='pill'>Swap</Button>
+                    <Button href={route(routeById('fund').route, { wallet: wallet.curr.code })} centered size='normal' shape='pill'>Deposit</Button>
+                    <Button href={route(routeById('withdraw').route, { wallet: wallet.curr.code })} centered size='normal' shape='pill'>Send</Button>
                 </div>
             </div>
         </div>
@@ -117,6 +145,7 @@ const WalletMobile: React.FC<WalletMobileProps> = ({ all_balance: balance, curr,
                     value={currency}
                     label='code'
                     gap={9}
+                    quick
                     menuGap={9}
                     textColor={color}
                     onSelect={(e) => setCurr(e.value)}

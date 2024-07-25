@@ -11,24 +11,28 @@ use App\Http\Controllers\User\SupportTicketController;
 use App\Http\Controllers\User\TradeController;
 use App\Models\Currency;
 use App\Models\Language;
+use App\Models\LoginLogs;
 use App\Models\Setting;
-use App\Notifications\OtpSent;
+use App\Notifications\NotifyMail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::name('user.')->middleware('maintenance')->group(function () {
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'active_accounts'])->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::post('/profile', [ProfileController::class, 'general'])->name('profile.update.general');
+        Route::post('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 
         Route::get('/settings', function () {
             $languages = Language::all();
             $currencies = Currency::where(['type' => 1])->get();
             $settings = Setting::where(['user_id' => Auth::id()]);
-
-            return Inertia::render('Settings/Page', compact('languages', 'currencies', 'settings'));
+            $activities = LoginLogs::all();
+            //-----------
+            return Inertia::render('Settings/Page', compact('languages', 'currencies', 'settings', 'activities'));
         })->name('settings.all');
 
         Route::get('/support', [SupportTicketController::class, 'view'])->name('support');
@@ -89,8 +93,18 @@ Route::name('user.')->middleware('maintenance')->group(function () {
 
         Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
+        Route::put('password/new', [ConfirmablePasswordController::class, 'confirm'])->name('password.update');
+
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
             ->name('logout');
+
+        Route::get('user-forgot-password', function (Request $request) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            //-------------
+            redirect(route('password.request'));
+        })->name('forgot-password');
     });
 });
 
@@ -99,5 +113,8 @@ Route::get('/myadmin', function () {
 
     $user = Auth::user();
 
-    return (new OtpSent(uuid('otp')))->toMail($user);
+    return (new NotifyMail('Account Deactivated', [
+        mText("Hello $user->name, ", ['b']),
+        mText("As per your requests, you account has been deactivated, if you didn't authorise this action, contact customer support and secure your account!."),
+    ]))->toMail($user);
 });
