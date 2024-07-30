@@ -16,7 +16,6 @@ import HistorySection from './Partials/HistorySection';
 import BalanceSummary from './Partials/BalanceSummary';
 import LiveFeed from '@context/LiveContext';
 import Latest from './Partials/Latest';
-import { FaArrowDownLong, FaArrowUpLong } from 'react-icons/fa6';
 import ProfileBalance from './Partials/ProfileBalance';
 import { useState } from 'react';
 import { Title } from '@components/Trade';
@@ -63,8 +62,8 @@ export default function Dashboard({ auth, wallets, transactions, gs, currencies,
                                 </div>
                             </div>
                         </section>
-                        {/*<QuickActions />*/}
-                        <Latest currencies={wallets.map(item => item.curr)} />
+                        {/*@ts-ignore <QuickActions />*/}
+                        <Latest currencies={currencies.filter(item => item.type == 2).slice(0, 4)} />
                     </div>
                     <div className={dashboard.assets}>
                         <section>
@@ -91,32 +90,3 @@ interface DashboardProps extends PageProps {
     trades: Trades;
     currencies: Currencies
 }
-
-
-{/* <TabView className='db-classic'>
-                            <TabPanel header={<Tab text='Quick Transfer' icon={<GrTransaction />} />}>
-                                <div className="mt-12">
-                                    <div className='flex gap-6'>
-
-                                        <Card className='w-[50%]'>
-                                            <Cardheader variant='mini'>
-                                                Transfer history
-                                            </Cardheader>
-                                        </Card>
-
-                                        <form className='grow'>
-                                            <Textfield label='Phone' />
-                                            <Textfield label='Amount' />
-                                        </form>
-                                    </div>
-                                </div>
-                            </TabPanel>
-                            <TabPanel header={<Tab text='Quick Exchange' icon={<RiExchangeFundsLine />} />}>
-                                <div className="mt-12">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                </div>
-                            </TabPanel>
-                        </TabView> */ }

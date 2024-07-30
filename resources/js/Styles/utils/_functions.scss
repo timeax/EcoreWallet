@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 @function prime($name) {
     @return "[data-pc-section=" $name + "]";
 }
@@ -6,6 +8,6 @@
     @return "[data-section=" $name + "]";
 }
 
-@function ft($value) {
-    @return #{16px / $value}em;
+@function ft($size) {
+    @return math.div($size, 16px) + em;
 }

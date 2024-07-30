@@ -1,20 +1,17 @@
 import React, { useEffect } from 'react';
-import TradeInput, { TradeChangeEvent } from './Input';
+import TradeInput from './Input';
 import { FaArrowDown } from 'react-icons/fa';
 import Tag from '@components/index';
 import Text from '../Text';
 import { useSpot } from '@context/SpotContext';
-import { Wallet } from '@typings/index';
 import { useNotify } from '@context/AuthenticatedContext';
 import { showIf } from '@assets/fn';
 import { CgArrowsExchangeV } from 'react-icons/cg';
 import { Title } from '.';
 import { FaArrowRightLong } from 'react-icons/fa6';
-import { useLive } from '@context/LiveContext';
-import { BsInfoCircleFill } from 'react-icons/bs';
 
 const Exchange: React.FC<ExchangeProps> = ({ order, exchange, title }) => {
-    const { list, wallets, type, rates } = useSpot();
+    const { list, wallets, type, rates, swap } = useSpot();
     const notify = useNotify();
     //----------------
     useEffect(() => {
@@ -42,6 +39,7 @@ const Exchange: React.FC<ExchangeProps> = ({ order, exchange, title }) => {
                     id='from'
                     wallet='from'
                     limit={type === 'limit'}
+                    currType={2}
                 />
                 <Tag order={order == -1 ? 0 : 1} className='h-full relative w-full flex'>
                     <Tag sx={{
@@ -50,12 +48,15 @@ const Exchange: React.FC<ExchangeProps> = ({ order, exchange, title }) => {
                         fontSize: '30px',
                         zIndex: 99,
                         margin: 'auto'
-                    }} className='flex text-theme/55 items-center justify-center'>{showIf(exchange, <CgArrowsExchangeV />, <FaArrowDown />)}</Tag>
+                    }} element='div'
+                        onClick={swap}
+                        className='flex text-theme/55 items-center justify-center'>{showIf(exchange, <CgArrowsExchangeV />, <FaArrowDown />)}</Tag>
                 </Tag>
                 <TradeInput
                     sx={{ order: order == -1 ? order : 2 }}
                     currencies={list.currencies}
                     id='to'
+                    currType={2}
                     wallet='to'
                 />
             </div>

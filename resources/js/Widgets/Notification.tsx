@@ -1,21 +1,19 @@
 import IconButton from "@components/Button/IconButton";
 import { Title } from "@components/Trade";
-import { Link } from "@inertiajs/react";
-import { Button } from "primereact/button";
-import React, { useState } from "react";
+import React from "react";
 
 const Notification: React.FC<NotificationProps> = ({ title, data: info, date }) => {
     //--- code here ---- //
     return (
         <>
-            <div className="mx-notice-box flex flex-col gap-2">
+            <div className="mx-notice-box flex flex-col gap-1">
                 <div className="title-box">
-                    <Title lg bold noPad className="title">{title}</Title>
+                    <Title sm bold noPad className="title">{title}</Title>
                 </div>
                 <div className="info-box flex items-center">
-                    <Title noPad lg bright normal className="info">{info}</Title>
+                    <Title noPad sm bright normal className="info">{info}</Title>
                 </div>
-                <Link href="/" className="flex justify-between items-center">
+                <div className="flex justify-between items-center">
                     <Title noPad normal xs className="gap-1">
                         <i>
                             {new Date(date).toLocaleDateString(undefined, {
@@ -28,7 +26,7 @@ const Notification: React.FC<NotificationProps> = ({ title, data: info, date }) 
                     <IconButton variant="none">
                         <i className="pi pi-angle-right"></i>
                     </IconButton>
-                </Link>
+                </div>
             </div>
         </>
     );

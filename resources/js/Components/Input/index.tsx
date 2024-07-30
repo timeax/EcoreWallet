@@ -40,7 +40,7 @@ const Textfield: React.FC<TextfieldProps> = ({ className, label, floatLabel, onC
 }
 
 type StringNode = string | React.ReactNode;
-
+//@ts-ignore
 interface TextfieldProps extends AppElement<React.InputHTMLAttributes<HTMLInputElement>>, PropsWithSx {
     desc?: StringNode;
     label?: StringNode;
@@ -48,7 +48,8 @@ interface TextfieldProps extends AppElement<React.InputHTMLAttributes<HTMLInputE
     descId?: string;
     floatLabel?: boolean;
     htmlFor?: string;
-    inputElement?: any
+    inputElement?: any;
+    onChange: React.ChangeEventHandler<HTMLInputElement>
     // onChange?(ev: React.ChangeEventHandler<HTMLInputElement>): void
 }
 

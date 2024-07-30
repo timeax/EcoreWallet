@@ -1,5 +1,5 @@
 .title {
-    font-size: 70px;
+    font-size: ft(70px);
     text-transform: capitalize;
     color: $color-theme-emphasis;
     font-weight: 800;
@@ -7,24 +7,24 @@
 
 .small {
     font-weight: 300;
-    font-size: 13px;
+    font-size: ft(13px);
 }
 
 .subtitle {
-    font-size: 58px;
+    font-size: ft(58px);
     text-transform: capitalize;
     color: $color-theme-emphasis;
     font-weight: 800;
 }
 
 .text {
-    font-size: 15px;
+    font-size: ft(15px);
     font-weight: 300;
     color: $color-theme-text;
 }
 
 .heading {
-    font-size: 50px;
+    font-size: ft(50px);
     font-weight: 600;
     text-transform: capitalize;
     color: $color-theme-text;
@@ -32,7 +32,7 @@
 
 .subheading {
     font-weight: 600;
-    font-size: 32px;
+    font-size: ft(32px);
     text-transform: capitalize;
     color: $color-theme-text;
 }
@@ -42,13 +42,13 @@
 }
 
 .header {
-    font-size: 17px;
+    font-size: ft(17px);
     font-weight: 500;
     // color: $color-theme-emphasis;
 }
 
 .titlebar-title {
-    font-size: 16px;
+    font-size: ft(16px);
     text-transform: capitalize;
     font-weight: 600;
     color: $color-theme-icons;

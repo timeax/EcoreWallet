@@ -47,7 +47,7 @@ export default function AuthenticatedLayout({ pusher = true, user, header, child
     }, []);
 
     return (
-        <AuthenticatedProvider usePusher={pusher} user={user} {...props}>
+        <AuthenticatedProvider title={title} usePusher={pusher} user={user} {...props}>
             <div className="min-h-screen max-h-screen overflow-hidden">
                 <div className={styles.bottombar}>
                     <BottomBar />

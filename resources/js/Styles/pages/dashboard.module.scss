@@ -7,7 +7,7 @@
     display: flex;
     // place-content: center;
     // margin: 5px;
-    font-size: 25px;
+    font-size: ft(25px);
     font-weight: bold;
     font-family: sans-serif;
     div {
@@ -70,9 +70,18 @@
     }
 
     @include media("<=lg-mobile") {
-        background-color: transparent !important;
+        background: transparent;
+
         #{attr(container)} {
-            padding: 0 !important;
+            @include px(0);
+            padding-top: 0;
+        }
+
+        #{attr(card-body)} {
+            padding-bottom: 0;
+            #{attr(container)} {
+                padding-bottom: 0;
+            }
         }
     }
 
@@ -184,7 +193,7 @@
     @include media("<=lg-mobile") {
         background-color: transparent !important;
     }
-
+    overflow: hidden;
     .price_name {
         font-weight: 600;
         @include media(">=lg-mobile") {
@@ -194,11 +203,20 @@
 }
 
 .prices {
-    padding-bottom: 0px !important;
-    overflow-y: auto;
-
     @include media("<=lg-mobile") {
-        padding: 0rem !important;
+        background: transparent;
+
+        #{attr(container)} {
+            @include px(0);
+            padding-top: 0;
+        }
+
+        #{attr(card-body)} {
+            padding-bottom: 0;
+            #{attr(container)} {
+                padding-bottom: 0;
+            }
+        }
     }
 }
 
@@ -211,8 +229,11 @@
     }
 
     padding: 0.8rem 0;
+    &:first-child {
+        padding-top: 0;
+    }
     img {
-        width: 40px;
+        width: 30px;
     }
 
     justify-content: space-between;
@@ -264,7 +285,7 @@
         flex-grow: 1;
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: ft(14px);
         background-color: rgba(168, 168, 168, 0.171);
         padding: 0.8rem 0;
         justify-content: center;

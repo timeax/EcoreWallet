@@ -1,22 +1,20 @@
-import { showIf, cutArr, getDate } from "@assets/fn";
+import { showIf, getDate } from "@assets/fn";
 import Cardheader from "@components/Card/Cardheader";
-import Card from "@components/Card";
+import Card, { UICard, UICHeader } from "@components/Card";
 import CryptoIcon from "@components/CryptoIcon";
 import { Title } from "@components/Trade";
 import { Currencies, Transactions } from "@typings/index";
 import NoData from "@widgets/NoData";
 import { classNames } from "primereact/utils";
 import React from 'react';
-import { FaChevronRight } from "react-icons/fa";
 import Button from "@components/Button";
 import dashboard from '@styles/pages/dashboard.module.scss';
 import { Link } from "@inertiajs/react";
 import { routeById } from "@routes/index";
 import CurrencyFormat from 'react-currency-format';
 import calc from 'number-precision';
-import { TbArrowCurveLeft, TbArrowsLeftRight, TbArrowCurveRight, TbArrowMoveRight } from "react-icons/tb";
-import { color, Color, ColorNames } from "@assets/fn/create-color";
-import Tag from "@components/index";
+import { TbArrowCurveRight } from "react-icons/tb";
+import { color, ColorNames } from "@assets/fn/create-color";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { BiTransfer } from "react-icons/bi";
 import { LiaLongArrowAltDownSolid } from "react-icons/lia";
@@ -25,21 +23,21 @@ const HistorySection: React.FC<HistorySectionProps> = ({ transactions }) => {
     //--- code here ---- //
     return (
         <section>
-            <Card bb className={classNames(dashboard.history, '!rounded-lg')}>
-                <Cardheader variant='title'>
-                    <>Recent Transactions</>
-                    <Title noPad md bright>
+            <UICard header={
+                <UICHeader lg title={'Recent Transactions'}>
+                    <Title noPad normal md bright>
                         <Link href={route(routeById('history').route)}>See all</Link>
                     </Title>
-                </Cardheader>
+                </UICHeader>
+            } className={dashboard.history}>
                 {showIf(transactions.length > 1, <History transactions={transactions} />, (
                     <NoData>
                         <>No Transaction Data Found</>
                         <>Your latest transactions or activities will be displayed here</>
-                        <Button size='normal'>Make a deposit</Button>
+                        <Button href={route(routeById('fund').route)} shape="pill" size='normal'>Make a deposit</Button>
                     </NoData>
                 ))}
-            </Card>
+            </UICard>
         </section>
     );
 }
@@ -171,7 +169,7 @@ export const TransactionIcon: React.FC<TransactionIconProps> = ({ type, curr, cl
 
             {showIf(curr, (
                 <div data-section='crypto-icon'>
-                    <CryptoIcon curr={curr} width="12px" size="9px" />
+                    <CryptoIcon curr={curr} width="12px" fit />
                 </div>
             ))}
         </div>

@@ -22,11 +22,13 @@ class MediaHelper
     public static function handleMakeImage($file, $resize_array = null, $ticket = false)
     {
         $image_name = MediaHelper::imageNameValidation($file);
-        $locaion = base_path('public/assets/images');
+        $locaion = public_path('storage/images');
+        $to = 'images/';
 
         $fileExts = ['pdf', 'doc', 'docx', 'csv'];
         if ($ticket || in_array($file->getClientOriginalExtension(), $fileExts)) {
-            $locaion = base_path('../assets/ticket/');
+            $locaion =  public_path('storage/files');
+            $to = 'files/';
             $file->move($locaion, $image_name);
         } else {
             if ($resize_array) {
@@ -46,7 +48,7 @@ class MediaHelper
             }
         }
 
-        return $image_name;
+        return $to . $image_name;
     }
 
     // image is file
@@ -55,7 +57,7 @@ class MediaHelper
     public static function handleUpdateImage($file, $field, $resize_array = null)
     {
         $image_name = MediaHelper::imageNameValidation($file);
-        $locaion = base_path('public/assets/images');
+        $locaion = public_path('storage/images');
 
         if ($field && file_exists($locaion . $field)) {
             unlink($locaion . $field);
@@ -76,12 +78,12 @@ class MediaHelper
                 $image->save($locaion . '/' . $image_name);
             }
         }
-        return $image_name;
+        return 'images/' . $image_name;
     }
 
     public static function handleDeleteImage($field)
     {
-        $locaion = base_path('public/assets/images');
+        $locaion = public_path('storage/images');
         if ($field && file_exists($locaion . $field)) {
             unlink($locaion . $field);
         }

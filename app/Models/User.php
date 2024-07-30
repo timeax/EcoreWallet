@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use App\Events\EmailVerificationSent;
 use App\Notifications\OtpSent;
 use App\Notifications\PasswordReset;
 use Cryptomus;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use PragmaRX\Google2FA\Google2FA;
+
 
 class User extends Authenticatable
 {
@@ -34,6 +35,9 @@ class User extends Authenticatable
         'account_no',
         'lang',
         'currency',
+        'two_fa',
+        'two_fa_status',
+        'two_fa_code',
         'status',
         'zip',
         'password',
@@ -97,7 +101,31 @@ class User extends Authenticatable
                 'country' => @loginIp()->geoplugin_countryName,
                 'city' => @loginIp()->geoplugin_city,
             ]);
+
+            $user->generateTwoStepToken();
         });
+    }
+    public function expire()
+    {
+        $this->two_fa_status = 0;
+        $this->save();
+    }
+    public function generateTwoStepToken()
+    {
+        $user = $this;
+        //------
+        $google = new Google2FA();
+        $secret = $google->generateSecretKey(16, str_pad($user->id, 10, 'X'));
+        $qr = $google->getQRCodeUrl(
+            config('app.name'),
+            config('app.url'),
+            $secret
+        );
+
+        $user->two_fa_code = $qr;
+        $user->two_fa = $secret;
+        //---------
+        $user->save();
     }
 
     public function tickets()
@@ -107,11 +135,7 @@ class User extends Authenticatable
 
     public function hasAddedAddress()
     {
-        if ($this) {
-            return isset($this->city) && isset($this->address) && $this->country;
-        }
-
-        return false;
+        return $this->kyc_status == 1 || $this->kyc_status == 2;
     }
 
     public function sendEmailVerificationNotification()
@@ -161,6 +185,14 @@ class User extends Authenticatable
                     'balance' => 0
                 ]);
             }
+        }
+
+        if (!$this->account_no) {
+            $account_no = randNum(6);
+            while (User::where(['account_no' => $account_no])->count() > 0) $account_no = randNum(6);
+            //------------
+            $this->account_no = randNum(6);
+            $this->save();
         }
 
         DepositAddress::initiateUser($this, $cryptomus);

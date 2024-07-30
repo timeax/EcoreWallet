@@ -15,6 +15,8 @@ $blue: rgb(96, 165, 250);
         color: white;
         border-radius: 50%;
         cursor: pointer;
+        position: absolute;
+        right: -25px;
 
         @include media(">=xs-tablet") {
             display: none;
@@ -78,5 +80,16 @@ $blue: rgb(96, 165, 250);
                 }
             }
         }
+    }
+}
+
+.modal {
+    width: 500px;
+    @include media('<=530px') {
+        width: 93%;
+    }
+
+    @include media('<=450px') {
+        width: 90%;
     }
 }

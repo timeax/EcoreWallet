@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Currency;
 use App\Models\HistoricalData;
 use App\Models\MarketData;
+use App\Notifications\Mail;
 use App\Notifications\SystemNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -128,7 +129,7 @@ class UpdateCryptoPrices implements ShouldQueue
             //----------
         } else if ($response->tooManyRequests()) {
             $admins = Admin::where(['role' => 'admin'])->get();
-            Notification::send($admins, new SystemNotification());
+            Notification::send($admins, new Mail('Coingecko Limit exceeded', 'You have exceeded the api call limitations on coin gekco, sign in to the account and check or call your developer'));
         }
     }
 }

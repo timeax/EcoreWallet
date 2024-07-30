@@ -72,7 +72,7 @@ const button: ButtonPassThroughOptions = {
             },
             {
                 'px-3 py-2 text-base': props.size === null, 'text-xs py-1 px-2': props.size === 'small', 'text-xl py-3 px-4': props.size === 'large',
-                'text-[14px]': props.theme,
+                'text-[.875em]': props.theme,
 
             },
             { 'flex-column': props.iconPos == 'top' || props.iconPos == 'bottom' },
@@ -108,8 +108,8 @@ const button: ButtonPassThroughOptions = {
     }),
     badge: ({ props }: ButtonPassThroughMethodOptions) => ({
         className: classNames({
-            'ml-2 w-4 h-4 leading-none flex items-center justify-center absolute top-[6px] text-[10px]': props.badge,
-            'bg-danger w-3 h-3 border-danger rounded-full text-danger-50 text-[6px]': props.badgeType === 'dot',
+            'ml-2 w-4 h-4 leading-none flex items-center justify-center absolute top-[6px] text-[.625em]': props.badge,
+            'bg-danger w-3 h-3 border-danger rounded-full text-danger-50 text-[.375em]': props.badgeType === 'dot',
             'top-[2px]': props.badgeType == 'dot' && props.size == 'small'
         }),
 

@@ -23,7 +23,7 @@ const HeaderNav: React.FC<HeaderNavProps> = () => {
                     <Tag className='text-theme-emphasis absolute h-full top-0 left-0 w-[2.8rem] flex items-center'>
                         <GoSearch className='grow text-theme-emphasis' />
                     </Tag>
-                    <input type="search" placeholder='Search...' className='bg-theme-bgContent py-[.6rem] text-[14px] border-transparent focus:border-transparent focus:outline-0 focus:shadow-none rounded-[999px] pl-[2.5rem] w-[13rem]' name="" id="" />
+                    <input type="search" placeholder='Search...' className='bg-theme-bgContent py-[.6rem] text-[.875em] border-transparent focus:border-transparent focus:outline-0 focus:shadow-none rounded-[999px] pl-[2.5rem] w-[13rem]' name="" id="" />
                 </div>
                 <Button size='small' className='!text-base !text-theme-icons' badgeType='dot' badge='1' rounded text icon={<BsBell />}></Button>
                 <Button size='small' className='!text-base !text-theme-icons' rounded text icon={<CiChat1 />}></Button>

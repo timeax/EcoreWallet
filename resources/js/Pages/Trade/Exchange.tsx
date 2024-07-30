@@ -179,7 +179,7 @@ const Submit: React.FC<{ type: 'limit' | 'instant' }> = ({ type }) => {
             snapData(snap());
         }} className={classNames({ 'opacity-50 cursor-not-allowed': disabled })} disabled={disabled} centered>{fields.from.converted > 0 || fields.to.converted > 0 ? 'Preview Conversion' : 'Enter an amount'}</Button>
 
-        <Dialog header='Confirm' visible={!hide} style={{ width: '30vw', height: 'fit-content' }} onHide={() => { if (hide) return; setHide(true); }}>
+        <Dialog header='Confirm' visible={!hide} style={{ height: 'fit-content' }} onHide={() => { if (hide) return; setHide(true); }}>
             <div className="m-0 flex flex-col gap-7">
                 <div className="flex gap-3 flex-col">
                     <div className="flex justify-between items-center">
@@ -238,7 +238,7 @@ const Submit: React.FC<{ type: 'limit' | 'instant' }> = ({ type }) => {
                         post(route('user.crypto.process.swap'));
                     }} bgColor='primary'>{showIf(processing, <>Convert {time}s</>, 'Refreshing...')}</Button>, (
                         <div className='flex flex-col gap-2 !justify-start'>
-                            <Message className='text-[13px]' text='Insufficient balance. Please fund your account.' severity='error' />
+                            <Message className='text-[.813em]' text='Insufficient balance. Please fund your account.' severity='error' />
                             <Button onClick={() => getData(snap())} centered size='normal' bgColor='secondary'>Refresh Quote</Button>
                         </div>
                     ))}
@@ -251,7 +251,7 @@ const Submit: React.FC<{ type: 'limit' | 'instant' }> = ({ type }) => {
                         post(route('user.crypto.process.swap'));
                     }} bgColor='primary'>Ok</Button>, (
                         <div className='flex flex-col gap-2 !justify-start'>
-                            <Message className='text-[13px]' text='Insufficient balance. Please fund your account.' severity='error' />
+                            <Message className='text-[.813em]' text='Insufficient balance. Please fund your account.' severity='error' />
                         </div>
                     ))}
 

@@ -51,7 +51,7 @@ const CryptoIcon: React.FC<CryptoIconProps> = ({ name: coin = '', shape = 'circl
     );
 }
 
-const Coin = styled(Tag)<DefProps>(({ size, width = '3rem', loaded, height = '3rem', shape = 'circle', variant = 'contained', name = '' }) => {
+const Coin = styled(Tag)<DefProps>(({ fit, size, width = '3rem', loaded, height = fit ? 'fit-content' : '3rem', shape = 'circle', variant = 'contained', name = '' }) => {
     const color = getColor(name);
 
     const img = {
@@ -89,6 +89,7 @@ interface DefProps extends AppElement {
     shape?: 'circle' | 'pill' | 'smooth' | 'sqaure';
     name?: string;
     img?: string;
+    fit?: boolean
     curr?: Currencies[number]
 }
 

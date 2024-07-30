@@ -15,7 +15,7 @@ class SystemNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public string $subject, public string $message)
+    public function __construct(public string $message, public $props = [], public string $type)
     {
         //
     }
@@ -27,7 +27,7 @@ class SystemNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'broadcast'];
+        return ['database', 'broadcast'];
     }
 
     /**
@@ -46,7 +46,8 @@ class SystemNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'text' => $this->message,
+            'props' => $this->props
         ];
     }
 
@@ -70,6 +71,6 @@ class SystemNotification extends Notification
      */
     public function databaseType(object $notifiable): string
     {
-        return 'Other';
+        return $this->type;
     }
 }

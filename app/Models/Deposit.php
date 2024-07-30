@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Helpers\Notifications;
+use App\Notifications\NotifyMail;
+use App\Notifications\SystemNotification;
 use App\Notifications\TransactionNotifications;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,11 +30,11 @@ class Deposit extends Model
     protected static function boot()
     {
         parent::boot();
-        static::created(function ($deposit) {
+        static::created(function (self $deposit) {
             $user = User::find($deposit->user_id);
             $status = $deposit->status;
             //-------
-            $transaction = Transaction::create([
+            Transaction::create([
                 'trnx'    => $deposit->txid,
                 'user_id' => $deposit->user_id,
                 'charge'  => 0.0, //$deposit->charge,
@@ -44,7 +47,7 @@ class Deposit extends Model
                 'details' => translate(getStatusMessage($status, 'Deposit'))
             ]);
 
-            $user->notify(new TransactionNotifications($transaction));
+            $user->notify(Notifications::deposit($deposit));
         });
 
         static::saved(function ($deposit) {
@@ -52,7 +55,7 @@ class Deposit extends Model
             //----------
             $user = User::find($deposit->user_id);
 
-            $transaction = Transaction::where(['uuid' => $deposit->cryptomus_uuid])->findOrCreate([
+            Transaction::where(['uuid' => $deposit->cryptomus_uuid])->findOrCreate([
                 'trnx'    => $deposit->txid,
                 'user_id' => $deposit->user_id,
                 'charge'  =>  0.0, //$deposit->charge,
@@ -64,7 +67,7 @@ class Deposit extends Model
                 'details' => getStatusMessage($deposit->status, 'Deposit')
             ], ['status' => $deposit->status]);
 
-            $user->notify(new TransactionNotifications($transaction));
+            $user->notify(Notifications::deposit($deposit));
         });
     }
 

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import layout from '@styles/layout/index.module.scss';
 import { classNames } from 'primereact/utils';
-import { useAuth, useWrapper } from '@context/AuthenticatedContext';
+import { useAuth, useNotify, useWrapper } from '@context/AuthenticatedContext';
 import { Title } from '@components/Trade';
 import ClassicSections from './ClassicSections';
 import IconButton from '@components/Button/IconButton';
@@ -15,11 +15,11 @@ import styles from '@styles/layout/header.module.scss';
 import { CgMenuMotion } from 'react-icons/cg';
 import Tag from '@components/index';
 import { routeById } from '@routes/index';
-import { router, usePage } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 import Notify from '@widgets/Notification';
 import { FaCog, FaLock, FaSignOutAlt } from 'react-icons/fa';
 import { AiOutlineProfile } from 'react-icons/ai';
-import { Notifications } from '@typings/index';
+import { Notifications, User } from '@typings/index';
 import { Badge } from 'primereact/badge';
 
 const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) => {
@@ -27,16 +27,37 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
     const { onChange, user, } = useWrapper();
     const [notification, setNotification] = useState<Notifications[]>([]);
     // console.log(notifications, user)
+    //--------
+    const notify = useNotify();
+    const ref = useRef<HTMLElement>();
+    //---------
+    const scrollEvent = function (event?: Event) {
+        if(ref.current) {
+            // console.log(ref.current.getBoundingClientRect().y)
+        }
+    }
 
     useEffect(() => {
         onChange('notifications', e => {
             // console.log(e.data)
-            setNotification(e.data)
+            setNotification(e.data);
+            if (e.event !== 'user.notify') {
+                notify({ closable: true, summary: 'New notification', severity: 'info' })
+            }
         });
+
+        scrollEvent();
+
+        window.addEventListener('wheel', scrollEvent);
+
+        return () => window?.removeEventListener?.('resize', scrollEvent);
     }, []);
 
     return (
-        <header className={classNames(`flex items-center justify-between relative`)}>
+        <header
+            //@ts-ignore
+            ref={ref}
+            className={classNames(`flex items-center justify-between relative`)}>
             <div className={classNames(layout.container, 'justify-center')}>
                 <div className={styles.headernav}>
                     <div className={classNames("items-center", styles.titlebar)}>
@@ -96,16 +117,30 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
                                             </Badge>
                                         </IconButton>
                                     </Dropdown.Trigger>
-                                    <Dropdown.Content width={classNames('!w-[320px]', {
-                                        // [styles.drop]: notification.length == 0
-                                    })}>
+                                    <Dropdown.Content width={classNames(styles.notifications)}>
                                         {showIf(notification.length > 0, (
                                             <>
                                                 {notification.map(item => {
-                                                    return <Dropdown.Link key={item.id}>
-                                                        <Notify data={item.data.text} date={item.created_at} title={item.type} />
+                                                    return <Dropdown.Link key={item.id} onClick={() => {
+                                                        setNotification(notification.filter(n => n.id !== item.id));
+                                                        window.axios.post(route('data.mark.as.read'), {
+                                                            notify: item.id,
+                                                            user: user.id
+                                                        });
+                                                    }}>
+                                                        {/* @ts-ignore */}
+                                                        <Notify data={item.data.text || item.data.content} date={item.created_at} title={item.type} />
                                                     </Dropdown.Link>
                                                 })}
+                                                <Dropdown.Link onClick={() => {
+                                                    setNotification([]);
+                                                    window.axios.post(route('data.mark.as.read'), {
+                                                        notify: '*',
+                                                        user: user.id
+                                                    })
+                                                }} className='!py-1 border-t'>
+                                                    Mark all as read
+                                                </Dropdown.Link>
                                             </>
                                         ), <Title normal lg bright>No new notifications</Title>)}
                                     </Dropdown.Content>
@@ -126,6 +161,8 @@ const UserWidget: React.FC<UserWidgetProps> = () => {
     //--- code here ---- //
     const user = useAuth();
 
+    const { post } = useForm()
+
     const [first, last = 'User'] = user.name.split(' ');
 
     return (
@@ -136,24 +173,14 @@ const UserWidget: React.FC<UserWidgetProps> = () => {
                         <img src={assets(user.photo)} />
                     ), <>{last.charAt(0).toUpperCase()}</>)} style={{ backgroundColor: 'rgb(var(--color-primary-800))', color: '#ffffff' }} />
                     <Title noPad className={styles.avatarText}>
-                        <Title noPad xs className={classNames('!text-[.7em]', {
-                            //@ts-ignore
-                            'text-danger-500': user.kyc_status == 0,
-                            //@ts-ignore
-                            'text-warning-500': user.kyc_status == 1,
-                            //@ts-ignore
-                            'text-primary-500': user.kyc_status == 2,
-                        })}>
-                            {/* @ts-ignore */}
-                            {showIf(user.kyc_status == 0, 'Unverified', showIf(user.kyc_status == 1, 'Pending', 'Verified'))}
-                        </Title>
+                        <KycStatus {...user} />
                         {first}
                     </Title>
                 </div>
             </Dropdown.Trigger>
             <Dropdown.Content>
                 {/* @ts-ignore */}
-                {showIf(user.kyc_status == 0, (
+                {showIf(!(user.kyc_status == 1 || user.kyc_status == 2), (
                     <Dropdown.Link href={route('user.onboarding')}>
                         <div className="flex gap-2 items-center">
                             <AiOutlineProfile /> KYC Verification
@@ -175,7 +202,7 @@ const UserWidget: React.FC<UserWidgetProps> = () => {
                     </div>
                 </Dropdown.Link>
 
-                <Dropdown.Link onClick={e => router.post(route('user.logout'))}>
+                <Dropdown.Link onClick={e => post(route('user.logout'))}>
                     <div className="flex gap-2 items-center">
                         <FaSignOutAlt />Log out
                     </div>
@@ -183,6 +210,22 @@ const UserWidget: React.FC<UserWidgetProps> = () => {
             </Dropdown.Content>
         </Dropdown>
     );
+}
+
+const KycStatus = (user: User) => {
+    return <>
+        <Title noPad xs className={classNames('!text-[.7em]', {
+            //@ts-ignore
+            'text-danger-500': user.kyc_status == 0,
+            //@ts-ignore
+            'text-warning-500': user.kyc_status == 2,
+            //@ts-ignore
+            'text-primary-500': user.kyc_status == 1,
+        })}>
+            {/* @ts-ignore */}
+            {showIf(user.kyc_status == 0, 'Unverified', showIf(user.kyc_status == 2, 'Pending', 'Verified'))}
+        </Title>
+    </>
 }
 
 interface UserWidgetProps {

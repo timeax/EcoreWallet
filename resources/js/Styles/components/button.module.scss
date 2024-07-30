@@ -38,24 +38,24 @@
     }
 
     &-md {
-        font-size: 16px;
+        font-size: ft(16px);
         @include px(1.8rem);
     }
 
     &-normal {
-        font-size: 14.5px;
+        font-size: ft(14.5px);
         @include px(1rem);
         // line-height: 2.4;
     }
 
     &-sm {
         @include px(1rem);
-        font-size: 13px;
+        font-size: ft(13px);
         line-height: 2.3;
     }
 
     &-lg {
-        font-size: 18px;
+        font-size: ft(18px);
         @include px(1.8rem);
     }
 }

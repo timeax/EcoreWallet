@@ -2,9 +2,6 @@ import Button from '@components/Button';
 import { PageProps } from '@typings/index';
 import React, { useEffect, useRef, useState } from 'react';
 import ss from '@styles/pages/kyc.module.scss';
-import front from "@assets/images/id-front.svg";
-import back from "@assets/images/id-back.svg";
-import none from "@assets/images/noimage.jpg";
 import "primeicons/primeicons.css";
 import { Paper } from '@mui/material';
 import { KYCCategory, CatKey, KYCPersonal, KYCAddress, KYCAddresskeys, KYCPersonalkeys, KYCAtom, FormDataType } from '@typings/global';
@@ -13,7 +10,7 @@ import { Title } from '@components/Trade';
 import Textfield from '@components/Input';
 import Note from '@components/Trade/Note';
 import { showIf } from '@assets/fn';
-import { FaIdCard, FaRegIdCard, FaUpload } from 'react-icons/fa';
+import { FaIdCard, FaRegIdCard } from 'react-icons/fa';
 import { PiCarDuotone } from 'react-icons/pi';
 import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
 import { routeById } from '@routes/index';
@@ -23,14 +20,9 @@ import Tag from '@components/index';
 import IconButton from '@components/Button/IconButton';
 import { classNames } from 'primereact/utils';
 import { useForm } from '@inertiajs/react';
-import { beforeEach } from 'node:test';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import AuthenticatedContextProvider, { useNotify } from '@context/AuthenticatedContext';
 
-
-const idfaces = { front, back };
-const arrows = {
-    front: "pi pi-arrow-right",
-    back: "pi pi-arrow-left",
-};
 const inputText =
     "Kindly input your correct details. This information can't be edited after submission";
 const uploadText =
@@ -46,6 +38,11 @@ const initPersonal: KYCPersonal = {
         label: "Last Name",
         value: undefined
     },
+    tgram: {
+        label: "Middle Name",
+        optional: true,
+        value: undefined
+    },
     email: {
         label: "Email Address",
         optional: undefined,
@@ -59,11 +56,7 @@ const initPersonal: KYCPersonal = {
         label: "Date of Birth",
         value: undefined
     },
-    tgram: {
-        label: "Telegram Username",
-        optional: true,
-        value: undefined
-    }
+
 }
 const initAddress: KYCAddress = {
     home1: {
@@ -102,7 +95,7 @@ const headerinfo = {
 const categories: KYCCategory = {
     personal: {
         title: "Personal Details",
-        info: "Please type carefully and fill out the form with your personal details. ",
+        info: "Please type carefully and fill out the form with your personal details as shown in your ID. ",
         fields: initPersonal
     },
 
@@ -119,8 +112,14 @@ const categories: KYCCategory = {
 };
 
 
-const Onboarding: React.FC<OnboardingProps> = () => {
-    return <Page header={headerinfo.header} info={headerinfo.info} fields={categories} />
+const Onboarding: React.FC<OnboardingProps> = ({ auth }) => {
+    return (
+        <AuthenticatedContextProvider user={auth.user}>
+            <div className={ss.wrapper}>
+                <Page header={headerinfo.header} info={headerinfo.info} fields={categories} />
+            </div>
+        </AuthenticatedContextProvider>
+    )
 }
 
 interface OnboardingProps extends PageProps {
@@ -134,23 +133,56 @@ export default Onboarding
 const Page: React.FC<PageProp> = ({ header, fields, info }) => {
     //--- code here ---- //
     //--- code here ---- //
-    const formData = useRef({});
     const [errPermit, setErrPermit] = useState(false)
     const [pgCount, setPgCount] = useState(0);
     const [idType, setIdType] = useState(0);
+    const [idTypeName, setIdTypeName] = useState('');
     const [fileFace, setFileFace] = useState<IDFace>("front");
     const idFileRef = useRef({
         front: '',
         back: '',
     });
-    const [idView, setidView] = useState<{ front: any, back: any }>({ front: undefined, back: undefined });
+
+    const [submit, setSubmit] = useState(false);
+
+
+    useEffect(() => {
+        if (submit) {
+            post(route('user.onboarding.post'));
+        }
+    }, [submit]);
+
+    const ids = ['passport', 'national_id', 'drivers_licence'];
+
     const icons = [
         <FaIdCard />,
         <PiCarDuotone />,
         <FaRegIdCard />
     ]
 
-    let optional = []
+    useEffect(() => {
+        setIdTypeName(ids[idType])
+    }, [idType])
+
+    const { data, errors, post, setData } = useForm<{
+        fname: string;
+        lname: string;
+        mname: string;
+        email: string;
+        phone: string;
+        dob: string;
+        home1: string;
+        home2: string;
+        city: string;
+        state: string;
+        country: string;
+        zip: string;
+        idType: string;
+        idFront: File
+        idBack: File
+    }>();
+
+    console.log(errors)
 
     //MXXX-- for picking key -> value pairs
     const initState = (obj: KYCAddress | KYCPersonal) => {
@@ -172,6 +204,7 @@ const Page: React.FC<PageProp> = ({ header, fields, info }) => {
     /**States for Address Information Inputs */
     const [secondInputs, setSecondInputs] = useState<AddrState>(initState(initAddress) as AddrState)
 
+    const notify = useNotify();
     /**Resetting Error Permit using PageCount Change Monitor */
     useEffect(() => {
         if (firstCall) {
@@ -182,7 +215,7 @@ const Page: React.FC<PageProp> = ({ header, fields, info }) => {
 
         }
         if (errPermit) {
-            console.log("error dey")
+            notify({ closable: true, severity: 'error', summary: 'Please fill in all required (*) fields ' })
         }
     }, [pgCount, errPermit])
 
@@ -199,10 +232,34 @@ const Page: React.FC<PageProp> = ({ header, fields, info }) => {
         Object.keys(initPersonal).forEach((k) => {
             let key = k as KYCPersonalkeys;
             data[key].value = firstInputs[key]
-        })
+        });
+
+        setPostData(data);
 
         return data
     }
+
+    function setPostData(data: FormDataType) {
+        setData({
+            city: data.city.value,
+            country: data.country.value,
+            dob: data.dob.value,
+            email: data.email.value,
+            fname: data.fname.value,
+            home1: data.home1.value,
+            home2: data.home2.value,
+            idBack: data.back,
+            idFront: data.front,
+            idType: idTypeName,
+            lname: data.lname.value,
+            phone: data.phone.value,
+            state: data.state.value,
+            mname: data.tgram.value,
+            zip: data.zip.value
+        })
+    }
+
+
 
     /**Whenever NEXT is clicked, this is called to see if all the required fields in current page have been provided
      * if all required fields have been provided, page is moved to the next
@@ -211,26 +268,52 @@ const Page: React.FC<PageProp> = ({ header, fields, info }) => {
      */
     const checkRequiredFields = () => {
         let isTrue = true;
-        switch (pgCount) {
+        main: switch (pgCount) {
             case 0:
-                Object.values(firstInputs).forEach(v => {
-                    isTrue = isTrue == Boolean((v + '').replaceAll(' ', ''))
-                })
+                for (const key in firstInputs) {
+                    if (Object.prototype.hasOwnProperty.call(firstInputs, key)) {
+                        //@ts-ignore
+                        const input = categories.personal.fields[key] as KYCAtom;
+                        //@ts-ignore
+                        const v = firstInputs[key] as KYCAtom;
+
+                        if (input.optional) continue;
+
+                        isTrue = isTrue == Boolean((v + '').replaceAll(' ', ''));
+                        if (!isTrue) {
+                            break main;
+                        }
+                    }
+                }
                 break;
             case 1:
-                Object.values(secondInputs).forEach((v) => {
-                    isTrue = isTrue == Boolean((v + '').replaceAll(' ', ''))
-                })
+                for (const key in secondInputs) {
+                    if (Object.prototype.hasOwnProperty.call(secondInputs, key)) {
+                        //@ts-ignore
+                        const input = categories.address.fields[key] as KYCAtom;
+                        //@ts-ignore
+                        const v = secondInputs[key] as KYCAtom;
+
+                        if (input.optional) continue;
+
+                        isTrue = isTrue == Boolean((v + '').replaceAll(' ', ''));
+                        if (!isTrue) {
+                            break main;
+                        }
+                    }
+                }
                 break;
             case 2:
-                isTrue = isTrue == Boolean(idFileRef.current.front) == Boolean(idFileRef.current.back)
-                console.log("Form Data")
-                console.log(generateFormData())
+                isTrue = !(!Boolean(idFileRef.current.front) || !Boolean(idFileRef.current.back))
+                generateFormData()
+                //------------
                 break;
 
         }
 
         if (isTrue) {
+            if (pgCount == 2) setSubmit(true);
+            ///---------
             return true
         }
         setErrPermit(true)
@@ -258,43 +341,13 @@ const Page: React.FC<PageProp> = ({ header, fields, info }) => {
         );
     };
 
-    const arrowBtn = (direction: IDFace | string) => {
-        switch (direction) {
-            case "front":
-                return (
-                    <Button
-                        onClick={() => {
-                            setFileFace("back");
-                        }}
-                        className={ss.arrowbx}
-                        icon={<FaArrowRightLong />}
-                    >
-                        Backside
-                    </Button>
-                );
-
-            case "back":
-                return (
-                    <Button
-                        onClick={() => {
-                            setFileFace("front");
-                        }}
-                        className={ss.arrowbx}
-
-                    >
-                        Frontside
-                    </Button>
-                );
-        }
-    };
-
     //
     const uploadFace = (direction: IDFace) => {
         return (
 
             <div className={classNames('flex gap-8 mt-4', ss.uploadContainer)}>
-                <Upload label='Front side' />
-                <Upload label='Back side' />
+                <Upload label='Front side' onChange={(value) => { idFileRef.current.front = value }} />
+                <Upload label='Back side' onChange={(value) => { idFileRef.current.back = value }} />
             </div>
             // <div className={ss.two}>
             //     <div className={ss.uploadbox}>
@@ -503,23 +556,33 @@ interface PageProp {
 
 const Upload: React.FC<UploadProps> = ({ label, value, onChange }) => {
     //--- code here ---- //
-    const [file, setFile] = useState();
+    const [file, setFile] = useState(value);
+    const [photoPreview, setPhotoPreview] = useState<any>();
+
     const ref = useRef<HTMLElement>();
+    const op = useRef(null);
+
+
     return (
         <Card className={ss.uploads} container={ss.main}>
             <div className="flex items-center flex-col gap-3 justify-center">
                 <Title noPad normal lg>{label}</Title>
 
-                {showIf(!file, <IconButton className='!bg-primary-300 !text-white rounded-md !text-[1.5em] !px-4 !py-3' variant='contained'>
+                {showIf(!file, <IconButton onClick={() => ref.current?.click()} className='!bg-primary-300 !text-white rounded-md !text-[1.5em] !px-4 !py-3' variant='contained'>
                     <RxUpload />
-                </IconButton>, <IconButton className='!bg-success-300 !text-white rounded-md !text-[1.5em] !px-4 !py-3' variant='contained'>
-                    <GrCheckmark />
-                </IconButton>)}
+                </IconButton>,
+                    //@ts-ignore
+                    <IconButton onClick={(e) => op.current.toggle(e)} className='!bg-success-300 !text-white rounded-md !text-[1.5em] !px-4 !py-3' variant='contained'>
+                        <GrCheckmark />
+                    </IconButton>)}
+                <OverlayPanel ref={op}>
+                    <img src={photoPreview} alt="Bamboo Watch"></img>
+                </OverlayPanel>
 
                 <div onClick={() => ref.current?.click()}>
                     <Title noPad normal md>Click here to upload</Title>
                 </div>
-                <div className='flex gap-2 items-center justify-center'>
+                <div onClick={() => ref.current?.click()} className='flex gap-2 items-center justify-center'>
                     {['png', 'jpg', 'pdf'].map(item => {
                         return <Tag key={item} className='border py-1 px-2 rounded-lg' element='div'>
                             <Title upper noPad brighter>
@@ -534,9 +597,16 @@ const Upload: React.FC<UploadProps> = ({ label, value, onChange }) => {
                 ref={ref}
                 onChange={e => {
                     //@ts-ignore
-                    setFile(e.target.files[0]);
+                    setFile(e.target.files);
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        setPhotoPreview(e.target?.result)
+                    };
                     //@ts-ignore
-                    onChange?.(e)
+                    reader.readAsDataURL(ref.current?.files?.[0]);
+                    //@ts-ignore
+                    onChange?.(e.target.files[0], photoPreview)
                 }}
                 hidden type='file' />
         </Card>
@@ -546,7 +616,7 @@ const Upload: React.FC<UploadProps> = ({ label, value, onChange }) => {
 interface UploadProps {
     label: string;
     value?: any;
-    onChange?(e: React.ChangeEventHandler<HTMLInputElement>): void
+    onChange?(e: any): void
 }
 
 

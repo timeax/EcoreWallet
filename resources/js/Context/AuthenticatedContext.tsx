@@ -4,7 +4,6 @@ import React, { PropsWithChildren, createContext, useContext, useEffect, useRef,
 import Echo from 'laravel-echo';
 import icon from '@assets/images/ecore-favi.ico'
 import { Toast, ToastMessageOptions } from 'primereact/toast';
-import { ColorNames } from '@assets/fn/create-color';
 
 //@ts-ignore
 const Context = createContext<AuthenticatedContextProps>();
@@ -16,6 +15,37 @@ export function useAuth() {
 
 export function useNotify() {
     return useContext(Context).notify
+}
+
+export function useConsole() {
+    const context = useContext(Context).notify;
+    const options = (severity: ToastMessageOptions['severity'], detail: string, summary: string = '') => ({
+        closable: true,
+        severity,
+        summary,
+        detail
+    } as ToastMessageOptions);
+    return {
+        warn(message: string, summary: string = '') {
+            context(options('warn', message, summary));
+        },
+
+        info(message: string, summary: string = '') {
+            context(options('info', message, summary));
+        },
+
+        error(message: string, summary: string = '') {
+            context(options('error', message, summary));
+        },
+
+        success(message: string, summary: string = '') {
+            context(options('success', message, summary));
+        },
+
+        log(message: string, summary: string = '') {
+            context(options('contrast', message, summary));
+        }
+    }
 }
 
 type Event<T extends string, O> = {
@@ -60,13 +90,17 @@ export function useWrapper() {
                     callback({
                         data: notifications,
                         event: 'user.notify'
-                    } as any)
+                    } as any);
+
                     echo?.private(`user.${user.id}`).notification((notification: any) => {
                         window.axios.get(route('data.notifications', { userId: user.id })).then((data => {
                             const notifications = data.data;
                             callback({
                                 data: notifications,
-                                event: `user.${user.id}`,
+                                event:
+                                    notification.message == 'reload'
+                                        ? 'user.notify'
+                                        : `user.${user.id}`,
                             } as any)
                         }));
                     })
@@ -131,10 +165,11 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         }
     }, [message]);
 
+    console.log(title)
     return (
         <Context.Provider value={{ ...props, echo, config, notify, notifications }}>
             <Head title={title}>
-                <link rel="shortcut icon" type={icon} href="favicon.ico" />
+                <link rel="shortcut icon" type={'icon'} href={icon} />
                 {usePusher ? <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> : ''}
             </Head>
             <Toast

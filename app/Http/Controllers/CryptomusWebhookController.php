@@ -3,12 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Deposit;
-use App\Models\Transaction;
 use App\Models\User;
-use App\Notifications\SystemNotification;
-use App\Notifications\TransactionNotifications;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class CryptomusWebhookController extends Controller
 {

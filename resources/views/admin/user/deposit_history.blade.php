@@ -13,7 +13,7 @@
 @endsection
 
 @section('content')
-        
+
 <div class="row">
     <div class="col-12 col-md-12 col-lg-12">
         <div class="card">
@@ -37,32 +37,32 @@
                             <th>@langg('User')</th>
                             <th>@langg('Amount(With Charge)')</th>
                             <th>@langg('Charge')</th>
-                            <th>@langg('Coinpayment Txn')</th>
+                            <th>@langg('Cryptomus Txn')</th>
                             <th>@langg('Date')</th>
-                           
+
                         </tr>
                         @forelse ($deposits as $info)
                             <tr>
 
                                  <td data-label="@langg('Transaction ID')">
-                                   {{$info->tnx}}
+                                   {{$info->cryptomus_uuid}}
                                  </td>
                                  <td data-label="@langg('User')">{{$info->user->email}}</td>
 
                                  <td data-label="@langg('Charge')">{{numFormat($info->charge,8)}} {{$info->currency->code}}</td>
 
                                  <td data-label="@langg('Amount')">{{numFormat($info->total_amount,8)}} {{$info->currency->code}}</td>
-                                 
-                                 <td data-label="@langg('Coinpayment Txn')">
-                                   {{$info->coinpayment_tnx}}
-                                   
+
+                                 <td data-label="@langg('Cryptomus Txn')">
+                                   {{$info->txid}}
+
                                  </td>
                                  <td data-label="@langg('Date')">
                                    {{dateFormat($info->created_at)}}
-                                   
+
                                  </td>
 
-                                
+
                             </tr>
                          @empty
 

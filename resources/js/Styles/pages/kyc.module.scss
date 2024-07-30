@@ -1,11 +1,9 @@
-:global {
-    #app {
-        height: 100vh;
-        // @extend %flex-x-center;
-        display: flex;
-        overflow: auto;
-        @include py(1rem);
-    }
+.wrapper {
+    height: 100vh;
+    // @extend %flex-x-center;
+    display: flex;
+    overflow: auto;
+    @include py(1rem);
 }
 
 .main_title {
@@ -118,7 +116,7 @@
                         font-size: 1.15em;
                         font-weight: 600;
 
-                        @include media('<=mobile') {
+                        @include media("<=mobile") {
                             font-size: 1em;
                         }
                     }
@@ -275,20 +273,17 @@
     }
 }
 
-
-
-
 .uploads {
     border: 1px dashed rgba(128, 128, 128, 0.281);
     border-radius: 8px;
     flex-grow: 1;
 
-    @include media('<=481px') {
+    @include media("<=481px") {
         width: 100%;
     }
 }
 .uploadContainer {
-    @include media('<=481px') {
+    @include media("<=481px") {
         flex-wrap: wrap;
         gap: 0rem;
     }

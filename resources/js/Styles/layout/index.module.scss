@@ -16,7 +16,7 @@
         @include mx(1rem);
         @include px(0.8rem);
     }
-    @include media("<=mobile") {
+    @include media("<=lg-mobile") {
         @include mx(0.2rem);
     }
     @include media("<=xs-mobile") {
@@ -55,6 +55,11 @@
 
         @include media("<xs-tablet") {
             padding-bottom: 4rem;
+        }
+
+        @include media('<=lg-mobile') {
+            margin-bottom: 7rem;
+            padding-bottom: 2rem;
         }
     }
 }
@@ -126,7 +131,7 @@
 }
 
 .b_icon {
-    font-size: 19px;
+    font-size: ft(19px);
 }
 
 .b_navlist {
@@ -179,7 +184,7 @@
         display: flex;
 
         svg {
-            font-size: 20px;
+            font-size: ft(20px);
         }
 
         @include media("<=2xs-mobile") {

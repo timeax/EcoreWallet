@@ -58,7 +58,7 @@
 
 .navlist {
     // @include my(auto);
-    font-size: 15px;
+    font-size: ft(15px);
 }
 
 .nav-item-icon {
@@ -76,7 +76,7 @@
 .label {
     position: absolute;
     visibility: hidden;
-    font-size: 11px !important;
+    font-size: #{ft(11px)} !important;
     color: white;
 }
 
@@ -116,12 +116,26 @@
     }
 }
 
+
+#{attr(img-open)} {
+    display: none;
+}
+
+
 .sidebarOpen {
     .active {
         &::before {
             content: "";
             display: none;
         }
+    }
+
+    #{attr(img-close)} {
+        display: none;
+    }
+
+    #{attr(img-open)} {
+        display: block;
     }
 
     .navlink {
@@ -131,5 +145,5 @@
 }
 
 .nav-item-icon {
-    font-size: 18px;
+    font-size: ft(18px);
 }

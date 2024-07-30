@@ -50,12 +50,23 @@ const Dropdown = ({ dropRef, children, className = '', onSelect }: PropsWithChil
     );
 };
 
-const Trigger = ({ children }: PropsWithChildren) => {
+const Trigger = ({ children, mute, tagRef }: PropsWithChildren<{ mute?: boolean, tagRef?: any }>) => {
     const { open, toggleOpen } = useContext(DropDownContext);
+
+    useEffect(() => {
+        if (tagRef)
+            tagRef.current = {
+                click() {
+                    toggleOpen();
+                }
+            }
+    }, []);
+
+    const caller = mute ? () => { } : toggleOpen;
 
     return (
         <>
-            <div data-section='trigger' className={open ? 'open' : ''} onClick={toggleOpen}>{children}</div>
+            <div data-section='trigger' className={open ? 'open' : ''} onClick={caller}>{children}</div>
 
             {open && <div className="fixed inset-0 z-40" onClick={() => toggleOpen(false)}></div>}
         </>

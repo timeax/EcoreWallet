@@ -25,7 +25,7 @@ const Note: React.FC<PropsWithChildren<WarningProps>> = ({ title, children, vari
             <Text className={iconClass} variant={'other'} size='30px'>{icon}</Text>
             <Title className={titleClass} noPad bold xl>{title}</Title>
             <Title noPad brighter className={classNames(contentClass, {
-                'text-[16px]': lg,
+                'text-[1em]': lg,
                 '': !lg
             })}>{children}</Title>
         </div>

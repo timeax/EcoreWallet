@@ -35,7 +35,7 @@ export default function VerifyEmail({ status, code, error, message = '' }: { mes
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout title='Verify your email'>
             <Head title="Email Verification" />
 
             {status && (

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Auth;
 use Cryptomus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

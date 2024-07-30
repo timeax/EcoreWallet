@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.2",
         "anhskohbo/no-captcha": "^3.6",
+        "bacon/bacon-qr-code": "^3.0",
         "cryptomus/api-php-sdk": "^1.0",
         "guzzlehttp/guzzle": "^7.8",
         "inertiajs/inertia-laravel": "^1.0",
@@ -22,7 +23,9 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
         "mews/purifier": "^3.4",
+        "opcodesio/log-viewer": "^3.10",
         "phpmailer/phpmailer": "^6.9",
+        "pragmarx/google2fa-laravel": "^2.2",
         "spatie/laravel-cookie-consent": "^3.3",
         "spatie/laravel-permission": "^6.7",
         "tightenco/ziggy": "^2.0",
@@ -53,8 +56,9 @@
         },
         "files": [
             "app/Helpers/helpers.php",
+            "app/Helpers/Display.php",
             "app/Helpers/CryptomusHelper.php",
-            "app/Helpers/Email.php"
+            "app/Helpers/Notifications.php"
         ]
     },
     "scripts": {

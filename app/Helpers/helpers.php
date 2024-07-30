@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\Display;
 use Carbon\Carbon;
 use App\Models\Offer;
 use App\Models\Trade;
@@ -22,6 +23,7 @@ function getPhoto($filename)
 {
     if ($filename) {
         if (file_exists('assets/images' . '/' . $filename)) return asset('assets/images/' . $filename);
+        else if (file_exists("storage/$filename")) return asset('storage/' . $filename);
         else return asset('assets/images/default.png');
     } else {
         return asset('assets/images/default.png');
@@ -46,6 +48,21 @@ function getFee($amount, $fee, $type = 'fixed')
     $fee = (float) $fee;
     //--------
     return ($fee / 100) * $amount;
+}
+
+function views_path(string $path, array $options = ['separator' => '.', 'ext' => '.php'])
+{
+    $path = trim(implode(DIRECTORY_SEPARATOR, explode($options['separator'], $path)));
+    //---
+    $path .= trim($options['ext']);
+
+    $base = resource_path('views');
+    return   preg_replace('~[/\\\\]+~', DIRECTORY_SEPARATOR, implode(DIRECTORY_SEPARATOR, [$base, $path]));
+}
+
+function display(string $route, $props = [])
+{
+    Display::render($route, $props);
 }
 
 function admin()

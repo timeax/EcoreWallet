@@ -5,10 +5,10 @@
 
     a {
         color: rgb(216, 216, 216);
-        font-size: 15px;
+        font-size: ft(15px);
     }
 
-    @include media("<=lg-mobile") {
+    @include media("<=xs-tablet") {
         display: none;
     }
 }
@@ -32,6 +32,7 @@
     @include media("<=lg-mobile") {
         color: black;
         font-weight: 600;
+        font-size: ft(26px);
     }
 }
 
@@ -44,7 +45,7 @@
 
     @include media("<=lg-mobile") {
         background-color: white;
-        box-shadow: 0px 1px 1rem 1px rgba(192, 192, 192, 0.055);
+        box-shadow: 0px 1px 1rem 1px rgba(190, 190, 190, 0.055);
         border-radius: 20px;
     }
 }
@@ -52,19 +53,19 @@
 .select {
     @include py(0 !important);
 
-    font-size: .9em;
+    font-size: 0.9em;
     #{attr(title)} {
         color: rgb(212, 212, 212);
         padding-right: 0.4rem;
 
         @include media("<=lg-mobile") {
-            font-size: 12px;
+            font-size: ft(14px);
             color: $color-primary-800;
         }
     }
 
     #{attr(trigger)} {
-        font-size: 12px;
+        font-size: ft(14px);
         @include media("<=lg-mobile") {
             margin-top: -1px;
             color: $color-primary-800;
@@ -85,16 +86,27 @@
 .title {
     color: rgb(173, 173, 173);
     @include media("<=lg-mobile") {
-        font-size: 12px;
+        font-size: ft(13.5px);
     }
 }
 
 .available {
-    @include media(">=lg-mobile") {
+    @include media(">=xs-tablet") {
         display: none;
     }
-}
 
+    @include media(">=lg-mobile") {
+        &_title {
+            color: $color-theme-button-text;
+            font-size: ft(14px) !important;
+        }
+
+        &_balance {
+            color: white;
+            font-size: ft(15px) !important;
+        }
+    }
+}
 
 .more {
     display: flex;

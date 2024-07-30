@@ -4,12 +4,12 @@
         padding-top: $header-pt;
         display: flex;
         align-items: center;
-        margin-right: $main-pl;
+        // margin-right: $main-pl;
 
         @include media("<=xs-tablet") {
             padding: 0;
             min-height: 5rem;
-            margin-right: 6px;
+            // margin-right: 6px;
         }
     }
 }
@@ -32,21 +32,21 @@
     @include media("<=xxs-laptop") {
         span {
             position: relative;
-            font-size: 23px;
+            font-size: ft(23px);
         }
     }
 
     @include media("<=xs-tablet") {
         span {
             position: relative;
-            font-size: 18px;
+            font-size: ft(18px);
         }
     }
 
     @include media("<=mobile") {
         span {
             position: relative;
-            font-size: 16px;
+            font-size: ft(16px);
         }
     }
 }
@@ -68,10 +68,6 @@
         border-radius: 50%;
         color: $color-theme-button-hover;
         box-shadow: 0px 3px 1rem 1px rgba(128, 128, 128, 0.199);
-
-        @include media("<=lg-mobile") {
-            border-radius: 12px;
-        }
     }
 
     .themeBtn {
@@ -109,7 +105,7 @@
 }
 
 .menuButton {
-    font-size: 20px;
+    font-size: ft(20px);
     margin-right: auto;
     padding: 0 0.9rem 0 0;
     display: none;
@@ -128,12 +124,31 @@
     // }
 }
 
-.user {
-    @include media("<=lg-mobile") {
-        display: none;
+// .user {
+//     @include media("<=lg-mobile") {
+//         display: none;
+//     }
+// }
+.notifications {
+    width: 340px;
+    max-height: 400px;
+    overflow-y: auto;
+
+    @include media("<=440px") {
+        right: -180%;
     }
+
+    @include media("<=xs-mobile") {
+        width: 340px;
+    }
+
+    @include media("<=340px") {
+        width: 320px;
+    }
+
+    @include media("<=330px") {
+        width: 80vw;
+    }
+
 }
 
-.drop {
-   display: none;
-}

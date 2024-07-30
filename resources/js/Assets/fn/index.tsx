@@ -49,7 +49,7 @@ export function assets(resource?: string | null) {
         //@ts-ignore
         resource = showIf(resource.startsWith('/'), resource.substring(1), resource);
         //---
-        return '/assets/images/' + resource
+        return '/storage/' + resource
     }
 }
 

@@ -96,7 +96,7 @@ const WalletSummary: React.FC<WalletSummaryProps> = ({ history, wallet }) => {
                 </div>
 
                 <div className="flex mt-6">
-                    <Button>Deposit {wallet.curr.code}</Button>
+                    <Button shape='pill'>Deposit {wallet.curr.code}</Button>
                     <Button variant='none'>Withdraw {wallet.curr.code}</Button>
                 </div>
             </Card>

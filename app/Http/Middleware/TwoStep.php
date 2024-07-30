@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\Generalsetting;
+use Illuminate\Support\Facades\Log;
 
 class TwoStep
 {
@@ -15,12 +16,7 @@ class TwoStep
         if ($two_fa) {
             $user = auth()->user();
             $pref = 'user';
-
-            if ($user->two_fa_status == 1 && $user->two_fa == 1) {
-                $code = randNum();
-                $user->two_fa_code = $code;
-                $user->update();
-                sendSMS($user->phone, 'Your two step authentication OTP is : ' . $code, Generalsetting::value('contact_no'));
+            if ($user->two_fa_status == 0 && is_null($user->two_fa_code) && $user->two_fa) {
                 return redirect(route($pref . '.two.step.verification'));
             }
             return $next($request);
@@ -30,6 +26,7 @@ class TwoStep
 
     protected $except = [
         'merchant/resend/two-step/verify-code',
-        'user/resend/two-step/verify-code'
+        '/twostep/verification',
+        'tostep/verify'
     ];
 }

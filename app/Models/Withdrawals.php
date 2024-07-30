@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Notifications;
 use App\Notifications\TransactionNotifications;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,13 +51,7 @@ class Withdrawals extends Model
                 'wallet_id' => @$wallet->id
             ]);
 
-            $user->notify(new TransactionNotifications($transaction));
-        });
-
-        static::saved(function (self $withdraw) {
-            if ($withdraw->status == 0) return;
-            $escrow = $withdraw->escrow()->first();
-            @$escrow->delete();
+            $user->notify(Notifications::withdraw_request($withdraw));
         });
     }
 

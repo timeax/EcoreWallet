@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\TradePriceUpdate;
 use App\Models\Currency;
 use App\Models\Exchange;
 use App\Models\Generalsetting;

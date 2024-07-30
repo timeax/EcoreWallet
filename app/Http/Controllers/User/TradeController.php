@@ -20,7 +20,7 @@ class TradeController extends Controller
     public function __construct(public Cryptomus $cryptomus)
     {
     }
-    public function wallets()
+    public function wallets(?string $id = null)
     {
         $user = Auth::user();
         $wallets = $user->wallets()->with('curr')->get();
@@ -30,7 +30,7 @@ class TradeController extends Controller
         $exchanges = $user->exchanges;
         $transfers = $user->transfers;
 
-        return Inertia::render('Trade/Wallets', compact('wallets', 'currencies', 'deposits', 'withdrawals', 'exchanges', 'transfers'));
+        return Inertia::render('Trade/Wallets', compact('wallets', 'currencies', 'deposits', 'withdrawals', 'exchanges', 'transfers', 'id'));
     }
 
 
@@ -53,11 +53,6 @@ class TradeController extends Controller
         $services = $this->cryptomus->payoutServices();
 
         return Inertia::render('Trade/Withdraw', compact('wallets', 'wallet', 'services'));
-    }
-
-
-    public function summary()
-    {
     }
 
     public function withdraw(Request $request)
@@ -187,7 +182,7 @@ class TradeController extends Controller
             ->where(['crypto_id' => $data['to']])
             ->first();
 
-        if (!$from || !$to) return back()->with(['error' => 'Something went wrong, try again later']);
+        if (!$from || !$to) return back()->with(message('Something went wrong, try again later', 'error'));
         //-------
         //---
         $charge = @$from->curr->charges->exchange_charge ?? 0;
@@ -221,9 +216,9 @@ class TradeController extends Controller
                     'status' => 'success',
                     'rate' => $rate
                 ]);
-            } else return back()->with(['error' => 'Something went wrong, try again later']);
+            } else return back()->with(message('Something went wrong, try again later', 'warn'));
 
-            return back()->with('success', 'Exchange request has been submitted successfully.');
+            return back()->with(message('Exchange request has been submitted successfully.'));
         }
 
         $rate = (float) $data['limitRate'];
@@ -247,6 +242,6 @@ class TradeController extends Controller
             'expire_in' => toTime($expire)
         ]);
 
-        return back()->with('success', 'Withdraw request has been submitted successfully.');
+        return back()->with(message('Withdraw request has been submitted successfully.'));
     }
 }

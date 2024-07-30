@@ -18,8 +18,8 @@ class DataController extends Controller
     public function market()
     {
         $ids = Currency::where(['type' => 2])->get(['id'])->toArray();
-
-        $data = MarketData::whereIn('currency_id', $ids)->latest()->take(count($ids))->get();
+        $count = count($ids);
+        $data = MarketData::whereIn('currency_id', $ids)->latest()->take($count)->get();
         //----
         return response()->json($data);
     }

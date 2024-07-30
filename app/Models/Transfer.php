@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Notifications;
 use App\Notifications\TransactionNotifications;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,7 +39,7 @@ class Transfer extends Model
                 $toWallet->save();
                 //---
 
-                $send = Transaction::create([
+                Transaction::create([
                     'trnx' => $ref,
                     'ref' => $ref . $user->id,
                     'user_id' => $user->id,
@@ -51,7 +52,7 @@ class Transfer extends Model
                     'amount' => $amount
                 ]);
 
-                $receive = Transaction::create([
+                Transaction::create([
                     'trnx' => $ref,
                     'ref' => $ref . $to->id,
                     'user_id' => $to->id,
@@ -64,10 +65,9 @@ class Transfer extends Model
                     'amount' => $amount
                 ]);
 
-                $user->notify(new TransactionNotifications($send));
-                $to->notify(new TransactionNotifications($receive));
+                $user->notify(Notifications::transfer($transfer));
             } else {
-                $transaction = Transaction::create([
+                Transaction::create([
                     'trnx' => $ref,
                     'ref' => $ref . $user->id,
                     'user_id' => $user->id,
@@ -80,7 +80,7 @@ class Transfer extends Model
                     'amount' => $amount
                 ]);
 
-                $user->notify(new TransactionNotifications($transaction));
+                $user->notify(Notifications::transfer($transfer));
             }
         });
     }

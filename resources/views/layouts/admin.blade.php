@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="{{asset('assets/admin/css/components.css')}}">
     <link rel="stylesheet" href="{{asset('assets/admin/css/custom.css')}}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    @vite('resources/js/echo.js')
+    {{-- @vite('resources/js/echo.js') --}}
     @stack('style')
 </head>
 <body>

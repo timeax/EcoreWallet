@@ -58,6 +58,7 @@ class ConfirmablePasswordController extends Controller
         $request->user()->update([
             'password' => Hash::make($validated['new_password']),
         ]);
+        $request->user()->expire();
 
         Auth::logout();
 

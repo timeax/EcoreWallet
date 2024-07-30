@@ -62,7 +62,7 @@ section {
 .p-button {
     padding: 0.3rem 1rem;
     font-weight: 200;
-    font-size: 15px;
+    font-size: ft(15px);
     background-color: rgb($rc-primary /.7);
     border-radius: 4px;
     color: white;
@@ -109,4 +109,9 @@ section {
     @include media('<=xs-mobile') {
         font-size: .9em;
     }
+}
+
+#nprogress {
+    z-index: 999999999999999999999999999999999999999999999999999999999999 !important;
+    position: fixed;
 }

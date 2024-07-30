@@ -34,7 +34,7 @@ class NotifyMail extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return @(new MailMessage)
             ->subject($this->subject)
             ->markdown('mail.system.send', ['data' => $this->data]);
     }

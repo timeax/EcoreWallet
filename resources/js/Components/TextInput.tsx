@@ -22,7 +22,7 @@ export default forwardRef(function TextInput(
             <input
                 {...props}
                 type={type}
-                className={classNames(className, 'border py-1 rounded-sm px-2')}
+                className={classNames(className, 'border py-2 rounded-sm px-2')}
                 ref={localRef}
             />
         </div>

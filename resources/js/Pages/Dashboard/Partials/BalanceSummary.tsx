@@ -2,7 +2,6 @@ import { ColorNames } from '@assets/fn/create-color';
 import IconButton from '@components/Button/IconButton';
 import Card from '@components/Card';
 import { Title } from '@components/Trade';
-import { useWrapper } from '@context/AuthenticatedContext';
 import { Currencies, Wallets } from '@typings/index';
 import React from 'react';
 import { GiCoins } from 'react-icons/gi';

@@ -8,7 +8,7 @@
     position: relative;
 
     td {
-        font-size: 15px;
+        font-size: ft(15px);
         color: $color-theme-button-text;
         font-weight: 300 !important;
     }
@@ -20,7 +20,7 @@
     }
     thead tr {
         height: 60px;
-        font-size: 16px;
+        font-size: ft(16px);
 
         #{prime('headercontent')} {
             display: flex;
@@ -28,7 +28,7 @@
             align-items: center;
             color: rgb($rc-theme-emphasis / 0.6);
             font-weight: 600;
-            font-size: 14px;
+            font-size: ft(14px);
         }
 
         #{prime(columnfilter)} {
@@ -38,7 +38,7 @@
 
         #{prime(sort)} {
             color: $color-theme-button-text;
-            font-size: 12px;
+            font-size: ft(12px);
         }
     }
 

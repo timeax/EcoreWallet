@@ -108,7 +108,7 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        $user->notify(new NotifyMail('Account Deactivated', [
+        @$user->notify(new NotifyMail('Account Deactivated', [
             mText("Hello $user->name, "),
             mText("As per your requests, you account has been deactivated, if you didn't authorise this action, contact customer support and secure your account!."),
         ]));

@@ -25,6 +25,7 @@ import { CurrencyProvider, useWallets } from '@context/Currency';
 import { routeById } from '@routes/index';
 
 const Wallets: React.FC<WalletsProps> = ({ auth, wallets, currencies, deposits, withdrawals, exchanges, transfers, ...props }) => {
+    const init = props.id ? wallets.find(item => item.id == props.id) : wallets[0];
     //--- code here ---- //
     return (
         <AuthenticatedLayout user={auth.user}
@@ -34,7 +35,7 @@ const Wallets: React.FC<WalletsProps> = ({ auth, wallets, currencies, deposits, 
                 {/* @ts-ignore */}
                 <TransactionProvider {...{ deposits, withdrawals, exchanges, currencies, transfers }}>
                     <LiveFeed currencies={currencies} wallets={wallets} rates historicalData marketData>
-                        <Page wallets={wallets} />
+                        <Page wallets={wallets} value={init as Wallet} />
                     </LiveFeed>
                 </TransactionProvider>
             </CurrencyProvider>
@@ -44,9 +45,9 @@ const Wallets: React.FC<WalletsProps> = ({ auth, wallets, currencies, deposits, 
 
 
 
-const Page: React.FC<MainPageProps> = ({ wallets }) => {
+const Page: React.FC<MainPageProps> = ({ wallets, value }) => {
     //--- code here ---- //
-    const [wallet, setWallet] = useState(wallets[0]);
+    const [wallet, setWallet] = useState(value);
     const [walletList, setList] = useState(wallets);
     const [checked, setChecked] = useState<boolean | undefined>(false);
 
@@ -242,6 +243,7 @@ interface WalletDesktopProps {
 
 interface MainPageProps {
     wallets: WalletList;
+    value: Wallet
 }
 
 
@@ -251,6 +253,7 @@ interface MainPageProps {
 interface WalletsProps extends PageProps {
     wallets: WalletList;
     currencies: Currencies;
+    id?: string
 }
 
 export default Wallets

@@ -28,7 +28,7 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout title='Create an account' desc='Register to create your first account and start your crypto journey'>
             <Head title="Register" />
 
             <form onSubmit={submit}>

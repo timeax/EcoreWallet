@@ -13,13 +13,12 @@ import { FaUser } from 'react-icons/fa';
 import "primeicons/primeicons.css";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Dialog } from 'primereact/dialog';
-import { FC, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Textfield from '@components/Input';
-import { classNames } from 'primereact/utils';
 import { createContext } from 'react';
-import { Link, router, useForm, usePage } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { Title } from '@components/Trade';
-import { useAuth } from '@context/AuthenticatedContext';
+import { useAuth, useConsole } from '@context/AuthenticatedContext';
 import { assets, showIf } from '@assets/fn';
 import { Copy } from '@context/TransactionDetail';
 import QRCode from 'react-qr-code';
@@ -30,6 +29,7 @@ const Preference = ({ userEdit, avatarEdit }: any) => {
     const [photoPreview, setPhotoPreview] = useState<any>();
 
     const [username, setUsername] = useState<string>('');
+    const logger = useConsole();
 
     const ref = useRef<HTMLInputElement>();
     const user = useAuth();
@@ -50,10 +50,18 @@ const Preference = ({ userEdit, avatarEdit }: any) => {
 
     useEffect(() => {
         if (wasSuccessful) {
-            userEdit[1](false)
-            avatarEdit[1](false)
+            userEdit[1](false);
+            avatarEdit[1](false);
+            //----------
+            logger.success(`Successfully updated ${data.type}`)
         }
-    }, [wasSuccessful])
+    }, [wasSuccessful]);
+    //-------
+    useEffect(() => {
+        if(errors.photo) {
+           logger.error(errors.photo)
+        }
+    }, [errors.photo]);
 
     return (
         <>
@@ -371,16 +379,17 @@ const Edit: React.FC<EditProps> = ({ save = 'Save', children: [content, Footer],
     //--- code here ---- //
     return (
         <Dialog
-            className="max-w-[400px]"
+            className="modal"
             footer={(props) => (
                 <div className='flex w-full gap-3'>
                     <Button centered className='grow' onClick={() => setVisible(false)} size='normal' bgColor='warning' shape='pill'>
                         Cancel
                     </Button>
-                    <Button centered className='grow' shape='pill' onClick={() => Footer(props)} size='normal'>{save}</Button>
+                    {showIf(Footer, (
+                        <Button centered className='grow' shape='pill' onClick={() => Footer?.(props)} size='normal'>{save}</Button>
+                    ))}
                 </div>
             )} header={title} visible={visible}
-            style={{ width: '50vw' }}
             onHide={() => { if (!visible) return; setVisible(false); }}
         >
             {content}
@@ -389,7 +398,7 @@ const Edit: React.FC<EditProps> = ({ save = 'Save', children: [content, Footer],
 }
 
 interface EditProps {
-    children: [content: React.ReactNode, footer: (props: any) => void];
+    children: [content: React.ReactNode, footer?: (props: any) => void];
     title: string;
     state: [boolean, (value: boolean) => void];
     save?: string
@@ -521,6 +530,7 @@ const SecurityDialogs: React.FC<SecurityDialogsProps> = ({ email: mailData, pass
         password?: string;
         new_password?: string;
         new_password_confirmation?: string
+        code?: string
     }>();
     //---------
     const auth = useAuth();
@@ -582,20 +592,22 @@ const SecurityDialogs: React.FC<SecurityDialogsProps> = ({ email: mailData, pass
             </Edit>
 
             <Edit title='Manage Two-factor authenticator' state={authen}>
-                {showIf(auth.two_fa_status == 0 as unknown as string, (
+                {showIf(auth.two_fa && auth.two_fa_code, (
                     <div className='flex flex-col justify-center items-center gap-3'>
-                        <Title noPad lg bright normal className='!block text-center'>Scan the QRcode or copy the code to your authenticator app, preferrably<b> Google authenticator</b></Title>
-                        <Title normal className='p-1 !px-3 border rounded-md' lg><Copy value={auth.two_fa_code || 'fguhijosdjsdokpddaldkald'} /></Title>
+                        <Title noPad sm bright normal className='!block text-center'>Scan the QRcode or copy the code to your authenticator app, preferrably<b> Google authenticator</b></Title>
+                        <Title normal className='p-1 !px-3 border rounded-md' lg><Copy value={auth.two_fa} /></Title>
 
-                        <QRCode value='fguhijosdjsdokpddaldkald' size={150} />
+                        <QRCode value={auth.two_fa_code || ''} size={150} />
 
-                        <Textfield name='email' type='' label='Enter code from authenticator' />
+                        <Textfield name='code' type='text' onChange={(e) => setData({ 'code': e.target.value })} label='Enter code from authenticator' />
 
                     </div>
-                ))}
-                {(props) => {
-
-                }}
+                ), <Title lg noPad>Authenticator has been linked</Title>)}
+                {auth.two_fa && auth.two_fa_code ? (
+                    (props) => {
+                        post(route('user.two.step.verify'))
+                    }
+                ) : undefined}
             </Edit>
 
             {/* <Edit title='Login Activity' state={activity}>

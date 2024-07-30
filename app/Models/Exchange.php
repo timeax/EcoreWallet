@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Helpers\Notifications;
+use App\Notifications\NotifyMail;
+use App\Notifications\SystemNotification;
 use App\Notifications\TransactionNotifications;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -74,22 +77,11 @@ class Exchange extends Model
                 'amount' => $amount
             ]);
 
-            $user->notify(new TransactionNotifications([
-                'remark' => 'exchange',
-                'type' => '+-',
-                'amount' => $amount,
-                'extra' => [
-                    'to' => $transferTo->curr->code,
-                    'from' => $transferFrom->curr->code,
-                    'rate' => $exchange->rate,
-                    'fee' => $fee
-                ]
-            ]));
+            @$user->notify(Notifications::exchange($exchange));
         });
 
         static::saved(function (self $exchange) {
             if ($exchange->status == 'pending') return;
-            Log::info('came here');
             //----
             $user = $exchange->user()->get();
             $to = $exchange->transferTo;
@@ -125,18 +117,7 @@ class Exchange extends Model
                 return @$item->escrow()->delete();
             });
 
-            $user->notify(new TransactionNotifications([
-                'remark' => 'exchange',
-                'type' => '+-',
-                'amount' => $exchange->amount,
-                'extra' => [
-                    'to' => $to->code,
-                    'from' => $from->code,
-                    'rate' => $exchange->rate,
-                    'fee' => $exchange->charges
-                ],
-                'status' => $exchange->status
-            ]));
+            @$user->notify(Notifications::exchange($exchange));
         });
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Notifications;
 use App\Models\Withdrawals;
 use App\Notifications\TransactionNotifications;
 use Illuminate\Http\Request;
@@ -30,18 +31,18 @@ class WithdrawalController extends Controller
         $withdraw->status = 1;
         $trnx = $withdraw->transaction()->first();
         //----------
-        $trnx->remark      = 'withdraw_money';
+        $trnx->remark      = 'withdraw';
         $trnx->type        = '-';
-        $trnx->status        = 'success';
+        $trnx->status        = 'pending';
         $trnx->details     = trans('Withdraw money');
         //-----------
         $trnx->save();
         $withdraw->save();
 
-        // @mailSend('accept_withdraw', ['amount' => numFormat($withdraw->amount, 8), 'final_amount' => numFormat($withdraw->total_amount, 8), 'trnx' => $trnx->trnx, 'curr' => $withdraw->currency->code, 'charge' => numFormat($withdraw->charge, 8)], $withdraw->user);
+        // @mailSend('accept_withdraw', , $withdraw->user);
 
-        $user = $withdraw->user()->first();
-        $user->notify(new TransactionNotifications($trnx));
+        $user = $withdraw->user;
+        $user->notify(Notifications::withdraw_request($withdraw));
 
         return back()->with('success', 'Withdraw Accepted Successfully');
     }
@@ -55,7 +56,7 @@ class WithdrawalController extends Controller
         $withdraw->reject_reason = $request->reason_of_reject;
         $trnx = $withdraw->transaction()->first();
         //----------
-        $trnx->remark      = 'withdraw_reject';
+        $trnx->remark      = 'withdraw';
         $trnx->type        = '+';
         $trnx->status        = 'failed';
         $trnx->details     = trans('Withdraw request rejected');
@@ -66,8 +67,8 @@ class WithdrawalController extends Controller
 
         // @mailSend('reject_withdraw', ['amount' => numFormat($withdraw->amount, 8), 'trnx' => $trnx->trnx, 'curr' => $withdraw->currency->code, 'reason' => $withdraw->reject_reason], $withdraw->user);
 
-        $user = $withdraw->user()->first();
-        $user->notify(new TransactionNotifications($trnx));
+        $user = $withdraw->user;
+        $user->notify(Notifications::withdraw_request($withdraw));
 
         return back()->with('success', 'Withdraw Rejected Successfully');
     }

@@ -1,5 +1,5 @@
 import { Wallet as WalletAPI, Wallets } from '@typings/index';
-import React, { useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import _dashboard from '@styles/pages/dashboard.module.scss';
 import { Title } from '@components/Trade';
 import styles from '@styles/components/wallet.module.scss'
@@ -15,6 +15,9 @@ import Tag from '@components/index';
 import { Tooltip } from 'primereact/tooltip';
 import Card from '@components/Card';
 import CurrencyFormat from 'react-currency-format';
+import { Link } from '@inertiajs/react';
+import { routeById } from '@routes/index';
+import CryptoIcon from '@components/CryptoIcon';
 
 export const WalletGroup: React.FC<WalletGroupProps> = ({ wallets: list, change, wallet }) => {
     //--- code here ---- //
@@ -82,14 +85,20 @@ export const Portifolio: React.FC<PortifolioProps> = ({ wallet }) => {
             if (data) setActive(data);
         }
     }, [marketData])
+
+
     return (
         <Card className={styles.mobileWallet} container='!px-4 !py-3 w-full'>
             <div className=''>
-                <img src={active?.data.image} width={'33px'} />
+                <WalletLink wallet={wallet}>
+                    <CryptoIcon fit width='33px' curr={wallet.curr} />
+                </WalletLink>
             </div>
             <div className="flex flex-col gap-1 mt-3">
                 <div className='flex gap-2 items-center'>
-                    <Title noPad>{wallet.curr.curr_name}</Title>
+                    <WalletLink wallet={wallet}>
+                        <Title noPad>{wallet.curr.curr_name}</Title>
+                    </WalletLink>
                     <span style={{ background: `rgb(var(--color-${(active?.data.price_change_percentage_24h || 0) > 0 ? 'success' : 'danger'}-300))` }} className={styles.percent}>{calc.round(active?.data.price_change_percentage_24h || 0.00, 2)}%</span>
                 </div>
                 <div>
@@ -120,6 +129,21 @@ interface PortifolioProps {
 }
 
 
+const WalletLink: React.FC<WalletLinkProps> = ({ children, className = '', wallet }) => {
+    //--- code here ---- //
+    return (
+        <Link href={route(routeById('wallets').route, { id: wallet.id })} className={className}>
+            {children}
+        </Link>
+    )
+}
+
+interface WalletLinkProps extends PropsWithChildren {
+    wallet: WalletAPI,
+    className?: string;
+}
+
+
 const Wallet: React.FC<WalletProps> = ({ wallet, index, change }) => {
     //--- code here ---- //
     const [active, setActive] = useState<MarketData>();
@@ -146,15 +170,17 @@ const Wallet: React.FC<WalletProps> = ({ wallet, index, change }) => {
             const data = marketData.find(item => item.id == wallet.curr.id);
             if (data) setActive(data);
         }
-    }, [marketData])
+    }, [marketData]);
+
+
     const color = getCrptoColor(wallet.curr.curr_name);
     return (
         <>
             <div key={wallet.id} onClick={e => change(wallet)} className={classNames(styles.main, styles.wallet)} style={{ background: Color(color).lighten(0.3).string(), zIndex: index }}>
-                <div className='flex gap-1'>
-                    <img src={active?.data.image} width={'25px'} alt="" />
+                <WalletLink wallet={wallet} className='flex gap-1'>
+                    <CryptoIcon fit width='25px' curr={wallet.curr} />
                     <Title noPad xl bold white>{wallet.curr.curr_name}</Title>
-                </div>
+                </WalletLink>
                 <div className="py-1">
                     <Title noPad medium sm white className='flex gap-2 items-center'>
                         <span>1 {wallet.curr.code}</span>

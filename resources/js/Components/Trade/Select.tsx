@@ -51,13 +51,12 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
         })}>
             <Tag element='div' {...(props.quick ? {
                 onClick: () => {
-                    console.log('clicked', isOpen.current)
                     if (isOpen.current) return;
-                    let btn = button.current?.parentElement;
+                    let btn = button.current;
                     if (btn) btn.click();
                 }
             } : {})} column-gap={gap ? gap + 'px' : undefined} className='flex items-center justify-between'>
-                <Tag element='div' color={textColor} className='flex items-center grow'>
+                <Tag element='div' color={textColor} className='flex items-center grow cursor-pointer'>
                     {
                         selected
                             ? contentTemplate(selected, label) : props.placeholder || 'Make Selection'
@@ -67,8 +66,8 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
                     <Dropdown
                         //@ts-ignore
                         dropRef={isOpen} className='!static'>
-                        <Dropdown.Trigger>
-                            <Tag tagRef={button} element='span' color={textColor} onClick={(e: any) => e.preventDefault()} className={props.trigger}>{props.icon || <FaChevronDown />}</Tag>
+                        <Dropdown.Trigger tagRef={button} mute={props.quick}>
+                            <Tag data-section={'trigger-btn'} element='span' color={textColor} className={props.trigger}>{props.icon || <FaChevronDown />}</Tag>
                         </Dropdown.Trigger>
                         <Dropdown.Content width={classNames('w-full', props.content)}>
                             {props.items.map((item, index) => {

@@ -7,6 +7,7 @@ import Tag from '@components/index';
 const ClassicSections: React.FC<ClassicSectionsProps> = ({ children = ['', ''], className = '', id }) => {
     //--- code here ---- //
     const [section1, section2] = children;
+    //@ts-ignore
     const routeClasses = routeByHref(route().current() as string)?.className || styles.default;
     //----------
     return (

@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\MediaHelper;
+use App\Helpers\Notifications;
 use App\Models\Currency;
 use Illuminate\Http\Request;
 use App\Models\Generalsetting;
 use App\Http\Controllers\Controller;
+use App\Jobs\NewCurrency;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 
 class ManageCurrencyController extends Controller
 {
@@ -87,7 +91,11 @@ class ManageCurrencyController extends Controller
             ];
         }
         $data['icon'] = $request->icon ? MediaHelper::handleMakeImage($request->icon) : null;
-        Currency::create($data);
+        $curr = Currency::create($data);
+        //---
+        NewCurrency::dispatch($curr);
+        //-------
+        Notification::send(User::where(['status' => 1, 'email_verified' => 1])->get(), Notifications::system('New Currency Update', 'A new asset has been added'));
         return back()->with('success', 'New currency has been added');
     }
 

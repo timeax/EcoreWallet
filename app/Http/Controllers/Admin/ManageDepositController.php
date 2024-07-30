@@ -21,7 +21,7 @@ class ManageDepositController extends Controller
             return $q->where('status', $status);
         })
             ->when($search, function ($q) use ($search) {
-                return $q->where('tnx', 'like', "%$search%");
+                return $q->where('txid', 'like', "%$search%");
             })
             ->latest()->paginate(15);
         return view('admin.deposit.index', compact('deposits', 'search'));

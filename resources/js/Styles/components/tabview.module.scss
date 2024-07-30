@@ -1,6 +1,6 @@
 .tabLink {
     @include px(0, 1.6rem);
-    font-size: 14px;
+    font-size: ft(14px);
 }
 
 .tab {
@@ -24,7 +24,7 @@
 
 
 .selectbutton {
-    font-size: 14px;
+    font-size: ft(14px);
     padding: .3rem .8rem;
 
     &:hover {

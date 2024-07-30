@@ -22,7 +22,7 @@ const TradeInput: React.FC<TradeInputProps> = ({
     min = 0.00000001,
     max = 100000,
     currencies,
-    sx, id: key, wallet: accountId, limit
+    sx, id: key, wallet: accountId, limit, currType = '*'
 }) => {
     //--- code here ---- //
     const { list, setWallet, wallets, getKey, setField, fields, rates, convert: setConvert, getCurrent, type, getField } = useSpot();
@@ -40,7 +40,7 @@ const TradeInput: React.FC<TradeInputProps> = ({
     const [wallet, setAcct] = useState<Wallet>(wallets[accountId]);
 
     useEffect(() => {
-        setAcct(wallet);
+        setAcct(wallets[accountId]);
     }, [wallets]);
 
     function convert(value: any, deep: boolean = false) {
@@ -181,12 +181,18 @@ const TradeInput: React.FC<TradeInputProps> = ({
                 <>
                     <input step={'any'} value={Number.isNaN(value) ? 0 : value} placeholder='0' onChange={changeEvent} onBlur={() => ref.current?.classList.remove(styles.focused)} onFocus={() => { ref.current?.classList.add(styles.focused) }} type="number" />
                     <div className='flex flex-col items-end'>
-                        <Text
+                        <Title
                             onClick={() => setHide(false)}
-                            size='16px'
-                            className={'!font-medium !flex items-center gap-1 ' + (currencies ? 'cursor-pointer' : '')}>
-                            <span>{wallets[accountId].curr.code}</span> {currencies ? <FaChevronDown /> : ''}
-                        </Text>
+                            lg
+                            className={'!font-medium z-50 !flex items-center gap-1 ' + (currencies ? 'cursor-pointer' : '')}>
+
+                            <span className='flex items-center gap-1'>
+                                {showIf(wallets[accountId], <CryptoIcon width='23px' curr={wallets[accountId].curr} />)}
+                                <span>{wallets[accountId].curr.code}</span>
+                            </span>
+
+                            {currencies ? <FaChevronDown /> : ''}
+                        </Title>
 
                         <div className='flex justify-between items-center w-full py-2'>
                             <div className='flex items-center gap-1'>
@@ -210,7 +216,7 @@ const TradeInput: React.FC<TradeInputProps> = ({
                                 <Title noPad medium sm>{wallet.curr.code}</Title>
                             </div>)}
                         </div>
-                        {currencies ? <CurrencyList set={setHide} value={wallet} hide={hide} list={currencies} onChange={changeWallet} /> : ''}
+                        {currencies ? <CurrencyList by={currType} set={setHide} value={wallet} hide={hide} list={currencies} onChange={changeWallet} /> : ''}
                     </div>
                     {showIf(limit, (
                         <div className='flex flex-col mt-3 gap-3'>
@@ -236,9 +242,10 @@ const TradeInput: React.FC<TradeInputProps> = ({
 }
 
 
-const CurrencyList: React.FC<CurrencyListProps> = ({ list, onChange, hide, set }) => {
+const CurrencyList: React.FC<CurrencyListProps> = ({ list, onChange, hide, set, by, }) => {
     //--- code here ---- //
-    const [currencies, setCurrs] = useState<Currencies>(list);
+    //@ts-ignore
+    const [currencies, setCurrs] = useState<Currencies>(list.filter(item => by == '*' ? true : item.type == by));
 
     return (
         <Dialog header='Select Currency' className={styles.currencyList} visible={!hide} style={{ height: '60vh' }} onHide={() => { if (hide) return; set(true); }}>
@@ -257,7 +264,7 @@ const CurrencyList: React.FC<CurrencyListProps> = ({ list, onChange, hide, set }
                                 onChange(item);
                             }}>
                                 <div className="flex gap-2 items-center mr-auto">
-                                    <CryptoIcon height='30px' width='30px' size='11px' name={item.curr_name} label={item.symbol} />
+                                    <CryptoIcon curr={item} width='30px' />
                                     <div className='flex flex-col'>
                                         <Title bold noPad>{item.code}</Title>
                                         <Title noPad>{item.curr_name}</Title>
@@ -280,6 +287,7 @@ interface CurrencyListProps {
     hide: boolean;
     value: Wallet,
     set(v: boolean): void
+    by: TradeInputProps['currType']
 }
 
 type Currency = Currencies[number];
@@ -293,6 +301,7 @@ interface TradeInputProps {
     max?: number;
     className?: string;
     sx?: SxProps;
+    currType?: '*' | 1 | 2;
     elementRef?: any;
     id: WalletType;
     limit?: boolean

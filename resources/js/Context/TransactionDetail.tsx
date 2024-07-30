@@ -8,6 +8,7 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import CurrencyFormat from "react-currency-format";
 import { FaCopy, FaLink, FaLongArrowAltRight } from "react-icons/fa";
 import Truncate from 'react-truncate';
+import { useNotify } from "./AuthenticatedContext";
 //@ts-ignore
 const TransactionContext = createContext<TransactionContextProps>({});
 
@@ -490,6 +491,7 @@ const Deposit = (data: TransactionData) => {
 
 export const Copy: React.FC<CopyProps> = ({ value }) => {
     //--- code here ---- //
+    const notify = useNotify();
     return (
         <div className="flex gap-3 items-center">
             <Title noPad>
@@ -499,7 +501,9 @@ export const Copy: React.FC<CopyProps> = ({ value }) => {
             </Title>
             <div className="flex gap-2">
                 <Title noPad brighter><FaLink /></Title>
-                <Title noPad brighter><FaCopy /></Title>
+                <Title noPad brighter onClick={() => {
+                    window.navigator.clipboard.writeText(value).then((e) => notify({ closable: true, severity: 'success', summary: 'Copied successfully' }))
+                }}><FaCopy /></Title>
             </div>
         </div>
     );

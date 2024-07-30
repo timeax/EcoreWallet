@@ -42,25 +42,25 @@ const ProfileBalance: React.FC<ProfileBalanceProps> = ({ }) => {
                             value={balance?.data?.total}
                             displayType="text"
                             thousandSeparator
-                            renderText={value => <span>{value}</span>}
+                            renderText={value => <span>{value || '...'}</span>}
                         />
                     </Title>
                     <div className={styles.actions}>
-                        <Button size='normal' >Fund</Button>
-                        <Button size='normal' href={route(routeById('withdraw').route)}>Send</Button>
+                        <Button shape='pill' size='normal' >Fund</Button>
+                        <Button shape='pill' size='normal' href={route(routeById('withdraw').route)}>Send</Button>
                     </div>
                 </div>
 
                 <div className={styles.available}>
-                    <Title brighter xs noPad>Available balance</Title>
+                    <Title brighter className={styles.available_title} xs noPad>Available balance</Title>
                     <div className='flex justify-between items-center'>
-                        <Title medium md noPad>
+                        <Title medium className={styles.available_balance} md noPad>
                             <span>{currency?.symbol}</span>
                             <CurrencyFormat
                                 value={balance?.data?.available}
                                 displayType='text'
                                 thousandSeparator
-                                renderText={(value) => <>{value}</>}
+                                renderText={(value) => <>{value || '...'}</>}
                             />
                         </Title>
                         <Dropdown>

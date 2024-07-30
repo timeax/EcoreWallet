@@ -78,6 +78,13 @@ const SpotProvider: React.FC<SpotProviderProps> = ({ children, wallets: items, .
             })
         },
 
+        swap() {
+            setWallets({
+                from: wallets.to,
+                to: wallets.from
+            });
+        },
+
         setWallet(key, wallet) {
             setWallets((items) => {
                 return {
@@ -207,6 +214,7 @@ interface ContextFn {
         converted: number;
     };
     setWallet(key: keyof Props['wallets'], wallet: Wallet): void
+    swap(): void
     getRate<T extends keyof Props['wallets']>(...keys: Array<T>): Record<T, Rate>;
     snap(): SnapData;
     getKey(key: WalletId): WalletId;

@@ -321,7 +321,7 @@ const LiveFeed: React.FC<LiveContextProviderProps> = ({ range = '1d', historical
         else if (Number.isNaN(parseInt(value))) curr = currencies?.find(item => item.code == value);
         else if (value) curr = currencies?.find(item => item.id == value);
         //@ts-ignore
-        else curr = currencies.find(item => item.default == 1);
+        if (!curr) curr = currencies.find(item => item.default == 1);
         //---------------
         if (curr) setDefault(curr);
 
