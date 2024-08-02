@@ -47,7 +47,8 @@ class DepositAddress extends Model
             $wallet = $cryptomus->createWallet(
                 $network_name,
                 $network->get('currency'),
-                $url_hook
+                $url_hook,
+                $id
             );
 
             self::create([

@@ -1,13 +1,16 @@
 <?php
 
+use App\Helpers\Notifications;
+use App\Models\Admin;
 use App\Models\Currency;
+use App\Models\Generalsetting;
 use App\Models\User;
+use App\Models\Withdrawals;
+use App\Notifications\NotifyMail;
 use Cryptomus\Api\Client;
-use Cryptomus\Api\RequestBuilder;
 use Cryptomus\Api\Payment;
 use Cryptomus\Api\Payout;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
+use Cryptomus\Api\RequestBuilder;
 
 class Cryptomus
 {
@@ -80,9 +83,13 @@ class Cryptomus
         return $this->build->sendRequest('v1/test-webhook/payment', $data);
     }
 
-    public function createWallet(string $network, string $code, $url = '')
+    public function resendPI(array $data = [])
     {
-        $user_id = auth()->id();
+        return $this->build->sendRequest('v1/payment/resend', $data);
+    }
+
+    public function createWallet(string $network, string $code, $url, $user_id)
+    {
         return $this->payment->createWallet([
             'network' => $network,
             'currency' => $code,
@@ -104,5 +111,49 @@ class Cryptomus
 
 
         return $this;
+    }
+
+    public function payout(Withdrawals $withdrawals)
+    {
+        /**
+         * @var User $user
+         */
+        $user = $withdrawals->user;
+        $gs = Generalsetting::first();
+        $services = false;
+        try {
+            self::setBuilder('payout');
+            $services = $this->builder->sendRequest('v1/payout', [
+                'amount' => $withdrawals->amount,
+                'currency' => $withdrawals->currency->code,
+                'order_id' => $withdrawals->ref,
+                'address' => $withdrawals->wallet_address,
+                'is_subtract' => true,
+                'network' => $withdrawals->network,
+                'url_callback' => route('cryptomus.withdraw.webhooks', [
+                    'url_id' => $user->addresses()->first()->url_id,
+                    'key' => $gs->webhook_uuid,
+                    'user_id' => $user->id
+                ])
+            ]);
+            //----
+
+            if ($services !== true) {
+                static::sendError($withdrawals, json_encode($services));
+            }
+        } catch (\Throwable $th) {
+            static::sendError($withdrawals, $th->getMessage());
+        }
+
+        return $services;
+    }
+
+    static function sendError(Withdrawals $withdrawals, string $message)
+    {
+        session()->flash('withdraw', 'fail');
+        //----
+        $admins = Admin::where(['role' => 'admin'])->get();
+        Notification::sendNow($admins, Notifications::apiErrorWithdrawal($withdrawals, $message));
+        //---------
     }
 }

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,8 +37,17 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
+        LogViewer::auth(function ($request) {
+            return $request->user()
+                && in_array($request->user()->email, [
+                    'okpakodavid3@gmail.com',
+                    'okpakodavx3@gmail.com',
+                    'timmyokpako@gmail.com',
+                ]);
+        });
+
         view()->composer('*', function ($settings) {
-            $settings->with('gs', cache()->remember('generalsettings', now()->addDay(), function () {
+            $settings->with('gs', cache(null)->remember('generalsettings', now()->addDay(), function () {
                 return Generalsetting::first();
             }));
         });

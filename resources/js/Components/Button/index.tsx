@@ -16,7 +16,7 @@ const Button: React.FC<ButtonProps> = ({ id,
     icon, shape = 'smooth',
     size = 'md', spacing = '10px', icc: icoClass = '',
     variant = 'contained', linkComponent = Link, iconStyle = 'none',
-    sx, iconLoc = 'left', iconSize = '12px', inset, height, centered, "data-section": section = 'ui-button',
+    sx, iconLoc = 'left', iconSize = '12px', inset, height, centered, "data-section": section = 'ui-button', disabled,
     ...rest
 }) => {
     //--- code here ---- //
@@ -27,7 +27,7 @@ const Button: React.FC<ButtonProps> = ({ id,
     const styleProps: DefStyledProps = {
         bgFocus: cfx.focus,
         bgHover: cfx.hover,
-        bgColor: cfx.value,
+        bgColor: disabled ? cfx.disabled : cfx.value,
         //@ts-ignore
         color: color ? color : (variant === 'none') ? colors.focus : cfx.text,
         hColor: cfx.text,

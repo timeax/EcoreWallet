@@ -12,12 +12,22 @@ import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { round } from 'number-precision';
 import CurrencyFormat from 'react-currency-format';
 import { Link } from '@inertiajs/react';
+import { Sidebar } from 'primereact/sidebar';
 
 const Latest: React.FC<LatestProps> = ({ currencies }) => {
     //--- code here ---- //
     const { marketData, rates } = useLive()
     const [prices, setPrices] = useState<typeof marketData>()
     const [pause, setPause] = useState(false);
+    const [open, setOpen] = useState(false);
+
+    const header = (
+        <div>
+            <Title noPad xl medium className="items-center">
+                Market Trend
+            </Title>
+        </div>
+    );
 
     useEffect(() => {
 
@@ -51,7 +61,18 @@ const Latest: React.FC<LatestProps> = ({ currencies }) => {
 
     return (
         <section className='!mb-0'>
-            <UICard className={classNames('max-h-[320px]', dashboard.prices)} header={<UICHeader title='Market trends'><Title><Link href={route('user.dashboard')}>See all</Link></Title></UICHeader>}>
+            <UICard className={classNames('max-h-[400px]', dashboard.prices)} header={<UICHeader title='Market trends'><Title noPad
+                className='cursor-pointer'
+                onClick={() => setOpen(true)}>See all</Title></UICHeader>}>
+                {showIf((prices?.length || 0) > 0, (
+                    <>
+                        {
+                            prices?.slice(0, 4).map(price => <LatestItem currencies={currencies} key={price.id} {...price} />)
+                        }
+                    </>
+                ), <Title noPad className='pb-4'>Nothing to show here</Title>)}
+            </UICard>
+            <Sidebar className={classNames("!bg-theme-bgColor", dashboard.allPrices)} position="right" header={header} visible={open} onHide={() => setOpen(false)}>
                 {showIf((prices?.length || 0) > 0, (
                     <>
                         {
@@ -59,7 +80,7 @@ const Latest: React.FC<LatestProps> = ({ currencies }) => {
                         }
                     </>
                 ), <Title noPad className='pb-4'>Nothing to show here</Title>)}
-            </UICard>
+            </Sidebar>
         </section>
     );
 }
@@ -84,7 +105,7 @@ const LatestItem: React.FC<LatestItemProps> = ({ currencies, id, data: { current
                     </div>
                 </div>
                 <div className={dashboard.graph}>
-                    <SparkLineChart colors={[getCrptoColor(curr?.curr_name || '')]} height={35} data={sparkline_in_7d.price} />
+                    <SparkLineChart colors={[getCrptoColor(curr)]} height={35} data={sparkline_in_7d.price} />
                 </div>
 
                 <div className={dashboard.price_area}>

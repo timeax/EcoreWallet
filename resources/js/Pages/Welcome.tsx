@@ -31,6 +31,11 @@ export default function Welcome({ auth, error, errors, flash, templates, ...prop
             </Head>
             <Button onClick={() => setNew([...newTemps, { codes: {}, email_body: '<span>Hello {name}</span>', email_subject: 'new_template', email_type: 'Unset', status: 1 }])}>New Template</Button>
 
+            <Button onClick={async (e) => {
+                const stats = await window.axios.post(route('resend.hook'))
+                console.log(stats);
+            }}>Resend hook</Button>
+
             <div className='flex flex-wrap gap-x-10 justify-center'>
                 {newTemps.map((item, index) => <Template key={index} {...item} databases={Object.keys(props).map(item => ({
                     label: item,
@@ -85,7 +90,8 @@ const Template: React.FC<TemplateProps> = ({ email_body, id, codes, email_subjec
     }, [edit]);
 
     useEffect(() => {
-        // console.log(errors)
+        if (Object.keys(errors).length > 0)
+            console.log(errors)
     }, [])
 
 

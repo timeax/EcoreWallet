@@ -46,7 +46,7 @@ const ProfileBalance: React.FC<ProfileBalanceProps> = ({ }) => {
                         />
                     </Title>
                     <div className={styles.actions}>
-                        <Button shape='pill' size='normal' >Fund</Button>
+                        <Button shape='pill' size='normal' href={route(routeById('fund').route)} >Fund</Button>
                         <Button shape='pill' size='normal' href={route(routeById('withdraw').route)}>Send</Button>
                     </div>
                 </div>

@@ -83,7 +83,7 @@ $show_if_user = function (string $value, string $otherwise = '') use ($user) {
                                         <p class="sc-31f954b4-5 fRqzXQ">learn About Ecore</p>
                                     </div>
                                 </a>
-                                <a target="" class="sc-31f954b4-0 jYFLVW" href="assets.php">
+                                <a target="" class="sc-31f954b4-0 jYFLVW" href="<?= route('assets') ?>">
                                     <div class="sc-31f954b4-1 jNObVF header-icon-container">
                                         <img alt="Assets" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" class="sc-31f954b4-2 jenLMQ" style="color:transparent" srcset="https://uploads-ssl.webflow.com/631c2a6f341fb51bba7a6369/6662df394c4585605900a4b1_b1.png" src="https://uploads-ssl.webflow.com/631c2a6f341fb51bba7a6369/6662df394c4585605900a4b1_b1.png">
                                     </div>
@@ -110,7 +110,7 @@ $show_if_user = function (string $value, string $otherwise = '') use ($user) {
                         </div>
                         <div class="sc-9451acbe-0 fWgZYw hidden">
                             <div class="sc-9451acbe-1 fORfAv">
-                                <a target="" class="sc-31f954b4-0 jYFLVW" href="contact.php">
+                                <a target="" class="sc-31f954b4-0 jYFLVW" href="<?= route('contact') ?>">
                                     <div class="sc-31f954b4-1 jNObVF header-icon-container">
                                         <img alt="Blog" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" class="sc-31f954b4-2 jenLMQ" style="color:transparent" srcset="https://uploads-ssl.webflow.com/631c2a6f341fb51bba7a6369/666a4ea7c3ed10d12e401068_live-support.webp" src="https://uploads-ssl.webflow.com/631c2a6f341fb51bba7a6369/666a4ea7c3ed10d12e401068_live-support.webp">
                                     </div>

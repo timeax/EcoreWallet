@@ -20,9 +20,19 @@ interface Messgae {
 
 interface Notifications {
     type: string;
+    read_at: string;
     data: {
         text: string;
-        props: any
+        props: {
+            link?: {
+                label: string;
+                url: string;
+            },
+
+            more?: string;
+
+            summary?: string
+        }
     };
     id: string;
     created_at: string;

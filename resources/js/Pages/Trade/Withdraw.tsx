@@ -9,6 +9,9 @@ import WithdrawForms from './Partials/WithdrawForms';
 import Note from '@components/Trade/Note';
 import styles from '@styles/pages/trade.module.scss';
 import { classNames } from 'primereact/utils';
+import { showIf } from '@assets/fn';
+import { Message } from 'primereact/message';
+import { Link } from '@inertiajs/react';
 
 const Withdraw: React.FC<WithdrawProps> = ({ auth, wallets, wallet: code, services, ...props }) => {
     //--- code here ---- //
@@ -41,6 +44,19 @@ const Withdraw: React.FC<WithdrawProps> = ({ auth, wallets, wallet: code, servic
             desc='Withdraw or send cryptocurrency to personal account'
             title='Withdrawal'>
             <div>
+                {showIf(auth.user.kyc_status == 0 as any, (
+                    <Note className='!flex-row items-center !mt-0 !pl-0' title=''>
+                        <Title noPad xl normal className='!block text-warning'>
+                            Complete <Link className='text-primary-300' href={route('user.onboarding')}>KYC Verification</Link> to continue with this transaction
+                        </Title>
+                    </Note>
+                ), showIf(auth.user.kyc_status == 2 as any, (
+                    <Note className='!flex-row items-center !mt-0 !pl-0' title=''>
+                        <Title noPad xl normal className='!block'>
+                            Your KYC verification is still ongoing, hold on!!
+                        </Title>
+                    </Note>
+                )))}
                 <div className={classNames("mt-8 flex gap-10", styles.withdrawals)}>
                     <div className={styles.withdraw}>
                         <div className="flex flex-col gap-6">
@@ -59,10 +75,11 @@ const Withdraw: React.FC<WithdrawProps> = ({ auth, wallets, wallet: code, servic
                                             value={wallet}
                                             placeholder='Wallet'
                                             onSelect={(e) => setWallet(e.value)}
+                                            content='max-h-[320px] overflow-auto'
                                         />
                                     </Container>
                                 </div>
-                                <div className={classNames("flex gap-4 pl-4", )}>
+                                <div className={classNames("flex gap-4 pl-4",)}>
                                     <Title>Available Balance:</Title>
                                     <Title noPad md bold>{wallet?.all_balance.available} {wallet?.curr.code}</Title>
                                 </div>

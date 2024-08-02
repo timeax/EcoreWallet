@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Helpers\Notifications;
 use App\Notifications\TransactionNotifications;
+use Cryptomus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,8 +30,8 @@ class Withdrawals extends Model
         static::created(function ($withdraw) {
             $user = User::find($withdraw->user_id);
             $transaction = Transaction::create([
-                'trnx' => $withdraw->trx,
-                'ref' => $withdraw->trx,
+                'trnx' => 'temp' . $withdraw->trx,
+                'ref' => $withdraw->ref,
                 'user_id' => $withdraw->user_id,
                 'charge' => $withdraw->charge,
                 'amount' => numFormat($withdraw->amount, 8),
@@ -45,13 +46,30 @@ class Withdrawals extends Model
 
             Escrow::create([
                 'transaction_ref' => $transaction->ref,
-                'amount' => $transaction->amount,
+                'amount' => $transaction->amount + $withdraw->charge,
                 'type' => 'out',
                 'user_id' => $user->id,
                 'wallet_id' => @$wallet->id
             ]);
 
             $user->notify(Notifications::withdraw_request($withdraw));
+        });
+
+        static::saved(function (self $withdraw) {
+            if ($withdraw->status == 2) { // rejected
+                $escrow = $withdraw->escrow;
+                if ($escrow) $escrow->delete();
+            } else if ($withdraw->status == 1) { //accepted
+                if ($withdraw->handler == 'api') (new Cryptomus())->payout($withdraw);
+                else {
+                    $trns = $withdraw->transaction;
+                    $trns->status = 'success';
+                    //---
+                    $trns->save();
+                    //--------
+                    $withdraw->escrow()->delete();
+                }
+            }
         });
     }
 
@@ -62,6 +80,6 @@ class Withdrawals extends Model
 
     public function transaction()
     {
-        return $this->belongsTo(Transaction::class, 'trx', 'ref');
+        return $this->belongsTo(Transaction::class, 'ref', 'ref');
     }
 }

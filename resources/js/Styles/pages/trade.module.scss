@@ -12,7 +12,7 @@
 }
 
 .mainSwap {
-    @include media('<=xxs-laptop') {
+    @include media("<=xxs-laptop") {
         margin-top: 0px;
     }
 }
@@ -79,10 +79,13 @@
 }
 
 .mobileNetwork {
+    border: 1px solid $color-theme-bgContent;
+    padding: 0.8rem 10px;
+    border-radius: 10px;
+
     @include media("<=sm-tablet") {
         background-color: $color-theme-bgColor;
-        padding: 0.8rem 10px;
-        border-radius: 10px;
+        border: none;
     }
 }
 
@@ -101,7 +104,7 @@
 }
 
 .withdrawals {
-    @include media('<=tablet2') {
+    @include media("<=tablet2") {
         margin-top: 0px;
     }
 }

@@ -55,8 +55,22 @@ class TradeController extends Controller
         return Inertia::render('Trade/Withdraw', compact('wallets', 'wallet', 'services'));
     }
 
+    public function transferDetails($account_no)
+    {
+        $to = User::where(['account_no' => $account_no])->first();
+
+        return response()->json([
+            "username" => $to?->username ?? '???',
+            "verified" => $to?->kyc_status,
+            "photo" => $to?->photo,
+            "name" => str($to?->name || 'Unknown')->charAt(0)
+        ], $to ? 200 : 500);
+    }
+
     public function withdraw(Request $request)
     {
+        $user = Auth::user();
+
         $required_in_wallet = 'required_if:type,wallet';
         $request->validate([
             'type' => 'required',
@@ -66,10 +80,10 @@ class TradeController extends Controller
             'wallet_address'   => $required_in_wallet,
             "charge" => $required_in_wallet,
             'network' => $required_in_wallet,
-            'ecoreuser' => 'required_if:type,@ecore'
+            'ecoreuser' => 'required_if:type,@ecore',
         ]);
 
-        $user = Auth::user();
+        if ($user->kyc_status == 0) return back()->with(message('Complete KYC verification process to continue with this transaction'));
 
         $wallet = $user->wallets()->with('curr')->find($request->wallet_id);
 
@@ -94,17 +108,25 @@ class TradeController extends Controller
         if ($request->type === '@ecore') {
             ///--- verify the account number and debit user
             $to = User::where(['account_no' => $request->ecoreuser])->get();
+            $toWallet = $to->wallets()->where(['crypto_id' => $curr])->first();
             //---------
             if (!$to) return back()->withErrors(['ecoreuser' => "User account does not exist"]);
             if ($to->status == 0) return back()->withErrors(['ecoreuser' => "User account has be blocked"]);
             if (!$to->account_no) return back()->withErrors(['ecoreuser' => "User account is not verified"]);
+            //-----------
+            $wallet->balance -= $finalAmount;
+            $toWallet->balance += $finalAmount;
+            //---
+            $wallet->saveOrFail();
+            $toWallet->save();
             //------------
             Transfer::create([
                 'user_id' => $user->id,
                 'to_user' => $to->id,
                 'account_no' => $to->account_no,
                 'currency_id' => $curr->id,
-                'status' => 'pending',
+                'status' => 'success',
+                'ref' => uuid($user->id, 'trns'),
                 'transaction_ref' => uuid('transfer' . $user->id),
                 'amount' => $finalAmount
             ]);
@@ -114,8 +136,10 @@ class TradeController extends Controller
 
         Withdrawals::create([
             'trx' => uuid('withdraw'),
+            'ref' => uuid($user->id, 'wdrw'),
             'user_id' => $user->id,
             'amount' => $request->amount,
+            'network' => $request->network,
             'charge' => $charge,
             'total_amount' => $finalAmount,
             'wallet_address' => $request->wallet_address,

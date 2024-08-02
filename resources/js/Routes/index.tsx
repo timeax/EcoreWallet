@@ -113,14 +113,14 @@ const routes = [
         bottombar: true,
     } as const,
 
-    {
-        id: 'support',
-        label: 'Support',
-        icon: <IoIosHelpCircle />,
-        route: 'user.support',
-        bottombar: true,
-        showOnSidebar: true,
-    } as const,
+    // {
+    //     id: 'support',
+    //     label: 'Support',
+    //     icon: <IoIosHelpCircle />,
+    //     route: 'user.support',
+    //     bottombar: true,
+    //     showOnSidebar: true,
+    // } as const,
 
     {
         id: 'buy',

@@ -97,12 +97,14 @@
 	--color-theme-button-hover: 222 230 251;
 	--color-theme-button-text: 164 173 199;
 	--color-theme-shadow: 120 130 158;
-	--color-theme-dark-bgColor: 10 12 28;
-	--color-theme-dark-bgContent: 9 11 38;
+	--color-theme-border: 222 230 251;
+	--color-theme-dark-bgColor: 15 15 15;
+	--color-theme-dark-bgContent: 22 22 22;
 	--color-theme-dark-emphasis: 255 255 255;
-	--color-theme-dark-icons: 244 247 254;
+	--color-theme-dark-icons: 165 165 165;
 	--color-theme-dark-button: 219 228 251;
 	--color-theme-dark-button-hover: 207 219 246;
-	--color-theme-dark-button-text: 244 247 254;
+	--color-theme-dark-button-text: 194 194 194;
+	--color-theme-dark-border: 54 54 54;
 }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Helpers\Notifications;
 use App\Http\Controllers\Controller;
+use App\Models\Currency;
 use App\Models\Trade;
 use App\Models\Wallet;
 use App\Notifications\NotifyMail;
@@ -19,13 +21,18 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $user = auth()->user();
-        $wallets = Wallet::whereBelongsTo($user, 'user')->with('curr')->get();
-        $trades = Trade::where('offer_user_id', auth()->id())->with(['crypto', 'fiat', 'trader'])->latest()->take(7)->get();
+        $user = Auth::user();
 
-        $transactions = $user->transactions;
-        //====
-        return Inertia::render('Dashboard/Page', compact('wallets', 'transactions', 'trades'));
+        $wallets = $user->wallets()->with('curr')->get();
+        $currencies = Currency::all();
+        //------
+        $transactions = $user->transactions()->latest()->with('currency')->get();
+        $deposits = $user->deposits;
+        $withdrawals = $user->withdrawals;
+        $exchanges = $user->exchanges;
+        $transfers = $user->transfers;
+
+        return Inertia::render('Dashboard/Page', compact('wallets', 'transactions', 'currencies', 'deposits', 'withdrawals', 'exchanges', 'transfers'));
     }
 
     public function verify(Request $request, Google2FA $google2fa)
@@ -53,13 +60,8 @@ class UserController extends Controller
                     'status' => 200
                 ]);
             } else {
-                $user->notify(new NotifyMail('Added authenticator', [
-                    mText('Hello,'),
-                    mText('An authenticator app has been successfully added to your account.'),
-                    mText('Thank you for choosing us!')
-                ]));
-
-                $user->notify(new SystemNotification('Authentication app has been added to your account'));
+                $user->notify(Notifications::authenticator($user));
+                //-------
                 return back()->with([
                     'message' => msg('Authenticator has been added to your account'),
                     'status' => 200

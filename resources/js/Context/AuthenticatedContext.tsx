@@ -4,6 +4,8 @@ import React, { PropsWithChildren, createContext, useContext, useEffect, useRef,
 import Echo from 'laravel-echo';
 import icon from '@assets/images/ecore-favi.ico'
 import { Toast, ToastMessageOptions } from 'primereact/toast';
+import { useTheme } from './Theme';
+import { NotificationProvider } from './Notifications';
 
 //@ts-ignore
 const Context = createContext<AuthenticatedContextProps>();
@@ -74,8 +76,10 @@ interface Events {
 
 export function useWrapper() {
     const { echo, user, notifications } = useContext(Context);
-
+    const { theme, setTheme } = useTheme();
     return {
+        theme,
+        setTheme,
         get user() {
             return user;
         },
@@ -84,16 +88,16 @@ export function useWrapper() {
             return notifications
         },
 
-        onChange<T extends keyof Events>(event: T, callback: (e: Events[T]) => void) {
+        onChange<T extends keyof Events>(event: T, callback: (e: Events[T]) => void, props?: any) {
             switch (event) {
                 case 'notifications': {
                     callback({
-                        data: notifications,
+                        data: props == 'unread' ? notifications.filter(item => !item.read_at) : notifications,
                         event: 'user.notify'
                     } as any);
 
                     echo?.private(`user.${user.id}`).notification((notification: any) => {
-                        window.axios.get(route('data.notifications', { userId: user.id })).then((data => {
+                        window.axios.get(route('data.notifications', { userId: user.id, type: props })).then((data => {
                             const notifications = data.data;
                             callback({
                                 data: notifications,
@@ -139,15 +143,7 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
             forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
             enabledTransports: ['ws', 'wss'],
         });
-        //--
-        // console.log(echo)
     }
-
-    useEffect(() => {
-        if (!localStorage.getItem('theme')) {
-            localStorage.setItem('theme', 'light');
-        }
-    }, []);
 
 
     const { auth: { notifications }, flash: { message } } = usePage<PageProps>().props;
@@ -165,7 +161,6 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
         }
     }, [message]);
 
-    console.log(title)
     return (
         <Context.Provider value={{ ...props, echo, config, notify, notifications }}>
             <Head title={title}>
@@ -175,7 +170,9 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
             <Toast
                 //@ts-ignore
                 ref={toast} />
-            {children}
+            <NotificationProvider>
+                {children}
+            </NotificationProvider>
         </Context.Provider >
     );
 }
@@ -197,7 +194,7 @@ interface AuthenticatedContextProps {
     echo?: Echo;
     config: Array<Store>;
     notify(props: ToastMessageOptions): void
-    notifications: Notifications[]
+    notifications: Notifications[];
 }
 
 interface Store {

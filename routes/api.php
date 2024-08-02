@@ -1,12 +1,9 @@
 <?php
 
 use App\Http\Controllers\CryptomusWebhookController;
-use App\Http\Controllers\DataController;
 use App\Http\Middleware\EnsureValidWebhook;
+use App\Models\Generalsetting;
 use App\Models\User;
-use App\Notifications\Refreshed;
-use App\Notifications\SystemNotification;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,7 +18,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-
 });
 
 
@@ -38,14 +34,14 @@ Route::middleware(EnsureValidWebhook::class)->group(function () {
 });
 
 
-Route::post('/webhooks', function (Cryptomus $cryptomus) {
-    $cryptomus->setBuilder('payment');
-    $stats = $cryptomus->testhook([
-        'currency' => 'ETH',
-        "url_callback" => "https://66ab-129-205-124-203.ngrok-free.app/api/cryptomus/deposits/webhook/714927ce-c801-4b86-9d98-133bfbe356c4/171750661900/20",
-        'network' => 'eth',
-        'status' => 'paid'
-    ]);
+// Route::post('/webhooks', function (Cryptomus $cryptomus) {
+//     $cryptomus->setBuilder('payment');
+//     $stats = $cryptomus->testhook([
+//         'currency' => 'ETH',
+//         "url_callback" => "https://66ab-129-205-124-203.ngrok-free.app/api/cryptomus/deposits/webhook/714927ce-c801-4b86-9d98-133bfbe356c4/171750661900/20",
+//         'network' => 'eth',
+//         'status' => 'paid'
+//     ]);
 
-    return compact('stats');
-})->name('api.webhook');
+//     return compact('stats');
+// })->name('api.webhook');

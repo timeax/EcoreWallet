@@ -73,7 +73,7 @@ const Trigger = ({ children, mute, tagRef }: PropsWithChildren<{ mute?: boolean,
     );
 };
 
-const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-white', children }: PropsWithChildren<{ align?: 'left' | 'right', width?: string, contentClasses?: string }>) => {
+const Content = ({ align = 'right', width = '48', contentClasses = 'py-1', children }: PropsWithChildren<{ align?: 'left' | 'right', width?: string, contentClasses?: string }>) => {
     const { open, toggleOpen: setOpen, ref } = useContext(DropDownContext);
     let alignmentClasses = 'origin-top';
 
@@ -92,17 +92,43 @@ const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-whit
         widthClasses = 'w-48';
     } else widthClasses = width;
 
+    function adjustH(diff: number, pos = 60) {
+        let temp = diff;
+        return diff - pos;
+    }
+
     function adjust(menu: HTMLDivElement) {
         const rect = menu.getBoundingClientRect();
         const wH = window.innerHeight, wW = window.innerWidth;
 
         const diffH = wH - rect.y;
+        const diffHb = wH - (rect.y + rect.height);
 
         let classes: string[] = [];
 
+        // console.log(diffH, diffHb, wH, rect.y, menu)
+
         if (diffH < rect.height) {
-            classes.push('bottom-[100%]')
+            if (diffHb < rect.height) {
+                if (diffH < diffHb) {
+                    let newH = adjustH(diffHb, 10);
+
+                    menu.style.height = newH + 'px';
+                    menu.style.bottom = '100%';
+                    menu.style.overflow = 'auto';
+                } else {
+                    let newH = adjustH(diffHb);
+                    menu.style.height = newH + 'px';
+                    menu.style.overflow = 'auto';
+                }
+            }
         }
+
+
+
+        // if (diffH < rect.height) {
+        //     classes.push('bottom-[100%]')
+        // }
 
         if (classes.length > 0) setAuto(classes.join(' '))
     }
@@ -129,10 +155,10 @@ const Content = ({ align = 'right', width = '48', contentClasses = 'py-1 bg-whit
             >
                 <div
                     data-section='menu'
-                    className={`absolute drop-menu z-50  mt-2 rounded-md shadow-lg ${alignmentClasses} ${auto} ${widthClasses}`}
+                    className={`absolute drop-menu z-[999999999999] bg-theme-bgColor  mt-2 rounded-md shadow-lg ${alignmentClasses} ${auto} ${widthClasses}`}
                     onClick={() => setOpen(false)}
                 >
-                    <div className={`rounded-md ring-1 ring-black ring-opacity-5 ` + contentClasses}>{children}</div>
+                    <div className={`rounded-md ring-1 ring-white ring-opacity-5 ` + contentClasses}>{children}</div>
                 </div>
             </Transition>
         </>
@@ -150,7 +176,7 @@ const DropdownLink = ({ className = '', children, value, ...props }: LinkProps) 
             onClick={() => onSelect(value)}
             {...props}
             className={
-                'block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out ' +
+                'block w-full px-4 hover:bg-theme-bgContent py-2 text-start text-sm leading-5 focus:outline-none transition duration-150 ease-in-out ' +
                 className
             }
         >

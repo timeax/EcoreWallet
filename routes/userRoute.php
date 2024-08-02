@@ -11,13 +11,13 @@ use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SupportTicketController;
 use App\Http\Controllers\User\TradeController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Middleware\DeveloperAccess;
 use App\Models\Currency;
 use App\Models\EmailTemplate;
 use App\Models\Language;
 use App\Models\LoginLogs;
 use App\Models\Setting;
 use App\Models\User;
-use App\Notifications\NotifyMail;
 use App\Notifications\Refreshed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,57 +28,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/market', [DataController::class, 'market'])->name('data.market');
     Route::get('/historical/{id}/{range?}', [DataController::class, 'historical'])->name('data.historical');
 
-    Route::get('/notifications/all/{userId}', function (string $id) {
+    Route::get('/notifications/{type}/{userId}', function (string $type, string $id) {
         //--------
+        /**
+         * @var User
+         */
         $user = User::find($id);
-        if ($user) return response()->json($user->unreadnotifications);
+        if ($user) {
+            if ($type == 'unread')
+                return response()->json($user->unreadNotifications);
+            else if ($type == 'all')
+                return response()->json($user->notifications);
+        }
         return response()->json([]);
         //----
     })->name('data.notifications');
-
-    Route::get('/template', function () {
-        $templates = EmailTemplate::all();
-
-        $deposits = Schema::getColumnListing('deposits');
-        $withdraws = Schema::getColumnListing('withdrawals');
-        $transfers = Schema::getColumnListing('transfers');
-        $exchanges = Schema::getColumnListing('exchanges');
-        $transactions = Schema::getColumnListing('transactions');
-
-        return Inertia::render('Welcome', compact('templates', 'deposits', 'withdraws', 'transfers', 'exchanges', 'transactions'));
-    });
-
-    Route::post('/template', function (Request $request) {
-        $request->validate([
-            'email_type' => 'required',
-            'email_subject' => 'required',
-            'email_body' => 'required',
-            'codes' => ['required', 'min:4']
-        ]);
-
-        $id = $request->input('id') ?? -1;
-        Log::info('This is the id: ' . $id);
-        if ($id >= 0) {
-            $template = EmailTemplate::find($id);
-            if ($template) {
-                $template->email_body = clean($request->input('email_body'));
-                $template->email_subject = $request->input('email_subject');
-                $template->email_type = $request->input('email_type');
-                $template->codes = $request->input('codes');
-                $template->save();
-            }
-        } else {
-            EmailTemplate::create([
-                'email_body' => clean($request->input('email_body')),
-                'email_subject' => $request->input('email_subject'),
-                'email_type' => $request->input('email_type'),
-                'codes' => $request->input('codes'),
-                'status' => 1
-            ]);
-        }
-
-        return back()->with(['message' => msg('Updated the mail templates'), 'status' => 'done']);
-    })->name('template');
 
     Route::post('/notifications/markasread', function (Request $request) {
         $id = $request->input('user');
@@ -100,6 +64,69 @@ Route::middleware(['auth'])->group(function () {
         }
         return response()->json(['done' => 'done']);
     })->name('data.mark.as.read');
+
+    Route::post('/notifications/delete', function (Request $request) {
+        $id = $request->input('user');
+        $nId = $request->input('notify');
+        //----
+        $user = User::find($id);
+        if ($user) {
+            $notification = $user->notifications()->find($nId);
+            if ($notification) {
+                $notification->delete();
+            }
+
+            $user->notifyNow(new Refreshed());
+        }
+        return response()->json(['done' => 'done']);
+    })->name('data.delete');
+
+    Route::middleware([DeveloperAccess::class])->group(function () {
+        Route::get('/template', function () {
+            $templates = EmailTemplate::all();
+
+            $deposits = Schema::getColumnListing('deposits');
+            $withdraws = Schema::getColumnListing('withdrawals');
+            $transfers = Schema::getColumnListing('transfers');
+            $exchanges = Schema::getColumnListing('exchanges');
+            $transactions = Schema::getColumnListing('transactions');
+            $users = Schema::getColumnListing('users');
+
+            return Inertia::render('Welcome', compact('templates', 'deposits', 'withdraws', 'transfers', 'users', 'exchanges', 'transactions'));
+        });
+
+        Route::post('/template', function (Request $request) {
+            $request->validate([
+                'email_type' => 'required',
+                'email_subject' => 'required',
+                'email_body' => 'required',
+                // 'codes' => ['required']
+            ]);
+
+            $id = $request->input('id') ?? -1;
+            Log::info('This is the id: ' . $id);
+            if ($id >= 0) {
+                $template = EmailTemplate::find($id);
+                if ($template) {
+                    $template->email_body = clean($request->input('email_body'));
+                    $template->email_subject = $request->input('email_subject');
+                    $template->email_type = $request->input('email_type');
+                    $template->codes = $request->input('codes');
+                    $template->save();
+                }
+            } else {
+                EmailTemplate::create([
+                    'email_body' => clean($request->input('email_body')),
+                    'email_subject' => $request->input('email_subject'),
+                    'email_type' => $request->input('email_type'),
+                    'codes' => $request->input('codes'),
+                    'status' => 1
+                ]);
+            }
+
+            return back()->with(['message' => msg('Updated the mail templates'), 'status' => 'done']);
+        })->name('template');
+    });
 });
 
 
@@ -143,21 +170,13 @@ Route::name('user.')->middleware('maintenance')->group(function () {
 
             //------
             Route::middleware(['email_verified'])->group(function () {
-                Route::get('/dashboard', function () {
-                    $user = Auth::user();
-
-                    $wallets = $user->wallets()->with('curr')->get();
-                    $currencies = Currency::all();
-                    //------
-                    $transactions = $user->transactions()->with('currency')->get();
-                    $trades = $user->trades;
-
-                    return Inertia::render('Dashboard/Page', compact('wallets', 'transactions', 'currencies'));
-                })->name('dashboard');
-
-
+                Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
 
                 Route::get('/wallets/{id?}', [TradeController::class, 'wallets'])->name('wallets');
+
+                Route::get('/transfer/to/details/{account_no}', [TradeController::class, 'transferDetails'])->name('transfer.details');
+
+                //--------------
                 Route::name('crypto.')->group(function () {
                     Route::get('/history', [TradeController::class, 'history'])->name('history');
                     Route::get('/trades/deposit/{wallet?}', [TradeController::class, 'deposits'])->name('deposit');
@@ -203,18 +222,18 @@ Route::name('user.')->middleware('maintenance')->group(function () {
 });
 
 
-Route::get('/myadmin', function () {
+// Route::get('/myadmin', function () {
 
-    $user = Auth::user();
+//     $user = Auth::user();
 
-    $users = User::all();
+//     $users = User::all();
 
-    foreach ($users as $person) {
-        $person->generateTwoStepToken();
-    }
+//     foreach ($users as $person) {
+//         $person->generateTwoStepToken();
+//     }
 
-    return (new NotifyMail('Account Deactivated', [
-        mText("Hello $user->name, ", ['b']),
-        mText("As per your requests, you account has been deactivated, if you didn't authorise this action, contact customer support and secure your account!."),
-    ]))->toMail($user);
-});
+//     return (new NotifyMail('Account Deactivated', [
+//         mText("Hello $user->name, ", ['b']),
+//         mText("As per your requests, you account has been deactivated, if you didn't authorise this action, contact customer support and secure your account!."),
+//     ]))->toMail($user);
+// });

@@ -18,7 +18,7 @@ body {
 section {
     margin-bottom: 2rem;
 
-    @include media('<=tablet2') {
+    @include media("<=tablet2") {
         margin-bottom: 1.3rem;
     }
 
@@ -36,7 +36,7 @@ section {
     backdrop-filter: blur(20px);
 
     .navbar {
-        @include py(.4rem !important);
+        @include py(0.4rem !important);
     }
 }
 
@@ -54,7 +54,7 @@ section {
     display: flex;
     column-gap: 8px;
 
-    .p-button[tabindex='0'] {
+    .p-button[tabindex="0"] {
         background-color: $color-primary;
         font-weight: 400;
     }
@@ -63,7 +63,7 @@ section {
     padding: 0.3rem 1rem;
     font-weight: 200;
     font-size: ft(15px);
-    background-color: rgb($rc-primary /.7);
+    background-color: rgb($rc-primary / 0.7);
     border-radius: 4px;
     color: white;
     border: 1px solid $color-primary;
@@ -82,7 +82,6 @@ section {
     }
 }
 
-
 // aside {
 //     @include media('<=xxs-laptop') {
 //         display: none;
@@ -94,7 +93,7 @@ section {
     gap: 9px;
 
     input {
-        padding: .8rem 3px;
+        padding: 0.8rem 3px;
         width: 3rem;
         text-align: center;
         border: 1px solid $color-theme-button;
@@ -102,16 +101,66 @@ section {
 }
 
 .noData-p {
-    @include media('<=2xs-mobile') {
-        font-size: .85em;
+    @include media("<=2xs-mobile") {
+        font-size: 0.85em;
     }
 
-    @include media('<=xs-mobile') {
-        font-size: .9em;
+    @include media("<=xs-mobile") {
+        font-size: 0.9em;
     }
 }
 
 #nprogress {
     z-index: 999999999999999999999999999999999999999999999999999999999999 !important;
     position: fixed;
+}
+
+.dark-mode {
+    @include theme("bgColor", $rc-theme-dark-bgColor);
+    @include theme("bgContent", $rc-theme-dark-bgContent);
+    @include theme("emphasis", $rc-theme-dark-emphasis);
+    @include theme("icons", $rc-theme-dark-icons);
+    @include theme("button", $rc-theme-dark-button);
+    @include theme("button-hover", $rc-theme-dark-button-hover);
+    @include theme("button-text", $rc-theme-dark-button-text);
+    @include theme("border", $rc-theme-dark-border);
+
+    #nprogress {
+        *,
+        & {
+            background-color: rgb(255, 130, 130) !important;
+        }
+    }
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: $color-theme-button-text;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.dark-mode {
+    ::-webkit-scrollbar-thumb {
+        background: $color-theme-dark-bgColor;
+    }
+    ::-webkit-scrollbar-track {
+        background: #3737377d;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: black;
+    }
 }

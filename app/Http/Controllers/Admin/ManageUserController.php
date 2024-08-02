@@ -135,7 +135,8 @@ class ManageUserController extends Controller
                 'curr'  => $wallet->curr->code,
                 'trnx'  => $trnx->trnx,
                 'after_balance' => numFormat($wallet->balance, 8),
-                'date_time'  => dateFormat($trnx->created_at)
+                'date_time'  => dateFormat($trnx->created_at),
+                'user_id' => $user->id
             ], $user));
         }
 

@@ -35,7 +35,7 @@
                             </div>
                             <div class="form-group col-md-6">
                                 <label>@langg('Currency Name')</label>
-                                <input class="form-control" type="text" name="curr_name" required
+                                <input id="curr_name" class="form-control" type="text" name="curr_name" required
                                     value="{{ old('curr_name') }}">
                             </div>
                             <div class="form-group col-md-6">
@@ -68,6 +68,14 @@
                                     <div class="input-group-append">
                                         <div class="input-group-text curr_text"></div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label>@langg('Color')</label>
+                                <div class="input-group has_append">
+                                    <input type="color" class="form-control" placeholder="0" name="color"
+                                        value="{{ old('color') }}" />
                                 </div>
                             </div>
 
@@ -108,6 +116,42 @@
 @push('script')
     <script>
         'use strict';
+
+        const geckoCoins = JSON.parse("{{ $gecko_coins }}".replaceAll('&quot;', '"'));
+
+        const input = $('#curr_name');
+
+        function map(filtered) {
+            let inner = '';
+            filtered.forEach(item => {
+                inner +=
+                    `<option ${item.name.toLowerCase() === input.val().toLowerCase() ? 'selected' : ''} value='${item.code}'>${item.name} - <b>${item.symbol}</b></option>`;
+            });
+
+            return inner;
+        }
+
+        function filter(value) {
+            const others = [];
+            const filtered = geckoCoins.filter(item => {
+                let index = (item.symbol.indexOf(value));
+                if (index > 0) return false;
+                //---------
+
+                let name = input.val();
+
+                const starts = item.name.toLowerCase().startsWith(name.toLowerCase())
+                if (!starts) others.push(item);
+                return starts;
+            });
+
+            let inner = '';
+            if (filtered.length > 0) inner = map(filtered)
+            else inner = map(others);
+
+            $('.gecko_coins').html(inner);
+        }
+
         $('.type').on('change', function() {
             var value = $(this).find('option:selected').val()
             if ($('.code').val() == '') {
@@ -117,9 +161,19 @@
             if (value == 2) {
                 $('.default').attr('disabled', true)
                 $('.cur_code').text('1 ' + $('.code').val() + ' =')
-                $('.curr_text').text('{{ $gs->curr_code }}')
+                $('.curr_text').text('{{ $gs->curr_code }}');
 
                 var html = `
+                             <div class="form-group col-md-6">
+                                <label>@langg('Gecko ID')</label>
+                                <select class="form-control type" class='gecko_coins' name="gecko_id" required>
+                                    <option value="" selected>--@langg('Select Type')--</option>
+                                    @foreach ($gecko_coins as $coin)
+                                        <option value="{{ $coin->code }}">{{ $coin->name }} - {{ $coin->symbol }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                              <div class="input-group mb-3 col-xl-6">
                                 <label class="form-control-label">@langg('Exchange Charge') </label>
 
@@ -193,12 +247,15 @@
                                        `
                 $('.payments').html(html)
             }
+
             if (value == 1) {
                 $('.default').attr('disabled', false)
                 $('.cur_code').text('1 {{ $gs->curr_code }} =')
                 $('.curr_text').text($('.code').val())
                 $('.payments').children().remove()
             }
+
+            filter($('.code').val());
         })
         $('.code').on('keyup', function() {
             var type = $('.type').find('option:selected').val()
@@ -207,6 +264,10 @@
                 $('.curr_text').text(value)
             } else {
                 $('.cur_code').text('1 ' + $('.code').val() + ' =')
+            }
+
+            if ($('.geckco_coins')) {
+                filter(value);
             }
         })
 

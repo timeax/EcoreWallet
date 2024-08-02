@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Generalsetting;
 use App\Http\Controllers\Controller;
 use App\Jobs\NewCurrency;
+use App\Models\GeckoCoins;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
@@ -33,7 +34,8 @@ class ManageCurrencyController extends Controller
 
     public function addCurrency()
     {
-        return view('admin.currency.create');
+        $gecko_coins = GeckoCoins::all();
+        return view('admin.currency.create', compact('gecko_coins'));
     }
 
     public function store(Request $request)
@@ -42,6 +44,7 @@ class ManageCurrencyController extends Controller
             [
                 'icon'               => 'required_if:type,2|image|mimes:png,jpg,PNG,jpeg',
                 'curr_name'          => 'required',
+                'color'          => 'required',
                 'code'               => 'required|max:4',
                 'symbol'             => 'required|unique:currencies',
                 'rate'               => 'required|gt:0',
@@ -56,6 +59,7 @@ class ManageCurrencyController extends Controller
                 'exchange_charge_type'    => 'required_if:type,2',
                 'withdraw_limit_min' => 'required_if:type,2|gt:0',
                 'withdraw_limit_max' => 'required_if:type,2|gt:0',
+                'gecko_id' => 'required_if:type,2',
             ],
             [
                 'curr_name.required'              => 'Currency name is required.',
@@ -65,7 +69,7 @@ class ManageCurrencyController extends Controller
             ]
         );
 
-        $data = $request->only('icon', 'curr_name', 'code', 'symbol', 'rate', 'type', 'default', 'status');
+        $data = $request->only('icon', 'curr_name', 'code', 'color', 'symbol', 'rate', 'type', 'default', 'status', 'geckco_id');
 
         if ($request->default && $request->type != 2) {
             $default = Currency::where('default', 1)->firstOrFail();
@@ -101,8 +105,10 @@ class ManageCurrencyController extends Controller
 
     public function editCurrency($id)
     {
+        $gecko_coins = GeckoCoins::all();
+        ///
         $currency = Currency::findOrFail($id);
-        return view('admin.currency.edit', compact('currency'));
+        return view('admin.currency.edit', compact('currency', 'gecko_coins'));
     }
 
     public function updateCurrency(Request $request, $id)
@@ -111,13 +117,14 @@ class ManageCurrencyController extends Controller
             [
                 // '
                 'curr_name'          => 'required',
+                'color'              => 'required',
                 'code'               => 'required|max:4|unique:currencies,code,' . $id,
                 'symbol'             => 'required|unique:currencies,symbol,' . $id,
                 'rate'               => 'required|gt:0',
                 'type'               => 'required|in:1,2',
                 'default'            => 'required_if:type,1|in:1,0',
                 'status'             => 'required|in:1,0',
-                'exchange_charge'     => 'required_if:type,2|lt:100',
+                'exchange_charge'    => 'required_if:type,2|lt:100',
                 'deposit_charge'     => 'required_if:type,2|lt:100',
                 'withdraw_charge'    => 'required_if:type,2|lt:100',
                 'withdraw_charge_type'    => 'required_if:type,2',
@@ -125,6 +132,7 @@ class ManageCurrencyController extends Controller
                 'exchange_charge_type'    => 'required_if:type,2',
                 'withdraw_limit_min' => 'required_if:type,2|gt:0',
                 'withdraw_limit_max' => 'required_if:type,2|gt:0',
+                'gecko_id' => 'required_if:type,2',
             ],
             [
                 'curr_name.required'              => 'Currency name is required.',
@@ -138,7 +146,7 @@ class ManageCurrencyController extends Controller
             $request->validate(['icon' => 'required_if:type,2|image|mimes:png,jpg,PNG,jpeg']);
         }
 
-        $data = $request->only('curr_name', 'code', 'symbol', 'rate', 'type', 'default', 'status');
+        $data = $request->only('curr_name', 'code', 'color', 'symbol', 'rate', 'type', 'default', 'status', 'gecko_id');
         $curr = Currency::findOrFail($id);
         if ($request->default && $request->type != 2) {
             $defaultCurr = Currency::where('default', 1)->firstOrFail();

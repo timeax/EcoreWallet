@@ -1,7 +1,7 @@
 .textfield {
     background-color: transparent;
     border-radius: 4px;
-    border: 1px solid $color-theme-button-hover;
+    border: 1px solid $color-theme-border;
     width: 100%;
     @include px(0.6rem);
     @include py(0.4rem);
@@ -11,5 +11,16 @@
         box-shadow: 0px 0px 2px 1px rgb($rc-theme-button-text / 0.1);
         //---------
         border: 1px solid $color-theme-button-text;
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    &[type="number"] {
+        -moz-appearance: textfield;
     }
 }

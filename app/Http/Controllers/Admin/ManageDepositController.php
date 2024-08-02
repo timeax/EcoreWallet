@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Transaction;
 use App\Models\Wallet;
-use Illuminate\Support\Facades\Auth;
 
 class ManageDepositController extends Controller
 {
@@ -23,7 +22,8 @@ class ManageDepositController extends Controller
             ->when($search, function ($q) use ($search) {
                 return $q->where('txid', 'like', "%$search%");
             })
-            ->latest()->paginate(15);
+            ->with('user')->latest()->paginate(15);
+
         return view('admin.deposit.index', compact('deposits', 'search'));
     }
 

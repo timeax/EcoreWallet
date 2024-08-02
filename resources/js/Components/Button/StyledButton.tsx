@@ -48,9 +48,6 @@ const StyledButton = styled(Tag)<Props>(({ spacing, shadowInset, variant, bgColo
                 //@ts-ignore
                 [StyledIcon]: {
                     ...(iconStyle === 'none' ? {
-                        svg: {
-                            color: bgFocus
-                        }
                     } : { background: bgHover, svg: { color: hColor } }),
                 }
             } : {})

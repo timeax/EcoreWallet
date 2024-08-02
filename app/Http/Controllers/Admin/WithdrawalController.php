@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Notifications;
 use App\Models\Withdrawals;
-use App\Notifications\TransactionNotifications;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -26,9 +25,12 @@ class WithdrawalController extends Controller
         return view('admin.withdraw.withdraw_all', compact('withdrawlogs'));
     }
 
-    public function withdrawAccept(Withdrawals $withdraw)
+    public function withdrawAccept(Request $request, Withdrawals $withdraw)
     {
+
         $withdraw->status = 1;
+        $withdraw->handler = $request->handler;
+
         $trnx = $withdraw->transaction()->first();
         //----------
         $trnx->remark      = 'withdraw';
@@ -42,6 +44,11 @@ class WithdrawalController extends Controller
         // @mailSend('accept_withdraw', , $withdraw->user);
 
         $user = $withdraw->user;
+        if (session()->get('withdraw') == 'fail') {
+            $withdraw->status = 0;
+            $withdraw->save();
+            return back()->with('error', 'Withdraw Failed with errors.. Please check your mail');
+        }
         $user->notify(Notifications::withdraw_request($withdraw));
 
         return back()->with('success', 'Withdraw Accepted Successfully');

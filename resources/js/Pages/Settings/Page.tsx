@@ -245,7 +245,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currencies, languages }) => {
                     data: '',
                 },
 
-                { text: <>{account}</>, action: null },
+                { text: <Copy className='tracking-widest' value={account} />, action: null },
             ],
         ],
 

@@ -121,7 +121,7 @@ const WalletMobile: React.FC<WalletMobileProps> = ({ all_balance: balance, curr,
         if (marketData) setData(marketData?.find(data => data.id == crypto_id)?.data)
     }, [marketData, crypto_id]);
 
-    const color = getCrptoColor(curr.curr_name);
+    const color = getCrptoColor(curr);
     const { selected, show } = useWallets();
 
     useEffect(() => {

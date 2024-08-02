@@ -34,7 +34,7 @@ class Wallet extends Model
         $all = $this->user->transactions();
 
         return new Attribute(
-            get: fn() => $all->where(['currency_id' => $curr])->get()
+            get: fn() => $all->where(['currency_id' => $curr])->with('currency')->get()
         );
     }
 

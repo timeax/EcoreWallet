@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Notifications;
 use App\Models\Deposit;
+use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Withdrawals;
 use Illuminate\Http\Request;
 
 class CryptomusWebhookController extends Controller
@@ -37,8 +40,30 @@ class CryptomusWebhookController extends Controller
         ], ['status' => $status]);
     }
 
-    public function send(string $key, string $url_id, string $id)
+    public function send(string $key, string $url_id, string $id, Request $request)
     {
-        return ['status' => 'worked'];
+        $user = User::findOrFail($id);
+        $order_id = $request->get('order_id');
+        // $amount = $request->get('amount');
+        $status = getStatus($request->get('status'));
+        $txid = $request->get('txid');
+        /**
+         * @var Withdrawals
+         */
+        $withdrawal = Withdrawals::where(['ref' => $order_id])->firstOrFail();
+        $trans = Transaction::where(['ref' => $order_id])->first();
+        //---------
+        if ($status == 'pending') return;
+        if ($status == 'success') $withdrawal->status = 4;
+        else $withdrawal->status = 3;
+
+        $withdrawal->trx = $txid;
+        $withdrawal->save();
+        $trans->status = 'success';
+        $trans->trnx = $txid;
+        $trans->save();
+        //--------
+        $withdrawal->escrow()->delete();
+        $user->notify(Notifications::withdraw_request($withdrawal));
     }
 }

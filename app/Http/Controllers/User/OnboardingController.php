@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\User;
 
-use Inertia\Inertia;
-use App\Models\Admin;
 use App\Helpers\MediaHelper;
-use Illuminate\Http\Request;
-use App\Notifications\NotifyMail;
+use App\Helpers\Notifications;
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
+use App\Notifications\NotifyMail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Notifications\SystemNotification;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Inertia\Inertia;
 
 class OnboardingController extends Controller
 {
@@ -77,13 +76,7 @@ class OnboardingController extends Controller
         $user->kyc_status = 2;
         $user->save();
 
-        @$user->notify(new NotifyMail('KYC info submitted', [
-            mText("Hello $user->name"),
-            mText(""),
-            mText("Your KYC information has been submitted for review, you will be hearing from us soon"),
-        ]));
-
-        @$user->notify(new SystemNotification('Your KYC info has be submitted successfully.'));
+        @$user->notify(Notifications::kycSubmitted($user));
 
         return redirect(route('user.dashboard'))->with(message('KYC data has been submitted for review'));
     }

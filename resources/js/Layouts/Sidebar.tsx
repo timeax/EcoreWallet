@@ -4,16 +4,19 @@ import { getSidebar, Route } from '@routes/index';
 import { Link } from '@inertiajs/react';
 import logo from '@assets/images/icon.png';
 import dark from '@assets/images/logo1.png';
-import light from '@assets/images/logo1.png';
+import light from '@assets/images/logo2.png';
 import Tag from '@components/index';
 import { classNames } from 'primereact/utils';
+import { useTheme } from '@context/Theme';
 
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {
+    const { theme } = useTheme();
     //--- code here ---- //
     return (
         <div className={classNames(styles.main, { [styles.sidebarOpen]: open })}>
             <div className={styles.header}>
-                <Tag element={'img'} data-section={'img-open'} width={'170px'} src={dark} alt="" />,
+                <Tag element={'img'} data-section={'img-open'} width={'170px'} className={classNames({ '!hidden': theme !== 'light' })} src={dark} alt="" />
+                <Tag element={'img'} data-section={'img-open'} width={'170px'} className={classNames({'!hidden': theme !== 'dark'})} src={light} alt="" />
                 <Tag element={'img'} width={'30px'} data-section={'img-close'} src={logo} alt="" />
             </div>
             {/* <Button className='!bg-primary-800 w-fit !px-12 !rounded-[999px]'>Quick</Button> */}

@@ -66,7 +66,7 @@
 
 .sidebar {
     width: $sidebar-width-closed;
-    transition: all .5s ease-in-out .1s;
+    transition: width .5s ease-in-out .1s;
     position: fixed;
     left: 0px;
     height: 100vh;
@@ -121,7 +121,7 @@
     border-radius: 25px 25px 0px 0px;
     box-shadow: 0px 0px 8rem 1px rgba(128, 128, 128, 0.171);
 
-    @include media(">=lg-mobile") {
+    @include media(">=xs-tablet") {
         display: none;
     }
 }

@@ -6,7 +6,6 @@ use App\Models\Currency;
 use App\Models\HistoricalData;
 use App\Models\MarketData;
 use App\Models\Rate;
-use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
@@ -18,9 +17,10 @@ class DataController extends Controller
     public function market()
     {
         $ids = Currency::where(['type' => 2])->get(['id'])->toArray();
-        $count = count($ids);
-        $data = MarketData::whereIn('currency_id', $ids)->latest()->take($count)->get();
+        // $count = count($ids);
+        $data = MarketData::whereIn('currency_id', $ids)->get();
         //----
+
         return response()->json($data);
     }
 

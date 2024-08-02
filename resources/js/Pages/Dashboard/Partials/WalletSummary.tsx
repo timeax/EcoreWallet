@@ -96,8 +96,8 @@ const WalletSummary: React.FC<WalletSummaryProps> = ({ history, wallet }) => {
                 </div>
 
                 <div className="flex mt-6">
-                    <Button shape='pill'>Deposit {wallet.curr.code}</Button>
-                    <Button variant='none'>Withdraw {wallet.curr.code}</Button>
+                    <Button href={route(routeById('fund').route, { wallet: wallet.curr.code })} shape='pill'>Deposit {wallet.curr.code}</Button>
+                    <Button href={route(routeById('withdraw').route, { wallet: wallet.curr.code })} variant='none'>Withdraw {wallet.curr.code}</Button>
                 </div>
             </Card>
         </section>
@@ -120,14 +120,14 @@ export const Total: React.FC<TotalProps> = ({ icon, label, value, color = 'theme
                         bgColor={color}>{icon}</IconButton>
                 </div>
                 <div className='flex flex-col gap-1'>
-                    <Title noPad bold>{label}</Title>
+                    <Title bright noPad bold>{label}</Title>
                     <Title className='text-ellipsis overflow-clip relative' noPad xl>{symbol} <CurrencyFormat
                         value={value}
                         displayType="text"
                         thousandSeparator
                         renderText={value => <span>{value}</span>}
                     /></Title>
-                    <Title noPad sm>{calc.round(data?.data.price_change_percentage_24h || '0', 2)}%</Title>
+                    <Title brighter noPad sm>{calc.round(data?.data.price_change_percentage_24h || '0', 2)}%</Title>
                 </div>
             </div>
         </Card>

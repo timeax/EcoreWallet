@@ -4,7 +4,7 @@ import { Avatar } from "primereact/avatar";
 import { BiSupport } from "react-icons/bi";
 import { tkll, tkvd } from "./data";
 import { Title } from "@components/Trade";
-import Card from "@components/Card";
+import Card, { UICard, UICHeader } from "@components/Card";
 import Button from "@components/Button";
 import { FaInfo } from "react-icons/fa";
 import { classNames } from "primereact/utils";
@@ -21,7 +21,7 @@ function title({ title, info }) {
     const className = `title-${title.replace(/[^A-Z0-9]+/ig, "_")}`;
     return (
         <div className="n-d-box">
-            <Title noPad bright className="name gap-2">
+            <Title noPad md className="name gap-2">
                 {title}
                 {showIf(info, <>
                     <Tooltip target={`.${className}`} />
@@ -33,7 +33,7 @@ function title({ title, info }) {
                         className={classNames("title-info", className)}><FaInfo /></span>
                 </>)}
             </Title>
-            <Title noPad bright light normal className="info">{info}</Title>
+            <Title sm noPad bright light normal className="info">{info}</Title>
         </div>
     );
 }
@@ -88,10 +88,11 @@ function contentRow(arr: any[], isPhone) {
 /**Bounded Boxes in Settings & Security Views */
 export function mxbox({ header, body, isPhone }: MBxParams) {
     return (
-        <Card container="mxbxz">
-            <Title noPad xl bold>{header}</Title>
+        <UICard container="mxbxz" header={
+            <UICHeader title={header} />
+        }>
             <div className="body">{body.map((row) => contentRow(row, isPhone))}</div>
-        </Card>
+        </UICard>
     );
 }
 

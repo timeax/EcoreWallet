@@ -66,6 +66,7 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({ childr
             if (value.includes('exchange')) return Exchange(data);
             if (value.includes('withdraw')) return Withdraw(data);
             if (value.includes('transfer')) return Transfers(data);
+            return TransactionUi(data)
         }
     }
 
@@ -104,7 +105,7 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({ childr
                 setData(value)
             }
         }}>
-            <Sidebar position="right" header={header} visible={!!data} onHide={() => setData(null)}>
+            <Sidebar className="!bg-theme-bgColor" position="right" header={header} visible={!!data} onHide={() => setData(null)}>
                 {view(data as any)}
             </Sidebar>
             {children}
@@ -272,6 +273,71 @@ const transfers: Array<{
 
 const Transfers = (data: TransactionData) => {
     return display(transfers, data);
+}
+
+const transactions: Array<{
+    key: keyof Transaction;
+    name: string,
+    render?(value?: any): React.ReactNode
+}> = [
+        {
+            key: 'status',
+            name: 'Status',
+            render(value) {
+                return <Status stats={value} value={value} />
+            },
+        },
+
+        {
+            name: 'Date',
+            key: 'updated_at',
+            render(value) {
+                const date = getDate(value);
+                return <Title className="flex items-center gap-2"><span>{date.localTime}</span> {date.time}</Title>
+            },
+        },
+
+        {
+            key: 'amount',
+            name: 'Amount'
+        },
+
+        {
+            key: 'currency',
+            name: 'Coin',
+            render(value) {
+                return <Title noPad>{value.code}</Title>
+            },
+        },
+
+        {
+            name: 'Transaction Fees',
+            key: 'charge',
+            render(value) {
+                if (value <= 0) return <Title noPad>No Fees</Title>
+                return <Title noPad>{value}</Title>
+            },
+        },
+
+        {
+            name: 'Transaction ID',
+            key: 'trnx',
+            render(value) {
+                return <Copy value={value} />
+            },
+        },
+
+        {
+            name: 'Ref',
+            key: 'ref',
+            render(value) {
+                return <Copy value={value.transaction_id} />
+            },
+        }
+    ];
+
+const TransactionUi = (data: TransactionData) => {
+    return display(transactions, data);
 }
 
 const exchangeKeys: Array<{
@@ -489,12 +555,12 @@ const Deposit = (data: TransactionData) => {
 
 
 
-export const Copy: React.FC<CopyProps> = ({ value }) => {
+export const Copy: React.FC<CopyProps> = ({ value, className = '' }) => {
     //--- code here ---- //
     const notify = useNotify();
     return (
         <div className="flex gap-3 items-center">
-            <Title noPad>
+            <Title noPad className={className}>
                 <Truncate width={150} ellipsis={<span>...</span>}>
                     {value}
                 </Truncate>
@@ -511,7 +577,8 @@ export const Copy: React.FC<CopyProps> = ({ value }) => {
 
 
 interface CopyProps {
-    value: any
+    value: any;
+    className?: string
 }
 
 

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Generalsetting;
+use App\Models\Transaction;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -19,11 +20,13 @@ class EnsureValidWebhook
     public function handle(Request $request, Closure $next): Response
     {
         //Make sure the IP is from Cryptomus
-        $header = 'X-Forwarded-For';
+        $ip = $request->ip();
+
         if (
-            !$request->hasHeader($header)
-            || $request->header($header) !== env('CRYPTOMUS_IP')
-        ) return response('Wrong Request', 419);
+            !$ip || $ip !== env('CRYPTOMUS_IP')
+        ) {
+            return response('Wrong Request', 419);
+        }
 
         //-------- Verify Signature
         $sign = $request->get('sign');
@@ -35,6 +38,7 @@ class EnsureValidWebhook
         $hash = md5(base64_encode(json_encode($data, JSON_UNESCAPED_UNICODE)) . env($type === 'payment' ? 'PAYMENT_KEY' : 'PAYOUT_KEY'));
         //--------
         if ($hash !== $sign) return response('Wrong Request', 419);
+
         //------------ Check the url tokens
         $sysKey = $request->route('key');
         $url_id = $request->route('url_id');
@@ -48,6 +52,12 @@ class EnsureValidWebhook
         if ($sysKey !== $gs->webhook_uuid) return response('Wrong Request', 419);
 
         $user->addresses()->where(['url_id' => $url_id])->firstOrFail();
+
+        $uuid = $request->get('type') == 'payout'
+            ? $request->get('order_id')
+            : $request->get('uuid');
+        //------------
+        if (Transaction::where(['ref' => $uuid, 'status' => 'success'])->exists()) return response('Wrong Request', 419);
 
         return $next($request);
     }

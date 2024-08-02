@@ -63,7 +63,7 @@ export const Total: React.FC<TotalProps> = ({ change, icon, label, value, color 
                 </div>
                 <div className='flex flex-col grow gap-1'>
                     <div className='flex justify-between'>
-                        <Title noPad bold>{label}</Title>
+                        <Title bright noPad bold>{label}</Title>
                     </div>
                     <Title className='text-ellipsis' noPad xl>{currency?.symbol}
                         <CurrencyFormat

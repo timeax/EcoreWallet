@@ -2,13 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Events\LivePriceUpdater;
 use App\Models\Admin;
 use App\Models\Currency;
 use App\Models\HistoricalData;
 use App\Models\MarketData;
 use App\Notifications\Mail;
-use App\Notifications\SystemNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -28,6 +26,8 @@ class UpdateCryptoPrices implements ShouldQueue
     /**
      * Create a new job instance.
      */
+    private string $key = '';
+
     public array $data = [];
     public string $names;
     public array $store = [];
@@ -35,6 +35,7 @@ class UpdateCryptoPrices implements ShouldQueue
     public function __construct(public string $type, public array $rates = [])
     {
         //
+        $this->key = env('GECKO_KEY');
         $this->run($type);
     }
 
@@ -56,16 +57,18 @@ class UpdateCryptoPrices implements ShouldQueue
     {
         //------
         if ($type == 'historical-data') {
-            $this->store = Currency::where(['type' => 2])->take(35)->get()->map(function ($curr) {
-                $name = $curr->curr_name;
+            Currency::where(['type' => 2])->take(35)->get()->map(function ($curr) {
+                $name = $curr->gecko_id;
                 $name = Str::lower($name);
-                return ['name' => Str::remove(' ', $name), 'id' => $curr->id];
-            })->toArray();
+
+                $this->store = Arr::add($this->store, $name, $curr->id);
+            });
+
+            // Log::info(json_encode($this->store));
         } else {
             $names = Arr::join(Currency::where(['type' => 2])->get()->map(function ($curr) {
-                $name = $curr->curr_name;
+                $name = $curr->gecko_id;
                 $name = Str::lower($name);
-                $name = Str::remove(' ', $name);
                 //------
                 $this->store = Arr::add($this->store, $name, $curr->id);
                 return $name;
@@ -84,12 +87,10 @@ class UpdateCryptoPrices implements ShouldQueue
         if ($this->type === 'market-data') {
             $this->http(Http::withHeaders([
                 'accept' => 'application/json',
-                'x-cg-demo-api-key' => 'CG-AehBGrm1z687tSxFmWz4RRNb',
+                'x-cg-demo-api-key' => $this->key,
             ])->get($this->href));
         } else {
-            foreach ($this->store as $coin) {
-                $id = $coin['id'];
-                $name = $coin['name'];
+            foreach ($this->store as $name => $id) {
                 //---
                 $num = HistoricalData::where(['currency_id' => $id])->count();
                 $days = 1;
@@ -99,24 +100,24 @@ class UpdateCryptoPrices implements ShouldQueue
                 //-----------
                 $this->http(Http::withHeaders([
                     'accept' => 'application/json',
-                    'x-cg-demo-api-key' => 'CG-AehBGrm1z687tSxFmWz4RRNb',
-                ])->get($href), $id);
+                    'x-cg-demo-api-key' => $this->key,
+                ])->get($href), $id, $name);
             }
         }
     }
 
-    protected function http(ClientResponse $response, $id = null)
+    protected function http(ClientResponse $response, $id = null, $name = '')
     {
         if ($response->ok()) {
             $data = $response->json();
-
             //-----------
             if ($this->type === 'market-data') {
                 foreach ($data as $coin) {
                     $id = $this->store[$coin['id']];
                     //------
-                    MarketData::create([
+                    MarketData::updateOrCreate([
                         'currency_id' => $id,
+                    ], [
                         'data' => json_encode($coin)
                     ]);
                 }
@@ -130,6 +131,9 @@ class UpdateCryptoPrices implements ShouldQueue
         } else if ($response->tooManyRequests()) {
             $admins = Admin::where(['role' => 'admin'])->get();
             Notification::send($admins, new Mail('Coingecko Limit exceeded', 'You have exceeded the api call limitations on coin gekco, sign in to the account and check or call your developer'));
+        } else {
+            Log::info($name);
+            Log::info($response->body());
         }
     }
 }

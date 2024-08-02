@@ -180,7 +180,7 @@ class User extends Authenticatable
             $exist = $this->wallets()->where('crypto_id', $curr->id)->first();
             if (!$exist) {
                 Wallet::create([
-                    'user_id' => auth()->id(),
+                    'user_id' => $this->id,
                     'crypto_id' => $curr->id,
                     'balance' => 0
                 ]);

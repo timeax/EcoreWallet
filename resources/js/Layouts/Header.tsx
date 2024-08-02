@@ -3,9 +3,7 @@ import layout from '@styles/layout/index.module.scss';
 import { classNames } from 'primereact/utils';
 import { useAuth, useNotify, useWrapper } from '@context/AuthenticatedContext';
 import { Title } from '@components/Trade';
-import ClassicSections from './ClassicSections';
 import IconButton from '@components/Button/IconButton';
-import { CiSearch } from 'react-icons/ci';
 import { FiBell } from 'react-icons/fi';
 import { MdOutlineDarkMode, MdOutlineLightMode } from 'react-icons/md';
 import { Avatar } from 'primereact/avatar';
@@ -14,65 +12,105 @@ import Dropdown from '@components/Dropdown';
 import styles from '@styles/layout/header.module.scss';
 import { CgMenuMotion } from 'react-icons/cg';
 import Tag from '@components/index';
-import { routeById } from '@routes/index';
-import { router, useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import Notify from '@widgets/Notification';
 import { FaCog, FaLock, FaSignOutAlt } from 'react-icons/fa';
 import { AiOutlineProfile } from 'react-icons/ai';
 import { Notifications, User } from '@typings/index';
 import { Badge } from 'primereact/badge';
+import Select from '@components/Trade/Select';
+import Button from '@components/Button';
+import { useNotifications } from '@context/Notifications';
 
 const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) => {
     //--- code here ---- //
-    const { onChange, user, } = useWrapper();
-    const [notification, setNotification] = useState<Notifications[]>([]);
+    const { onChange, user, theme, setTheme } = useWrapper();
     // console.log(notifications, user)
+    const { show, unread: notification } = useNotifications();
     //--------
     const notify = useNotify();
     const ref = useRef<HTMLElement>();
+    const watch = useRef<HTMLElement>();
     //---------
     const scrollEvent = function (event?: Event) {
-        if(ref.current) {
-            // console.log(ref.current.getBoundingClientRect().y)
+        if (ref.current && watch.current) {
+            const header = ref.current;
+            const anchor = watch.current;
+
+            // console.log(window.scrollY)
+
+            const { width, x } = header.getBoundingClientRect();
+            const { y } = anchor.getBoundingClientRect();
+
+            // console.log(y)
+
+            if (y <= -100) {
+                if (header.classList.contains(styles.sticky)) return;
+                header.classList.add(styles.sticky);
+                header.style.width = width + 'px';
+                header.style.left = x + 'px';
+                header.style.position = 'fixed'
+            } else {
+                if (!header.classList.contains(styles.sticky)) return;
+                header.classList.remove(styles.sticky);
+                header.removeAttribute('style');
+            }
         }
     }
 
-    useEffect(() => {
-        onChange('notifications', e => {
-            // console.log(e.data)
-            setNotification(e.data);
-            if (e.event !== 'user.notify') {
-                notify({ closable: true, summary: 'New notification', severity: 'info' })
-            }
-        });
+    const themes = [
+        {
+            label: MdOutlineLightMode,
+            value: 'light'
+        } as const,
 
+        {
+            label: MdOutlineDarkMode,
+            value: 'dark'
+        } as const
+    ];
+
+    useEffect(() => {
         scrollEvent();
 
+        var id: any;
         window.addEventListener('wheel', scrollEvent);
+        window.addEventListener('resize', (e) => {
+            if (ref.current?.classList.contains(styles.sticky)) {
+                ref.current.classList.remove(styles.sticky);
+                ref.current.removeAttribute('style');
+            }
 
-        return () => window?.removeEventListener?.('resize', scrollEvent);
+            clearTimeout(id);
+            id = setTimeout(scrollEvent, 500);
+        });
+
     }, []);
 
     return (
-        <header
-            //@ts-ignore
-            ref={ref}
-            className={classNames(`flex items-center justify-between relative`)}>
-            <div className={classNames(layout.container, 'justify-center')}>
-                <div className={styles.headernav}>
-                    <div className={classNames("items-center", styles.titlebar)}>
-                        <Tag className={styles.menuButton} element='div' onClick={() => toggleSidebar()}>
-                            <CgMenuMotion />
-                        </Tag>
-                        <div className='flex items-center '>
-                            <Title noPad xl4>{title}</Title>
-                            {/*showIf(desc, <Title noPad bright className={styles.desc}>{desc}</Title>) */}
+        <>
+            <div
+                //@ts-ignore
+                ref={watch} className='relative top-0 left-0'></div>
+            <header
+                //@ts-ignore
+                ref={ref}
+                className={classNames(`flex items-center justify-between relative`)}>
+                <div className={classNames(layout.container, 'justify-center')}>
+                    <div className={styles.headernav}>
+                        <div className={classNames("items-center", styles.titlebar)}>
+                            <Tag className={styles.menuButton} element='div' onClick={() => toggleSidebar()}>
+                                <CgMenuMotion />
+                            </Tag>
+                            <div className='flex items-center '>
+                                <Title noPad xl4>{title}</Title>
+                                {/*showIf(desc, <Title noPad bright className={styles.desc}>{desc}</Title>) */}
+                            </div>
+                            <div className={classNames('flex items-center', { 'mb-3': Boolean(desc) })}>{showIf(header, header)}</div>
                         </div>
-                        <div className={classNames('flex items-center', { 'mb-3': Boolean(desc) })}>{showIf(header, header)}</div>
-                    </div>
 
-                    <div className={classNames('flex items-center justify-end', styles.nav)}>
-                        {/* <div className={styles.search}>
+                        <div className={classNames('flex items-center justify-end', styles.nav)}>
+                            {/* <div className={styles.search}>
                             <IconButton
                                 bgColor='theme'
                                 shape='circle'
@@ -83,75 +121,95 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
                                 <CiSearch />
                             </IconButton>
                         </div> */}
-                        <div className='flex gap-12 ml-auto items-center'>
-                            <div className='flex gap-4 items-center'>
-                                <IconButton
-                                    bgColor='primary'
-                                    shape='icon'
-                                    size='16px'
-                                    variant='contained'
-                                    data-section='icon'
-                                    className={styles.themeBtn}
-                                >
-                                    <MdOutlineDarkMode />
-                                    <span>|</span>
-                                    <MdOutlineLightMode />
-                                </IconButton>
-                            </div>
+                            <div className='flex gap-12 ml-auto items-center'>
+                                <div className='flex gap-4 items-center'>
+                                    <Select
+                                        items={themes}
+                                        contentTemplate={(Props) => {
+                                            return <IconButton
+                                                bgColor='primary'
+                                                shape='icon'
+                                                size='16px'
+                                                variant='contained'
+                                                data-section='icon'
+                                                className={styles.themeBtn}
+                                            ><Props.label /></IconButton>
+                                        }}
 
-                            <div className='flex gap-4 items-center'>
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <IconButton
-                                            className='relative'
-                                            bgColor='primary'
-                                            shape='icon'
-                                            size='18px'
-                                            variant='contained'
-                                            data-section='icon'
-                                        >
-                                            <FiBell />
-                                            <Badge className={classNames('absolute  right-1 top-1 p-1 rounded-full', {
-                                                'bg-danger-600': notification.length > 0
-                                            })} value={''}>
-                                            </Badge>
-                                        </IconButton>
-                                    </Dropdown.Trigger>
-                                    <Dropdown.Content width={classNames(styles.notifications)}>
-                                        {showIf(notification.length > 0, (
-                                            <>
-                                                {notification.map(item => {
-                                                    return <Dropdown.Link key={item.id} onClick={() => {
-                                                        setNotification(notification.filter(n => n.id !== item.id));
-                                                        window.axios.post(route('data.mark.as.read'), {
-                                                            notify: item.id,
-                                                            user: user.id
-                                                        });
-                                                    }}>
-                                                        {/* @ts-ignore */}
-                                                        <Notify data={item.data.text || item.data.content} date={item.created_at} title={item.type} />
+                                        onSelect={(e) => setTheme(e.value.value)}
+                                        unique='value'
+                                        quick
+                                        trigger='hidden'
+                                        value={themes.find(item => item.value == theme)}
+                                        content='!w-fit mt-5'
+                                        menuGap={15}
+                                        marker='dot'
+                                        menuItemTemplate={(Props) => {
+                                            return <div className='items-center gap-1 flex w-fit'>
+                                                <Props.label />
+                                                <Title md caps noPad>{Props.value}</Title>
+                                            </div>
+                                        }}
+                                    />
+                                </div>
+
+                                <div className='flex gap-6 items-center'>
+                                    <Dropdown>
+                                        <Dropdown.Trigger>
+                                            <IconButton
+                                                className='relative'
+                                                bgColor='primary'
+                                                shape='icon'
+                                                size='18px'
+                                                variant='contained'
+                                                data-section='icon'
+                                            >
+                                                <FiBell />
+                                                <Badge className={classNames('absolute  right-1 top-1 p-1 rounded-full', {
+                                                    'bg-danger-600': notification.length > 0
+                                                })} value={''}>
+                                                </Badge>
+                                            </IconButton>
+                                        </Dropdown.Trigger>
+                                        <Dropdown.Content width={classNames(styles.notifications)}>
+                                            {showIf(notification.length > 0, (
+                                                <>
+                                                    {notification.map(item => {
+                                                        return <Dropdown.Link key={item.id} onClick={() => {
+                                                            // setNotification(notification.filter(n => n.id !== item.id));
+                                                            window.axios.post(route('data.mark.as.read'), {
+                                                                notify: item.id,
+                                                                user: user.id
+                                                            });
+                                                        }}>
+                                                            {/* @ts-ignore */}
+                                                            <Notify data={item.data.text || item.data.content} props={item.data.props} date={item.created_at} title={item.type} />
+                                                        </Dropdown.Link>
+                                                    })}
+                                                    <Dropdown.Link className='!py-1 border-t border-t-theme-border'>
+                                                        <div className='flex items-center cursor-pointer'>
+                                                            <Title onClick={() => {
+                                                                // setNotification([]);
+                                                                window.axios.post(route('data.mark.as.read'), {
+                                                                    notify: '*',
+                                                                    user: user.id
+                                                                })
+                                                            }} normal className='grow' lg bright>Mark all as read </Title>
+                                                            <Button className='hover:!text-theme-button-hover' variant='none' size='sm' onClick={e => show()}>See all</Button>
+                                                        </div>
                                                     </Dropdown.Link>
-                                                })}
-                                                <Dropdown.Link onClick={() => {
-                                                    setNotification([]);
-                                                    window.axios.post(route('data.mark.as.read'), {
-                                                        notify: '*',
-                                                        user: user.id
-                                                    })
-                                                }} className='!py-1 border-t'>
-                                                    Mark all as read
-                                                </Dropdown.Link>
-                                            </>
-                                        ), <Title normal lg bright>No new notifications</Title>)}
-                                    </Dropdown.Content>
-                                </Dropdown>
-                                <UserWidget />
+                                                </>
+                                            ), <Title normal className='justify-between w-full' lg bright>No new notifications <Button className='hover:!text-theme-button-hover' variant='none' size='sm' onClick={e => show()}>See all</Button></Title>)}
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                    <UserWidget />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
+        </>
     );
 }
 
@@ -168,7 +226,7 @@ const UserWidget: React.FC<UserWidgetProps> = () => {
     return (
         <Dropdown className={styles.user}>
             <Dropdown.Trigger>
-                <div className='flex gap-1 cursor-pointer'>
+                <div className='flex gap-2 cursor-pointer'>
                     <Avatar shape='circle' icon={showIf(user.photo, (
                         <img src={assets(user.photo)} />
                     ), <>{last.charAt(0).toUpperCase()}</>)} style={{ backgroundColor: 'rgb(var(--color-primary-800))', color: '#ffffff' }} />

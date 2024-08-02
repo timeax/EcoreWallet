@@ -30,8 +30,8 @@
     color: white;
 
     @include media("<=lg-mobile") {
-        color: black;
         font-weight: 600;
+        color: $color-theme-emphasis;
         font-size: ft(26px);
     }
 }
@@ -44,8 +44,8 @@
     }
 
     @include media("<=lg-mobile") {
-        background-color: white;
-        box-shadow: 0px 1px 1rem 1px rgba(190, 190, 190, 0.055);
+        background-color: $color-theme-bgColor;
+        box-shadow: 0px 1px 1rem 1px rgba(43, 43, 43, 0.055);
         border-radius: 20px;
     }
 }

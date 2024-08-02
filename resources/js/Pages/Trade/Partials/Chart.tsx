@@ -12,6 +12,7 @@ import { classNames } from 'primereact/utils';
 import { Title } from '@components/Trade';
 import { ApexOptions } from 'apexcharts';
 import { Percent } from '@components/index';
+import Color from 'color'
 
 
 const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
@@ -34,7 +35,7 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
 
     useEffect(() => {
         setTime(timeData.find(item => item.label.toLowerCase() == range)?.value || 'today');
-        setColor(getCrptoColor(initV?.curr.curr_name || ''))
+        setColor(getCrptoColor(initV?.curr as any))
     }, []);
 
     useEffect(() => {
@@ -45,7 +46,7 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
         if (!wallet) return;
         setHistoricalId?.(wallet.curr.id);
         //---
-        setColor(getCrptoColor(wallet?.curr.curr_name))
+        setColor(getCrptoColor(wallet?.curr))
     }, [wallet])
 
     useEffect(() => {
@@ -58,7 +59,7 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
 
     useEffect(() => {
         if (!historicalData) return;
-        let colorValue = color || getCrptoColor(initV?.curr.curr_name || '');
+        let colorValue = color || getCrptoColor(initV?.curr);
 
         setChartData([{
             name: `1 ${wallet?.curr.code}`,
@@ -71,6 +72,7 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
                 height: 300,
                 width: '100%',
                 stacked: false,
+
                 zoom: {
                     type: 'x',
                     enabled: true,
@@ -98,6 +100,10 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
             stroke: {
                 width: 1,
                 colors: [colorValue]
+            },
+
+            grid: {
+                borderColor: Color('grey').fade(.95).string()
             },
 
             fill: {
@@ -179,16 +185,16 @@ const WalletChart: React.FC<ChartProps> = ({ wallet: initV }) => {
 
                             <div data-section='stats-2' className="grid">
                                 <Info title='Volume (24H)'>
-                                    {nFormatter(mData?.total_volume || 0, 2)}
+                                    {nFormatter(mData?.total_volume || '...', 2)}
                                 </Info>
                                 <Info title='Market Cap'>
-                                    {nFormatter(mData?.market_cap || 0, 2)}
+                                    {nFormatter(mData?.market_cap || '...', 2)}
                                 </Info>
                                 <Info title='Circulating Supply'>
-                                    {nFormatter(mData?.circulating_supply || 0, 2)}
+                                    {nFormatter(mData?.circulating_supply || '...', 2)}
                                 </Info>
                                 <Info title='Max Supply'>
-                                    {nFormatter(mData?.max_supply || 0, 2)}
+                                    {nFormatter(mData?.max_supply || '...', 2)}
                                 </Info>
                             </div>
                         </div>

@@ -2,16 +2,14 @@
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
 import { Currencies, Deposits, Exchanges, PageProps, Transaction, Transactions, Transfer, Withdrawals } from '@typings/index';
 import React, { useState, useEffect, useRef } from 'react';
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { styles } from '@assets/theme/transaction';
 import CryptoIcon from '@components/CryptoIcon';
 import { Title } from '@components/Trade';
-import Button from '@components/Button';
 import { Total } from '@pages/Dashboard/Partials/BalanceSummary';
 import { TbTransactionDollar } from 'react-icons/tb';
-import { TiExport, TiStarFullOutline } from 'react-icons/ti';
+import { TiStarFullOutline } from 'react-icons/ti';
 import { MdError } from 'react-icons/md';
 import Select from '@components/Trade/Select';
 import { TransactionIcon } from '@pages/Dashboard/Partials/HistorySection';
@@ -22,7 +20,7 @@ import calc from 'number-precision';
 import { classNames } from 'primereact/utils';
 import { getDate, lower, showIf } from '@assets/fn';
 import "@hassanmojab/react-modern-calendar-datepicker/lib/DatePicker.css";
-import { OverlayPanel, OverlayPanelState } from 'primereact/overlaypanel';
+import { OverlayPanel } from 'primereact/overlaypanel';
 import { Calendar, DayRange, utils } from '@hassanmojab/react-modern-calendar-datepicker';
 import NoData from '@widgets/NoData';
 
@@ -148,7 +146,7 @@ const History: React.FC<HistoryProps> = ({ auth, transactions, ...props }) => {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            title='transactions'
+            title='Transactions'
             pusher={true}
             {...props}
             desc='Take a look at all you transactions'
@@ -171,7 +169,8 @@ const History: React.FC<HistoryProps> = ({ auth, transactions, ...props }) => {
                                 items={filterStatus}
                                 onSelect={(e) => setFilter((filter) => ({ ...filter, status: e.value.value }))}
                                 quick
-                                content='min-w-fit w-fit'
+                                menuGap={16}
+                                content='!w-fit'
                             />
                             <Select
                                 unique='value'
@@ -180,7 +179,8 @@ const History: React.FC<HistoryProps> = ({ auth, transactions, ...props }) => {
                                 menuItemTemplate={(e) => <Title>{e.label}</Title>}
                                 items={filterCategory}
                                 quick
-                                content='min-w-fit w-fit'
+                                menuGap={16}
+                                content='!w-fit'
                                 onSelect={(e) => setFilter((filter) => ({ ...filter, category: e.value.value }))}
                             />
                         </div>
@@ -201,25 +201,8 @@ const History: React.FC<HistoryProps> = ({ auth, transactions, ...props }) => {
                                 />
                             </OverlayPanel>
                         </div>
-                        {/* <Button variant='none' className='!leading-3 !p-0' iconSize='20px' size='normal' spacing='2px' icon={<TiExport />}>Export</Button> */}
                     </div>
-                    {/* <div className={css.dateRangeMobile}>
-                        <Title noPad className='cursor-pointer gap-2' onClick={e => calender.current?.toggle(e)}>Date: {showIf(selectedRange.from && selectedRange.to, (
-                            <div className='flex gap-2'>
-                                <span>{formatDate(selectedRange.from)}</span>
-                                -
-                                <span>{formatDate(selectedRange.to)}</span>
-                            </div>
-                        ), 'All time')}</Title>
-                        <OverlayPanel ref={calender as any}>
-                            <Calendar
-                                value={selectedRange}
-                                onChange={setSelectedRange}
-                                maximumDate={utils().getToday()}
-                                shouldHighlightWeekends
-                            />
-                        </OverlayPanel>
-                    </div> */}
+
                 </div>
                 <TransactionProvider {...props}>
                     <Page history={data} />

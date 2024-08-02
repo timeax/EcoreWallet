@@ -5,13 +5,16 @@ namespace App\Jobs;
 use App\Models\Currency;
 use App\Models\Exchange;
 use App\Models\Generalsetting;
+use App\Models\HistoricalData;
 use App\Models\Rate;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Arr;
 
 class UpdateExchangeRates implements ShouldQueue
 {
@@ -39,8 +42,7 @@ class UpdateExchangeRates implements ShouldQueue
 
     private function addHistoricalData(array $rates = [])
     {
-        if(count($rates) > 0) {
-
+        if (count($rates) > 0) {
         }
     }
 
@@ -56,7 +58,8 @@ class UpdateExchangeRates implements ShouldQueue
             $response = Http::get($this->buildLink($code));
             //---------
             if ($response->ok()) {
-                $data = json_encode($response['result']);
+                $raw = $response['result'];
+                $data = json_encode($raw);
 
                 if (Exchange::where(['status' => 'pending', 'to' => $curr->id])->count() > 0)
                     ExchangeLimitProcessor::dispatch(['id' => $curr->id, 'rates' => $data]);
@@ -71,6 +74,27 @@ class UpdateExchangeRates implements ShouldQueue
                     'charges' => $rate,
                     'rates' => $data
                 ]);
+
+                $historical = HistoricalData::where(['currency_id' => $curr->id])->latest()->first();
+                if (!$historical) UpdateCryptoPrices::dispatch('historical-data');
+                else {
+                    $data = json_decode($historical->data);
+                    $list = Arr::where($raw, function ($data) {
+                        return $data['to'] == Currency::where(['default' => 1])->first()->code;
+                    });
+
+
+                    if (count($list)) {
+                        //---
+                        $live = isset($data->live) ? $data->live :  [];
+                        //------
+                        $live[] =  [strtotime('now'), Arr::first($list)['course']];
+                        $data->live = $live;
+                    }
+
+                    $historical->data = json_encode($data);
+                    $historical->save();
+                }
             }
         })->toArray();
     }

@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Notifications\NotifyMail;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
+use App\Helpers\Notifications;
 use App\Http\Controllers\Controller;
 use App\Models\KycForm;
-use App\Models\Merchant;
 use App\Models\User;
-use App\Notifications\SystemNotification;
+use App\Notifications\NotifyMail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class KycManageController extends Controller
 {
@@ -114,15 +113,7 @@ class KycManageController extends Controller
         $info->kyc_reject_reason = $request->reason;
         $info->update();
 
-        @$info->notify(new NotifyMail('KYC info rejected', [
-            mText(__("Hello $info->name")),
-            mText(__("Your KYC information has been rejected")),
-            mText(__("<b>Reasons: </b> $request->reason"))
-        ]));
-
-        $info->notify(new SystemNotification('Your KYC information has been rejected', [
-            'meta' => "Reason: $request->reason"
-        ]));
+        @$info->notify(Notifications::kycRejected($info, $request->reason));
 
         return back()->with('success', 'KYC info has been rejected');
     }
@@ -132,12 +123,7 @@ class KycManageController extends Controller
         $info->kyc_status = 1;
         $info->update();
 
-        @$info->notify(new NotifyMail('KYC info approved', [
-            mText(__("Hello $info->name")),
-            mText(__("Your KYC information has been approved")),
-        ]));
-
-        $info->notify(new SystemNotification('Your KYC information has been approved'));
+        @$info->notify(Notifications::kycApproved($info));
 
         //-----------
         return back()->with('success', 'KYC info has been approved');

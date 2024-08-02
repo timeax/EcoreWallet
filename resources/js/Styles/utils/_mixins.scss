@@ -93,7 +93,12 @@
     }
 }
 
-@mixin scrollbar($color: red, $width: 20px, $radius: 10px, $shadow: rgba(109, 109, 109, 0.068)) {
+@mixin scrollbar(
+    $color: red,
+    $width: 20px,
+    $radius: 10px,
+    $shadow: rgba(109, 109, 109, 0.068)
+) {
     /* width */
     ::-webkit-scrollbar {
         width: $width;
@@ -110,4 +115,8 @@
         background: $color;
         border-radius: 10px;
     }
+}
+
+@mixin theme($name, $value) {
+    --color-theme-#{$name}: #{$value};
 }

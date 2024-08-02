@@ -4,12 +4,31 @@
         padding-top: $header-pt;
         display: flex;
         align-items: center;
+        transition: top 5s ease-in-out 0ms;
         // margin-right: $main-pl;
-
         @include media("<=xs-tablet") {
             padding: 0;
             min-height: 5rem;
             // margin-right: 6px;
+        }
+    }
+}
+
+.sticky {
+    background-color: $color-theme-bgContent;
+    backdrop-filter: blur(50px);
+    filter: none;
+    background-position: center;
+    background-size: cover;
+    opacity: .95;
+    z-index: 999;
+    top: 0;
+    min-height: fit-content;
+    @include py(16px);
+
+    .titlebar {
+        &::after {
+            display: none;
         }
     }
 }
@@ -149,6 +168,4 @@
     @include media("<=330px") {
         width: 80vw;
     }
-
 }
-

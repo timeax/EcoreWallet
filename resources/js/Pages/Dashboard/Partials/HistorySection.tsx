@@ -18,6 +18,7 @@ import { color, ColorNames } from "@assets/fn/create-color";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { BiTransfer } from "react-icons/bi";
 import { LiaLongArrowAltDownSolid } from "react-icons/lia";
+import useTransaction from "@context/TransactionDetail";
 
 const HistorySection: React.FC<HistorySectionProps> = ({ transactions }) => {
     //--- code here ---- //
@@ -50,6 +51,7 @@ export default HistorySection
 
 export const History: React.FC<HistoryProps> = ({ transactions }) => {
     //--- code here ---- //
+    const show = useTransaction();
     function formatDate(date: string, rd: boolean = false) {
         const d = getDate(date)
         return (
@@ -67,7 +69,7 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
             <table>
                 <tbody>
                     {transactions.map(item => {
-                        return <tr key={item.id}>
+                        return <tr key={item.id} onClick={() => show({data: item})}>
                             <td>
                                 <div className="flex gap-2">
                                     <CryptoIcon size="13px" height='30px' width='30px' curr={item.currency} />
@@ -105,7 +107,7 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
 
             <div className={dashboard.history_mobile}>
                 {transactions.map(item => {
-                    return <div key={item.id} className={classNames("flex py-2 justify-between", dashboard.history_item)}>
+                    return <div key={item.id} className={classNames("flex py-2 justify-between", dashboard.history_item)} onClick={() => show({data: item})}>
                         <div className="flex gap-2 items-center">
                             {/* <CryptoIcon
                                 name={item.currency.curr_name}

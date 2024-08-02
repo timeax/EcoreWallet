@@ -46,7 +46,7 @@ export const WalletGroup: React.FC<WalletGroupProps> = ({ wallets: list, change,
 
             <div className={styles.controls}>
                 {wallets.map((wallet, i) => {
-                    const color = getCrptoColor(wallet.curr.curr_name);
+                    const color = getCrptoColor(wallet.curr);
                     const className = `controls-${i}`;
                     return <React.Fragment key={i}>
                         <Tooltip target={className} />
@@ -173,7 +173,7 @@ const Wallet: React.FC<WalletProps> = ({ wallet, index, change }) => {
     }, [marketData]);
 
 
-    const color = getCrptoColor(wallet.curr.curr_name);
+    const color = getCrptoColor(wallet.curr);
     return (
         <>
             <div key={wallet.id} onClick={e => change(wallet)} className={classNames(styles.main, styles.wallet)} style={{ background: Color(color).lighten(0.3).string(), zIndex: index }}>
@@ -194,7 +194,7 @@ const Wallet: React.FC<WalletProps> = ({ wallet, index, change }) => {
                 <div className='mt-auto grow z-[999]'>
                     {showIf(active?.data.sparkline_in_7d, <div className={classNames(dashboard.graph, 'h-full grow top-[-10px] relative')}>
                         {/**@ts-ignore */}
-                        <SparkLineChart height={70} colors={[getCrptoColor(wallet.curr.curr_name)]} data={active?.data.sparkline_in_7d.price} />
+                        <SparkLineChart height={70} colors={[getCrptoColor(wallet.curr)]} data={active?.data.sparkline_in_7d.price} />
                     </div>)}
                 </div>
                 <div className="gap-1 absolute top-[80%] flex">

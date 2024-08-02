@@ -121,7 +121,10 @@ const LiveFeed: React.FC<LiveContextProviderProps> = ({ range = '1d', historical
 
                         if (!id) return;
 
-                        const data = value.data.map(item => JSON.parse(item.data).prices);
+                        const data = value.data.map(item => {
+                            let data = JSON.parse(item.data);
+                            return data.live || data.prices
+                        });
                         //---------
                         const history: HistoricalData = {
                             id,

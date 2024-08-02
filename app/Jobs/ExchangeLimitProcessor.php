@@ -40,7 +40,7 @@ class ExchangeLimitProcessor implements ShouldQueue
             //---------
             //----------
             if ($time >= $expire) {
-                Log::info("$time -> $expire");
+                // Log::info("$time -> $expire");
                 $limit->status = 'failed';
                 $limit->save();
             } else {

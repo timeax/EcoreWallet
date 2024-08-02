@@ -25,7 +25,7 @@ function ContentTemplate(props: SelectDefs, label: string) {
     return <Title none data-section='title' noPad medium md>{props[label]}</Title>
 }
 //@ts-ignore
-function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName = 'success', marker = 'tick', gap, label = 'label', variant = 'contain', sx, menuItemTemplate = MenuItemTemplate as any, contentTemplate = ContentTemplate as any, menu = label, ...props }: SelectProps<R>) {
+function Select<R = SelectDefs>({ items, textColor: cl = '', menuGap, color: colorName = 'success', marker = 'tick', gap, label = 'label', variant = 'contain', sx, menuItemTemplate = MenuItemTemplate as any, contentTemplate = ContentTemplate as any, menu = label, ...props }: SelectProps<R>) {
     const [selected, setSelected] = useState<R | undefined>(props.value);
     const [prev] = useState(props.value);
 
@@ -34,8 +34,11 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
 
     useEffect(() => {
         if (!props.value) return;
-        //@ts-ignore
-        if (props?.value?.[props.unique] == prev?.[props.unique]) return;
+        if (props.unique == '...') {
+            if (props?.value == prev) return;
+        } else
+            //@ts-ignore
+            if (props?.value?.[props.unique] == prev?.[props.unique]) return;
         setSelected(props.value);
     }, [props.value]);
 
@@ -69,8 +72,8 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
                         <Dropdown.Trigger tagRef={button} mute={props.quick}>
                             <Tag data-section={'trigger-btn'} element='span' color={textColor} className={props.trigger}>{props.icon || <FaChevronDown />}</Tag>
                         </Dropdown.Trigger>
-                        <Dropdown.Content width={classNames('w-full', props.content)}>
-                            {props.items.map((item, index) => {
+                        <Dropdown.Content width={classNames('w-full max-h-[350px] overflow-auto', props.content)}>
+                            {items.map((item, index) => {
                                 return (
                                     <Dropdown.Link key={index} onClick={(e) => {
                                         setSelected(item);
@@ -116,27 +119,43 @@ function Select<R = SelectDefs>({ textColor: cl = '', menuGap, color: colorName 
 
 
 export interface SelectProps<T = any> extends AppElement {
+    /**Selected view template */
     contentTemplate?: React.FC<T>,
+    /**Drop menu view template */
     menuItemTemplate?: React.FC<T>,
     items: T[];
+    /**Default value */
     value?: T,
-    unique: string;
+    /**Unique identifier */
+    unique: keyof T;
     onSelect?(value: React.MouseEvent & { value: T }): void;
+    /**Show dropmenu when click event occurs anywhere on the select button */
     quick?: boolean;
     placeholder?: React.ReactNode
+    /**Trigger icon className */
     trigger?: string
+    /**Trigger icon  */
     icon?: React.ReactNode;
+    /**Dropmenu className */
     content?: string;
     sx?: SxProps;
     variant?: 'outline' | 'contain' | 'none';
     transaparent?: boolean;
     contained?: boolean;
+    /**Change identifier for label selection when items is not defined in props
+     * @default label
+     */
     label?: keyof T;
+    /**Space between trigger icon and selected item */
     gap?: number;
+    /**Space between menu content and selection identifier */
     menuGap?: number;
     marker?: 'tick' | 'background' | 'dot';
     color?: ColorNames;
     textColor?: string;
+    /**Change identifier for value selection when items is not defined in props
+     * @default menu whatever label is
+     */
     menu?: string
 }
 

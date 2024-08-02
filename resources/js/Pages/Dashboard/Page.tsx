@@ -20,6 +20,7 @@ import ProfileBalance from './Partials/ProfileBalance';
 import { useState } from 'react';
 import { Title } from '@components/Trade';
 import { Link } from '@inertiajs/react';
+import { TransactionProvider } from '@context/TransactionDetail';
 
 export default function Dashboard({ auth, wallets, transactions, gs, currencies, ...props }: DashboardProps) {
     const [wallet, setWallet] = useState<Wallet>();
@@ -63,7 +64,7 @@ export default function Dashboard({ auth, wallets, transactions, gs, currencies,
                             </div>
                         </section>
                         {/*@ts-ignore <QuickActions />*/}
-                        <Latest currencies={currencies.filter(item => item.type == 2).slice(0, 4)} />
+                        <Latest currencies={currencies.filter(item => item.type == 2)} />
                     </div>
                     <div className={dashboard.assets}>
                         <section>
@@ -78,7 +79,10 @@ export default function Dashboard({ auth, wallets, transactions, gs, currencies,
                         <WalletSummary history={transactions} wallet={wallet || wallets[0]} />
                     </div>
                 </ClassicSections>
-                <HistorySection transactions={cutArr(transactions, 5)} />
+                {/* @ts-ignore */}
+                <TransactionProvider currencies={currencies} {...props}>
+                    <HistorySection transactions={cutArr(transactions, 5)} />
+                </TransactionProvider>
             </LiveFeed>
         </AuthenticatedLayout>
     );

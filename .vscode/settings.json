@@ -25,7 +25,7 @@
         "package-lock.json": true,
         "phpunit.xml": true,
         "README.md": true,
-        "tailwind.config.js": true,
+        "tailwind.config.js": false,
         "postcss.config.js": true,
         "resources": false,
         "public": false,
@@ -34,7 +34,9 @@
         "resources\\js/Styles": true,
         "db": true,
         "vite.config.js": true,
-        "*.json": true
+        "*.json": true,
+        "**/.gitignore": true,
+        "**/LICENSE": true
     },
     "explorerExclude.backup": {},
     "intelephense.diagnostics.undefinedTypes": false,

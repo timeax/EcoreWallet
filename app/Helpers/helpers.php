@@ -94,11 +94,11 @@ function menu($route)
 {
     if (is_array($route)) {
         foreach ($route as $value) {
-            if (request()->routeIs($value)) {
+            if (request(null)->routeIs($value)) {
                 return 'active';
             }
         }
-    } elseif (request()->routeIs($route)) {
+    } elseif (request(null)->routeIs($route)) {
         return 'active';
     }
 }
@@ -268,6 +268,7 @@ function getStatus(string $status)
         case 'paid':
             return 'success';
         case 'process':
+        case 'check':
             return 'pending';
         case 'cancel':
         case 'system_fail':
@@ -421,19 +422,19 @@ function loginIp()
 
 function filter($key, $value)
 {
-    $queries = request()->query();
+    $queries = request(null)->query();
     if (count($queries) > 0) $delimeter = '&';
     else  $delimeter = '?';
 
-    if (request()->has($key)) {
-        $url = request()->getRequestUri();
+    if (request(null)->has($key)) {
+        $url = request(null)->getRequestUri();
         $pattern = "\?$key";
         $match = preg_match("/$pattern/", $url);
         if ($match != 0) return  preg_replace('~(\?|&)' . $key . '[^&]*~', "\?$key=$value", $url);
         $filteredURL = preg_replace('~(\?|&)' . $key . '[^&]*~', '', $url);
         return  $filteredURL . $delimeter . "$key=$value";
     }
-    return  request()->getRequestUri() . $delimeter . "$key=$value";
+    return  request(null)->getRequestUri() . $delimeter . "$key=$value";
 }
 
 function generateQR($data)

@@ -8,14 +8,15 @@ import { FaArrowRightLong } from "react-icons/fa6"
 import styles from '@styles/pages/trade.module.scss';
 
 import React from 'react';
-import UiButton from "@components/Button"
+import Button from "@components/Button"
 import { useForm } from "@inertiajs/react"
-import { Button } from "primereact/button"
 import { Dialog } from "primereact/dialog"
-import { showIf } from "@assets/fn"
+import { assets, showIf } from "@assets/fn"
 import { RxDividerHorizontal } from "react-icons/rx"
 import { FaChevronRight, FaLongArrowAltRight } from "react-icons/fa"
-import { Message } from "primereact/message"
+import { useConsole } from "@context/AuthenticatedContext"
+import { classNames } from "primereact/utils"
+import { Avatar } from "primereact/avatar"
 
 const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], wallet }) => {
     //--- code here ---- //
@@ -24,11 +25,11 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
     const [visible, setVisible] = useState(false);
     const [visible2, setVisible2] = useState(false);
     const [total, setTotal] = useState(0);
+    const logger = useConsole();
 
-    const [err, setError] = useState<string>();
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        amount: null as unknown as number,
+        amount: 0,
         currency_id: wallet?.curr.id,
         wallet_id: wallet?.id,
         wallet_address: '',
@@ -37,6 +38,16 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
         network: '',
         ecoreuser: null as unknown as string,
     });
+
+    const [toUser, setUser] = useState({
+        username: '',
+        verified: false,
+        photo: '',
+        status: 500,
+        name: '',
+        temp: ''
+    });
+
 
     useEffect(() => {
         if (wallet) {
@@ -78,6 +89,7 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
             label='Amount'
             placeholder="Enter Amount"
             type="number"
+            value={data.amount}
             desc={showIf(service && wallet, (
                 <span className="flex items-center gap-2">
                     <span>Total Fee</span>
@@ -88,7 +100,7 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
             errorText={amountErr || errors.amount}
             onChange={(e: any) => {
                 const value = parseFloat(e.target.value || '0.0') || 0.0;
-                if (!service || !wallet) return;
+                if (!service || !wallet) return setData('amount', value);
                 const balance = parseFloat(wallet.all_balance.available);
                 //------
                 const charges = wallet?.curr.charges;
@@ -109,134 +121,182 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
             }}
         />
     </div>;
+
+    useEffect(() => {
+        setData('network', service?.network || '');
+    }, [channel])
     switch (channel) {
-        case 'wallet': return (
-            <form onSubmit={onWalletSubmit} className="flex flex-col gap-3">
-                <div>
-                    {showIf(err, <Message className="w-full !justify-start" severity="warn" text={err} />)}
-                </div>
-                <div>
-                    <Textfield desc={showIf(service, <>Min: {service?.limit.min_amount}, Max: {service?.limit.max_amount}</>)} errorText={errors.network} label='Network' inputElement={() => {
-                        return <Tag element={Select as React.FC<SelectProps<CryptomusService>>} items={services.filter(item => item.currency === wallet?.curr.code)} contentTemplate={(item) => {
-                            return <div><span>{wallet?.curr.code}</span>-<span>{item.network}</span></div>
-                        }} menuItemTemplate={(item) => {
-                            return (
-                                <div>
-                                    <Title light bright className="gap-2" noPad sm><span>fee</span> <FaArrowRightLong /> {item.commission.fee_amount}</Title>
-                                    <Title noPad lg><span>{wallet?.curr.code}</span>-<span>{item.network}</span></Title>
-                                </div>
-                            )
-                        }}
-                            unique="network"
-                            outlined
-                            className={styles.mobileNetwork}
-                            quick
-                            trigger="!bg-transparent"
-                            value={service}
-                            onSelect={(e: any) => {
-                                // setData('charge', e.value.commission.fee_amount);
-                                setData({
-                                    ...data,
-                                    network: e.value.network,
-                                    charge: e.value.commission.fee_amount,
-                                    currency_id: wallet?.curr.id,
-                                    wallet_id: wallet?.id
-                                });
-
-                                setService(e.value);
+        case 'wallet': {
+            return (
+                <form onSubmit={onWalletSubmit} className="flex flex-col gap-3">
+                    <div>
+                        <Textfield onChange={() => { }} desc={showIf(service, <>Min: {service?.limit.min_amount}, Max: {service?.limit.max_amount}</>)} errorText={errors.network} label='Network' inputElement={() => {
+                            return <Tag element={Select as React.FC<SelectProps<CryptomusService>>} items={services.filter(item => item.currency === wallet?.curr.code)} contentTemplate={(item) => {
+                                return <Title bright noPad md><span>{wallet?.curr.code}</span>-<span>{item.network}</span></Title>
+                            }} menuItemTemplate={(item) => {
+                                return (
+                                    <div>
+                                        <Title light bright className="gap-2" noPad sm><span>fee</span> <FaArrowRightLong /> {item.commission.fee_amount}</Title>
+                                        <Title noPad lg><span>{wallet?.curr.code}</span>-<span>{item.network}</span></Title>
+                                    </div>
+                                )
                             }}
-                            container="!px-[8px] !py-[1px]"
+                                unique="network"
+                                outlined
+                                className={styles.mobileNetwork}
+                                quick
+                                placeholder={'Choose a network'}
+                                trigger="!bg-transparent"
+                                value={services.find(item => item.currency == service?.currency && service.network == item.network)}
+                                onSelect={(e: any) => {
+                                    // setData('charge', e.value.commission.fee_amount);
+                                    setData({
+                                        ...data,
+                                        network: e.value.network,
+                                        charge: e.value.commission.fee_amount,
+                                        currency_id: wallet?.curr.id,
+                                        wallet_id: wallet?.id
+                                    });
+
+                                    setService(e.value);
+                                }}
+                                container="!px-[8px] !py-[1px]"
+                            />
+                        }} />
+                    </div>
+                    <div>
+                        <Textfield
+                            label='Wallet address'
+                            placeholder="Enter wallet address" type="text"
+                            errorText={errors.wallet_address}
+                            value={data.wallet_address}
+                            onChange={(e: any) => setData('wallet_address', e.target.value)}
                         />
-                    }} />
-                </div>
-                <div>
-                    <Textfield
-                        label='Wallet address'
-                        placeholder="Enter wallet address" type="text"
-                        errorText={errors.wallet_address}
+                    </div>
 
-                        onChange={(e: any) => setData('wallet_address', e.target.value)}
-                    />
-                </div>
+                    {Amount}
 
-                {Amount}
+                    <Button shape="pill" type="button" disabled={processing} onClick={() => {
+                        if (data.amount && data.network && data.wallet_address)
+                            setVisible(true);
+                        else logger.error('Fill in all fields');
+                    }} className="justify-center">Continue</Button>
 
-                <Button type="button" disabled={processing} onClick={() => {
-                    if (data.amount && data.network && data.wallet_address)
-                        setVisible(true);
-                    else !err && setError('Fill in all fields');
-                }} className="justify-center">Continue</Button>
+                    <Dialog
+                        className="max-w-[350px] w-auto"
+                        footer={(props) => <Button onClick={onWalletSubmit} size="normal" bgColor="primary">Confirm</Button>} header="Summary" visible={visible}
+                        onHide={() => { if (!visible) return; setVisible(false); }}
+                    >
+                        {showIf(visible, (
+                            <div className="flex flex-col gap-3">
+                                <Summary>
+                                    <div>
+                                        <Title>Network</Title>
+                                        <Title bold>{data.network}</Title>
+                                    </div>
+                                </Summary>
 
-                <Dialog
-                    className="max-w-[350px]"
-                    footer={(props) => <UiButton onClick={onWalletSubmit} size="normal" bgColor="primary">Confirm</UiButton>} header="Summary" visible={visible}
-                    style={{ width: '50vw' }}
-                    onHide={() => { if (!visible) return; setVisible(false); }}
-                >
-                    {showIf(visible, (
-                        <div className="flex flex-col gap-3">
-                            <Summary>
-                                <div>
-                                    <Title>Network</Title>
-                                    <Title bold>{data.network}</Title>
-                                </div>
-                            </Summary>
-
-                            <Summary>
-                                <div>
-                                    <Title>Amount</Title>
-                                    <div className="flex gap-3">
-                                        <Title bold>{data.amount}</Title>
-                                        <div className="flex items-center gap-1">
-                                            <Title>Fee</Title>
-                                            <FaLongArrowAltRight />
-                                            <Title noPad>{total}</Title>
+                                <Summary>
+                                    <div>
+                                        <Title>Amount</Title>
+                                        <div className="flex gap-3">
+                                            <Title bold>{data.amount}</Title>
+                                            <div className="flex items-center gap-1">
+                                                <Title>Fee</Title>
+                                                <FaLongArrowAltRight />
+                                                <Title noPad>{total}</Title>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </Summary>
+                                </Summary>
 
-                            <Summary>
-                                <div>
-                                    <Title>Wallet Address</Title>
-                                    <Title bold>{data.wallet_address}</Title>
-                                </div>
-                            </Summary>
-                        </div>
-                    ))}
-                </Dialog>
-            </form>
-        )
+                                <Summary>
+                                    <div>
+                                        <Title>Wallet Address</Title>
+                                        <Title bold>{data.wallet_address}</Title>
+                                    </div>
+                                </Summary>
+                            </div>
+                        ))}
+                    </Dialog>
+                </form>
+            )
+        }
 
         case '@ecore': return (
             <form onSubmit={onWalletSubmit} className="flex flex-col gap-3">
                 <div>
-                    <Textfield errorText={errors.ecoreuser} onChange={(e: any) => {
+                    <Textfield desc={<Title normal noPad className={classNames({
+                        '!text-danger-400': toUser.status == 500,
+                        '!text-warning-400': toUser.status == 400,
+                    })}>{toUser.username}</Title>} errorText={errors.ecoreuser} onChange={(e: any) => {
                         const value = e.target.value;
                         setData('ecoreuser', value);
                         //-----------
-
+                        window.axios.get(route('user.transfer.details', { account_no: value }))
+                            .then((data) => {
+                                // console.log(data);
+                                if (data.status === 200) {
+                                    if (data.data.verified == 0)
+                                        return setUser(data.data);
+                                    setUser({
+                                        status: 400,
+                                        username: 'This user is not verified - username is ' + data.data.username,
+                                        verified: data.data.verified == 1,
+                                        photo: data.data.photo,
+                                        name: data.data.name,
+                                        temp: data.data.username
+                                    })
+                                }
+                            }).catch(() => {
+                                setUser({
+                                    username: 'User not found',
+                                    verified: false,
+                                    temp: '',
+                                    status: 500,
+                                    photo: '',
+                                    name: ''
+                                })
+                            })
                     }} label='Ecore Id' placeholder="6 digit ID" />
                 </div>
                 {Amount}
 
-                <Button type="button" onClick={() => {
-                    if (data.amount && data.ecoreuser) setVisible2(true);
-                    else !err && setError('Fill in all fields');
+                <Button type="button" shape="pill" onClick={() => {
+                    if (data.amount && data.ecoreuser && toUser.status !== 500) setVisible2(true);
+                    else logger.error('Fill in all fields');
                 }} disabled={processing} className="justify-center">Continue</Button>
 
                 <Dialog
                     className="max-w-[350px]"
-                    footer={(props) => <UiButton onClick={onWalletSubmit} size="normal" bgColor="primary">Confirm</UiButton>} header="Summary" visible={visible2}
-                    style={{ width: '50vw' }}
+                    footer={(props) => <Button shape="pill" onClick={onWalletSubmit} size="normal" bgColor="primary">Confirm</Button>} header="Summary" visible={visible2}
                     onHide={() => { if (!visible2) return; setVisible2(false); }}
                 >
                     {showIf(visible2, (
                         <div className="flex flex-col gap-3">
                             <Summary>
                                 <div>
-                                    <Title>Send To</Title>
+                                    <Title>Account number</Title>
                                     <Title bold>{data.ecoreuser}</Title>
+                                </div>
+                            </Summary>
+
+                            <Summary>
+                                <div className="w-full">
+                                    <Title className="items-center">Username <small className={classNames("ml-4", {
+                                        //@ts-ignore
+                                        '!text-danger-400': toUser.verified == 0,
+                                        //@ts-ignore
+                                        '!text-warning-400': toUser.verified == 2,
+                                        //@ts-ignore
+                                        '!text-success-400': toUser.verified == 1,
+                                    })}>{toUser.status == 1 ? 'Verified' : 'unverified'}</small></Title>
+                                    <div className="flex items-center gap">
+                                        <Title bold>{toUser.temp || toUser.username}</Title>
+                                        <Avatar className="!rounded-full ml-auto" icon={showIf(toUser.photo, (
+                                            <img src={assets(toUser.photo)} />
+                                        ), <>{toUser.name.toUpperCase()}</>)} style={{ backgroundColor: 'rgb(var(--color-primary-800))', color: '#ffffff' }} />
+                                    </div>
                                 </div>
                             </Summary>
 
@@ -272,9 +332,7 @@ const Summary: FC<PropsWithChildren<{}>> = ({ children }) => {
     return (
         <div className="flex items-center">
             <div><FaChevronRight /></div>
-            <div>
-                {children}
-            </div>
+            {children}
         </div>
     )
 }

@@ -45,7 +45,7 @@
                             </div>
                             <div class="form-group col-md-6">
                                 <label>@langg('Currency Name')</label>
-                                <input class="form-control" type="text" name="curr_name" required
+                                <input class="form-control" type="text" id="curr_name" name="curr_name" required
                                     value="{{ $currency->curr_name }}">
                             </div>
                             <div class="form-group col-md-6">
@@ -59,6 +59,13 @@
                                     value="{{ $currency->symbol }}">
                             </div>
 
+                            <div class="form-group col-md-6">
+                                <label>@langg('Gecko ID')</label>
+                                <select class="form-control gecko_coins" name="gecko_id" required>
+                                    <option value="">--@langg('Select Type')--</option>
+                                </select>
+                            </div>
+
                             <div class="form-group {{ $currency->default == 1 ? 'col-md-12' : 'col-md-6' }}">
                                 <label>@langg('Currency Type')</label>
                                 <select class="form-control type" name="type" required>
@@ -69,6 +76,14 @@
                                     </option>
                                 </select>
                             </div>
+                            <div class="form-group col-md-6">
+                                <label>@langg('Color')</label>
+                                <div class="input-group has_append">
+                                    <input type="color" class="form-control" placeholder="0" name="color"
+                                        value="{{ $currency->color ?? old('color') }}" />
+                                </div>
+                            </div>
+
                             @if ($currency->type == 2)
                                 <div class="form-group col-md-12">
                                     <label>@langg('Currency Rate')</label>
@@ -179,7 +194,8 @@
                                         <div class="input-group-append">
                                             <div class="input-group-text"><span>
                                                     <select name='withdraw_charge_type' class='background-select'>
-                                                        <option {{ select(@$currency->charges->withdraw_charge_type, '%') }}
+                                                        <option
+                                                            {{ select(@$currency->charges->withdraw_charge_type, '%') }}
                                                             value='%'>%</option>
                                                         <option
                                                             {{ select(@$currency->charges->withdraw_charge_type, 'fixed') }}
@@ -232,6 +248,48 @@
 @push('script')
     <script>
         'use strict';
+        const geckoCoins = JSON.parse("{{ $gecko_coins }}".replaceAll('&quot;', '"'));
+
+        const input = $('#curr_name');
+
+        function map(filtered) {
+            var inner = '';
+            filtered.forEach(item => {
+                inner +=
+                    `<option ${item.name.toLowerCase() === input.val().toLowerCase() ? 'selected' : ''} value='${item.code}'>${item.name} - <b>${item.symbol}</b></option>`;
+            });
+
+            return inner;
+        }
+
+        function filter(value) {
+            value = value.toLowerCase();
+            //------
+            const others = [];
+            const filtered = geckoCoins.filter(item => {
+                let index = (item.symbol.search(value));
+                if (index < 0 || index > 0) return false;
+                //---------
+
+                let name = input.val();
+
+                const starts = item.name.toLowerCase().startsWith(name.toLowerCase())
+                if (!starts) others.push(item);
+                return starts;
+            });
+
+            console.log(others, 'filtered -> ', filtered);
+
+            let inner = '';
+            if (filtered.length > 0) inner = map(filtered)
+            else inner = map(others);
+
+            $('.gecko_coins').html(inner);
+        }
+
+        filter($('.code').val());
+
+
         $('.type').on('change', function() {
             var value = $(this).find('option:selected').val()
             if ($('.code').val() == '') {
@@ -319,7 +377,13 @@
             } else {
                 $('.cur_code').text('1 ' + $('.code').val() + ' =')
             }
+
+            value = value.toLowerCase();
+
+            filter(value)
         })
+
+        // console.log(geckoCoins[0])
 
         $.uploadPreview({
             input_field: "#image-upload", // Default: .image-upload

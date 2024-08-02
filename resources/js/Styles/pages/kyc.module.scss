@@ -49,12 +49,14 @@
 
     @include media("<=604px") {
         width: 95%;
+        height: auto;
+        overflow-y: auto;
     }
 
     > .headerBox {
         margin-bottom: 8px;
         * {
-            color: rgb(0, 0, 70);
+            color: $color-theme-emphasis
         }
 
         text-align: center;

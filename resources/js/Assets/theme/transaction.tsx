@@ -17,7 +17,7 @@ export const styles: DataTablePassThroughOptions = {
     headerContent: 'flex',
     paginator: {
         root: {
-            className: classNames('flex items-center justify-center flex-wrap', 'bg-white text-gray-500 border-0 px-4 py-2 rounded-md', '' // Dark Mode
+            className: classNames('flex items-center justify-center flex-wrap', 'bg-theme-bgColor text-gray-500 border-0 px-4 py-2 rounded-md', '' // Dark Mode
             )
         },
 
@@ -92,7 +92,7 @@ export const styles: DataTablePassThroughOptions = {
                 var props = args?.props,
                     state = args?.state;
                 return {
-                    className: classNames('inline-flex items-center relative cursor-pointer user-none', 'bg-white border rounded-md', 'transition duration-200', 'h-10 mx-2', '',
+                    className: classNames('inline-flex items-center relative cursor-pointer user-none', 'bg-theme-bgColor border rounded-md', 'transition duration-200', 'h-10 mx-2', '',
                         //DarkMode
                         {
                             'outline-none outline-offset-0 shadow-[0_0_0_0.2rem_rgba(191,219,254,1)] border-blue-500': state?.focused && !props?.disabled,
@@ -112,7 +112,7 @@ export const styles: DataTablePassThroughOptions = {
                 className: classNames('flex items-center justify-center shrink-0 px-2', 'text-gray-500 ')
             },
             panel: {
-                className: classNames('bg-white text-gray-600 border-0 rounded-md shadow-[0_2px_12px_rgba(0,0,0,0.1)]', '' //Dark Mode
+                className: classNames('bg-theme-bgColor text-gray-600 border-0 rounded-md shadow-[0_2px_12px_rgba(0,0,0,0.1)]', '' //Dark Mode
                 )
             },
             //@ts-ignore
@@ -148,7 +148,7 @@ export const styles: DataTablePassThroughOptions = {
                 var props = args?.props,
                     state = args?.state;
                 return {
-                    className: classNames('inline-flex relative cursor-pointer user-none', 'bg-white border rounded-md', 'transition duration-200', 'h-12 mx-2', '',
+                    className: classNames('inline-flex relative cursor-pointer user-none', 'bg-theme-bgColor border rounded-md', 'transition duration-200', 'h-12 mx-2', '',
                         //DarkMode
                         {
                             'outline-none outline-offset-0 shadow-[0_0_0_0.2rem_rgba(191,219,254,1)] border-blue-500': state?.focused && !props?.disabled,
@@ -168,7 +168,7 @@ export const styles: DataTablePassThroughOptions = {
                 className: classNames('flex items-center justify-center shrink-0', 'text-gray-500 ')
             },
             panel: {
-                className: classNames('bg-white text-gray-600 border-0 rounded-md shadow-[0_2px_12px_rgba(0,0,0,0.1)]', '' //Dark Mode
+                className: classNames('bg-theme-bgColor text-gray-600 border-0 rounded-md shadow-[0_2px_12px_rgba(0,0,0,0.1)]', '' //Dark Mode
                 )
             },
 

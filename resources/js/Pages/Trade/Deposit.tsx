@@ -5,7 +5,6 @@ import UiButton from '@components/Button';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useState } from 'react';
 import { FaCopy } from 'react-icons/fa';
-import { SelectButton } from 'primereact/selectbutton';
 import { CiClock2 } from 'react-icons/ci';
 import QRCode, { QRCodeProps } from 'react-qr-code';
 import { Container, Title } from '@components/Trade';
@@ -14,12 +13,14 @@ import Note from '@components/Trade/Note';
 import styles from '@styles/pages/trade.module.scss';
 import { showIf } from '@assets/fn';
 import { Copy } from '@context/TransactionDetail';
+import { useConsole } from '@context/AuthenticatedContext';
 
 const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: code, services, ...props }) => {
     //--- code here ---- //
     const [wallet, setWallet] = useState<Wallet | undefined>();
-    const [serviceList, setServiceList] = useState<AddressState[] | undefined>();
+    const [serviceList, setServiceList] = useState<AddressState[]>([]);
     const [service, setService] = useState<AddressState | undefined>();
+
     useEffect(() => {
         setWallet(wallets.find(item => item.curr.code === code));
     }, []);
@@ -41,10 +42,7 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
         setService(list[0]);
     }, [wallet]);
 
-    function show<T = any>(Element: any, props: T) {
-        //@ts-ignore
-        return service ? <Element {...props} /> : '';
-    }
+
 
     return (
         <AuthenticatedLayout
@@ -52,6 +50,31 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
             {...props}
             desc='Add Crypto to your Ecorewallet account!'
             title='Fund Account'>
+            <Page
+                {...{
+                    serviceList,
+                    setWallet,
+                    wallet,
+                    wallets,
+                    service
+                }}
+            />
+        </AuthenticatedLayout>
+    );
+}
+
+
+
+const Page: React.FC<PageProp> = ({ wallet, service, serviceList, setWallet, wallets }) => {
+    //--- code here ---- //
+    const logger = useConsole();
+
+    function show<T = any>(Element: any, props: T) {
+        //@ts-ignore
+        return service ? <Element {...props} /> : '';
+    }
+    return (
+        <>
             <div className={styles.deposit}>
                 <div className={styles.select}>
                     <div className="flex flex-col gap-4">
@@ -89,7 +112,7 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
                                         <UiButton onClick={() => {
                                             if (service) {
                                                 navigator.clipboard?.writeText(service.address).then((e) => {
-
+                                                    logger.success('Copied wallet address')
                                                 });
                                             }
                                         }} iconLoc='right' iconSize='16px' size='normal' icon={<FaCopy />} rounded>Copy</UiButton>
@@ -106,19 +129,16 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
                     </div>
                     <div className='flex flex-col gap-4'>
                         <div>
-                            <SelectButton pt={{
-                                //@ts-ignore
-                                root: '!p-2 rounded border border-theme-icons/15',
-                                button(options) {
-                                    return {
-                                        className: classNames('h-full !bg-transparent !text-theme-emphasis !px-5 !py-2', {
-                                            '!bg-theme-bgColor': options?.context.selected
-                                        })
-                                    }
-                                }
-                            }} className='mr-4' value={service?.uuid} optionLabel='network' optionValue='uuid' onChange={(e) => setService(() => {
-                                return serviceList?.find(item => item.uuid == e.value)
-                            })} options={serviceList} />
+                            <Container>
+                                <Select
+                                    items={serviceList}
+                                    unique='id'
+                                    value={service}
+                                    label='network'
+                                    variant='outline'
+                                    quick
+                                />
+                            </Container>
 
                             <div className='flex pl-3 py-4 gap-2 items-center'>
                                 <CiClock2 />
@@ -154,9 +174,19 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
                     />
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+interface PageProp {
+    wallet?: Wallet,
+    service?: AddressState;
+    serviceList: AddressState[];
+    setWallet: React.Dispatch<Wallet>;
+    wallets: Wallets
+}
+
+
 
 export const menuTemplate = (item: Wallet) => {
     return <div className='flex w-fit items-center gap-5'>
