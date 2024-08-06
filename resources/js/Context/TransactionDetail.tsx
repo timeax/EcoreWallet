@@ -9,6 +9,7 @@ import CurrencyFormat from "react-currency-format";
 import { FaCopy, FaLink, FaLongArrowAltRight } from "react-icons/fa";
 import Truncate from 'react-truncate';
 import { useNotify } from "./AuthenticatedContext";
+import { router } from "@inertiajs/react";
 //@ts-ignore
 const TransactionContext = createContext<TransactionContextProps>({});
 
@@ -92,7 +93,7 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({ childr
                             });
                             break;
                         case "Withdraw":
-                            transaction.withdrawals = props.withdrawals.find(item => item.trx == transaction.ref);
+                            transaction.withdrawals = props.withdrawals.find(item => item.ref == transaction.ref);
                         case "Transfer":
                             transaction.transfers = props.transfers.find(item => item.transaction_ref == transaction.ref);
                         case "Transaction": {
@@ -116,14 +117,18 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({ childr
 function display(keys: any[], data: TransactionData) {
     return <div className="mt-4 px-1">
         {keys.map(item => {
+            //@ts-ignore
+            const value = item.render ? item.render(data.data?.[item.key]) : data.data[item.key] ? <Title>{data.data?.[item.key]}</Title> : null;
             return (
-                <div key={item.name} className="flex items-center py-1.5">
-                    <Title md noPad light bright>{item.name}</Title>
-                    <div className="flex justify-end grow">
-                        {/* @ts-ignore */}
-                        {showIf(item.render, item.render?.(data.data?.[item.key]), <Title>{data.data?.[item.key]}</Title>)}
+                value ? (
+                    <div key={item.name} className="flex items-center py-1.5">
+                        <Title md noPad light bright>{item.name}</Title>
+                        <div className="flex justify-end grow">
+                            {/* @ts-ignore */}
+                            {value}
+                        </div>
                     </div>
-                </div>
+                ) : ''
             )
         })}
     </div>
@@ -139,6 +144,19 @@ const withdrawals: Array<{
             key: 'status',
             render(value) {
                 return <Status stats={value} value={value} />
+            },
+        },
+
+        {
+            name: 'Reject Reason',
+            key: 'withdrawals',
+            render(value) {
+                console.log(value)
+                if (value.status == 2) {
+                    return <Title noPad light>{value.reject_reason}</Title>
+                }
+
+                return;
             },
         },
 
@@ -473,7 +491,17 @@ const Exchange = (props: TransactionData) => {
             {showIf(props.data?.exchanges?.status == 'pending', (
                 <>
                     <div className="flex mt-4">
-                        <Button variant="contained" className="grow" centered bgColor="warning" size="normal">Cancel</Button>
+                        <Button
+                            variant="contained"
+                            className="grow"
+                            centered
+                            bgColor="warning"
+                            size="normal"
+                            onClick={() => {
+                                //@ts-ignore
+                                router.post(route('user.crypto.cancel.swap', { id: props.data?.exchanges.id }));
+                            }}
+                        >Cancel</Button>
                     </div>
                 </>
             ))}
@@ -590,8 +618,8 @@ export const Status: React.FC<StatusProps> = ({ value, stats, textProps = {} }) 
         <div className="flex items-center gap-2">
             <span className={classNames('border-4 rounded-full', {
                 'border-success-400': stats.includes('success'),
-                'bg-danger': stats.includes('fail'),
-                'bg-warning': stats.includes('pend') || stats.includes('cancel')
+                'border-danger': stats.includes('failed'),
+                'border-warning': stats.includes('pending') || stats.includes('cancel')
             })}></span>
             <Title noPad sm medium {...textProps}>
                 {value}

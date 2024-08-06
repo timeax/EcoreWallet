@@ -11,7 +11,7 @@ const Cardheader: React.FC<CardheaderProps> = ({ children, className = '', varia
     }
 
     return (
-        <div className={styles.header + ' ' + className}>
+        <div className={styles.header + '*:select-none ' + className}>
             <Title noPad bright data-section='card-title' className={styles[variant]}>{title}</Title>
             {
                 helpers ? <div className={styles.nav}>{helpers}</div> : ''

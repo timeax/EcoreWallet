@@ -43,7 +43,7 @@ export const UICard: React.FC<UICardProps> = ({ children, header, contained = tr
 export const UICHeader: React.FC<UICHeaderProps> = ({ children, title, sm = true, lg, className = '' }) => {
     //--- code here ---- //
     return (
-        <div className='flex items-center justify-between pb-[0.6rem'>
+        <div className='flex items-center justify-between *:select-none pb-[0.6rem'>
             <Title data-section={'card-title'} noPad className={classNames(className, {
                 [styles.mini]: sm,
                 [styles.title]: lg,

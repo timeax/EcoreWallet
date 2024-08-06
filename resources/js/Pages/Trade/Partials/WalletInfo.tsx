@@ -13,10 +13,10 @@ import calc from 'number-precision';
 import CurrencyFormat from 'react-currency-format';
 
 
-const WalletInfo: React.FC<WalletInfoProps> = ({ wallet, bgColor = 'grey' }) => {
+const WalletInfo: React.FC<WalletInfoProps> = ({ wallet }) => {
     //--- code here ---- //
     const buttonStyles = { padding: '0 .8rem !important', lineHeight: '2.5rem !important', fontSize: '14px' };
-    const { rates, marketData, currency, currRate } = useLive();
+    const { rates, currRate } = useLive();
 
     const [rate, setRate] = useState<Rate['data'][number] | undefined>();
 
@@ -45,10 +45,9 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ wallet, bgColor = 'grey' }) => 
                                             <Button icon={<SlOptions />} sx={buttonStyles} shape='smooth'>Options</Button>
                                         </Dropdown.Trigger>
                                         <Dropdown.Content align='left'>
-                                            {/* <Dropdown.Link href={route(routeById('buy').route, { wallet: wallet.curr.code, type: 'buy' })}>Buy</Dropdown.Link>
-                                            <Dropdown.Link href={route(routeById('sell').route, { wallet: wallet.curr.code, type: 'sell' })}>Sell</Dropdown.Link> */}
-                                            <Dropdown.Link href={route(routeById('withdraw').route, { wallet: wallet.curr.code })}>Swap</Dropdown.Link>
-                                            <Dropdown.Link href={route(routeById('swap').route, { wallet: wallet.curr.code })}>Withraw</Dropdown.Link>
+
+                                            <Dropdown.Link href={route(routeById('swap').route, { wallet: wallet.curr.code })}>Swap</Dropdown.Link>
+                                            <Dropdown.Link href={route(routeById('withdraw').route, { wallet: wallet.curr.code })} >Withdraw</Dropdown.Link>
                                             <Dropdown.Link href={route(routeById('fund').route, { wallet: wallet.curr.code })}>Deposit</Dropdown.Link>
                                         </Dropdown.Content>
                                     </Dropdown>

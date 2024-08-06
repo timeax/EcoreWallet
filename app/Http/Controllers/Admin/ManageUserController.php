@@ -92,7 +92,7 @@ class ManageUserController extends Controller
             $trnx->remark      = 'Credit';
             $trnx->ref =  uuid($trnx->trnx);
             $trnx->type        = '+';
-            $trnx->details     = trans('Balance added by system');
+            $trnx->details     = trans('Internal deposit');
             $trnx->status = 'success';
 
             $trnx->save();
@@ -124,7 +124,7 @@ class ManageUserController extends Controller
 
             $trnx->remark      = 'Debit';
             $trnx->type        = '-';
-            $trnx->details     = trans('Balance subtracted by system');
+            $trnx->details     = trans('Internal debit');
             $trnx->status = 'success';
             $trnx->save();
 

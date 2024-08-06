@@ -58,7 +58,7 @@ class Withdrawals extends Model
         static::saved(function (self $withdraw) {
             if ($withdraw->status == 2) { // rejected
                 $escrow = $withdraw->escrow;
-                if ($escrow) $escrow->delete();
+                $escrow->delete();
             } else if ($withdraw->status == 1) { //accepted
                 if ($withdraw->handler == 'api') (new Cryptomus())->payout($withdraw);
                 else {
@@ -68,6 +68,7 @@ class Withdrawals extends Model
                     $trns->save();
                     //--------
                     $withdraw->escrow()->delete();
+                    $withdraw->status = 4;
                 }
             }
         });
@@ -75,7 +76,7 @@ class Withdrawals extends Model
 
     public function escrow()
     {
-        return $this->belongsTo(Escrow::class, 'trx', 'transaction_ref');
+        return $this->belongsTo(Escrow::class, 'ref', 'transaction_ref');
     }
 
     public function transaction()

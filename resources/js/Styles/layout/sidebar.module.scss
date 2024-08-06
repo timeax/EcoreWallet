@@ -116,11 +116,9 @@
     }
 }
 
-
 #{attr(img-open)} {
     display: none;
 }
-
 
 .sidebarOpen {
     .active {
@@ -146,4 +144,12 @@
 
 .nav-item-icon {
     font-size: ft(18px);
+}
+
+.verify {
+    @include media(">=xs-tablet") {
+        display: none;
+    }
+    position: relative;
+    margin-top: -1.7rem;
 }

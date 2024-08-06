@@ -5,13 +5,8 @@ namespace App\Http\Controllers\User;
 use App\Helpers\Notifications;
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
-use App\Models\Trade;
-use App\Models\Wallet;
-use App\Notifications\NotifyMail;
-use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use PragmaRX\Google2FA\Google2FA;
 

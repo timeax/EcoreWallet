@@ -268,6 +268,8 @@ function getStatus(string $status)
         case 'paid':
             return 'success';
         case 'process':
+        case 'confirm_check':
+        case 'locked':
         case 'check':
             return 'pending';
         case 'cancel':

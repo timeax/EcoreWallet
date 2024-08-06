@@ -28,6 +28,7 @@ class EnsureValidWebhook
             return response('Wrong Request', 419);
         }
 
+        Log::info("This IP is correct");
         //-------- Verify Signature
         $sign = $request->get('sign');
         $type = $request->get('type');
@@ -35,10 +36,9 @@ class EnsureValidWebhook
         $data = $request->all();
         unset($data['sign']);
         //------
-        $hash = md5(base64_encode(json_encode($data, JSON_UNESCAPED_UNICODE)) . env($type === 'payment' ? 'PAYMENT_KEY' : 'PAYOUT_KEY'));
+        $hash = md5(base64_encode(json_encode($data, JSON_UNESCAPED_UNICODE)) . env($type === 'payment' || $type == 'wallet' ? 'PAYMENT_KEY' : 'PAYOUT_KEY'));
         //--------
         if ($hash !== $sign) return response('Wrong Request', 419);
-
         //------------ Check the url tokens
         $sysKey = $request->route('key');
         $url_id = $request->route('url_id');
@@ -47,7 +47,10 @@ class EnsureValidWebhook
         $gs = Generalsetting::first();
         //---------
         if (!$sysKey || !$url_id || !$user_id) return response('Wrong Request', 419);
+        Log::info("The Ids actuially exist");
+
         $user = User::where(['id' => $user_id], '=')->firstOrFail();
+        Log::info("The user exists $sysKey == $gs->webhook_uuid");
         //----
         if ($sysKey !== $gs->webhook_uuid) return response('Wrong Request', 419);
 
@@ -58,6 +61,7 @@ class EnsureValidWebhook
             : $request->get('uuid');
         //------------
         if (Transaction::where(['ref' => $uuid, 'status' => 'success'])->exists()) return response('Wrong Request', 419);
+        Log::info("The user exists and the code moves on");
 
         return $next($request);
     }

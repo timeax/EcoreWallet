@@ -62,11 +62,10 @@ class ExchangeLimitProcessor implements ShouldQueue
 
 
                     if ($match) {
-                        Log::info($rateLimit . " $match->course");
                         if ($rateLimit <= $match->course) {
                             $rate = (float) $match->course;
                             //----
-                            $limit->rate = $rate;
+                            // $limit->rate = $rate;
                             $limit->status = 'success';
                             $limit->save();
                         }

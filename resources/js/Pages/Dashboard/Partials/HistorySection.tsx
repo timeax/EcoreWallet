@@ -18,7 +18,7 @@ import { color, ColorNames } from "@assets/fn/create-color";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { BiTransfer } from "react-icons/bi";
 import { LiaLongArrowAltDownSolid } from "react-icons/lia";
-import useTransaction from "@context/TransactionDetail";
+import useTransaction, { Status } from "@context/TransactionDetail";
 
 const HistorySection: React.FC<HistorySectionProps> = ({ transactions }) => {
     //--- code here ---- //
@@ -31,7 +31,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({ transactions }) => {
                     </Title>
                 </UICHeader>
             } className={dashboard.history}>
-                {showIf(transactions.length > 1, <History transactions={transactions} />, (
+                {showIf(transactions.length > 0, <History transactions={transactions} />, (
                     <NoData>
                         <>No Transaction Data Found</>
                         <>Your latest transactions or activities will be displayed here</>
@@ -69,7 +69,7 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
             <table>
                 <tbody>
                     {transactions.map(item => {
-                        return <tr key={item.id} onClick={() => show({data: item})}>
+                        return <tr key={item.id} onClick={() => show({ data: item })}>
                             <td>
                                 <div className="flex gap-2">
                                     <CryptoIcon size="13px" height='30px' width='30px' curr={item.currency} />
@@ -107,7 +107,7 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
 
             <div className={dashboard.history_mobile}>
                 {transactions.map(item => {
-                    return <div key={item.id} className={classNames("flex py-2 justify-between", dashboard.history_item)} onClick={() => show({data: item})}>
+                    return <div key={item.id} className={classNames("flex py-2 justify-between", dashboard.history_item)} onClick={() => show({ data: item })}>
                         <div className="flex gap-2 items-center">
                             {/* <CryptoIcon
                                 name={item.currency.curr_name}
@@ -127,17 +127,22 @@ export const History: React.FC<HistoryProps> = ({ transactions }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center">
-                            {item.type}
-                            <Title noPad className="flex gap-1">
-                                <CurrencyFormat
-                                    value={calc.round(item.amount, 8)}
-                                    displayType="text"
-                                    thousandSeparator
-                                    renderText={value => <span>{value}</span>}
-                                />
-                                {item.currency.code}
-                            </Title>
+                        <div className="flex flex-col items-end">
+                            <div className="flex items-center">
+                                {item.type}
+                                <Title noPad className="flex gap-1">
+                                    <CurrencyFormat
+                                        value={calc.round(item.amount, 8)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        renderText={value => <span>{value}</span>}
+                                    />
+                                    {item.currency.code}
+                                </Title>
+                            </div>
+                            <Status textProps={{
+                                className: 'items-center !font-light !text-[.6em]'
+                            }} stats={item.status} value={item.status} />
                         </div>
                     </div>
                 })}

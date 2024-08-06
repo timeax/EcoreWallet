@@ -164,3 +164,7 @@ section {
         background: black;
     }
 }
+
+[data-pc-name=toast] {
+    z-index: 99999999999999999999999999999999999999999999999999999;
+}

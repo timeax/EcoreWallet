@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import layout from '@styles/layout/index.module.scss';
 import { classNames } from 'primereact/utils';
-import { useAuth, useNotify, useWrapper } from '@context/AuthenticatedContext';
+import { useAuth, useWrapper } from '@context/AuthenticatedContext';
 import { Title } from '@components/Trade';
 import IconButton from '@components/Button/IconButton';
 import { FiBell } from 'react-icons/fi';
@@ -16,7 +16,7 @@ import { useForm } from '@inertiajs/react';
 import Notify from '@widgets/Notification';
 import { FaCog, FaLock, FaSignOutAlt } from 'react-icons/fa';
 import { AiOutlineProfile } from 'react-icons/ai';
-import { Notifications, User } from '@typings/index';
+import { User } from '@typings/index';
 import { Badge } from 'primereact/badge';
 import Select from '@components/Trade/Select';
 import Button from '@components/Button';
@@ -24,15 +24,17 @@ import { useNotifications } from '@context/Notifications';
 
 const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) => {
     //--- code here ---- //
-    const { onChange, user, theme, setTheme } = useWrapper();
+    const { user, theme, setTheme } = useWrapper();
     // console.log(notifications, user)
     const { show, unread: notification } = useNotifications();
     //--------
-    const notify = useNotify();
     const ref = useRef<HTMLElement>();
     const watch = useRef<HTMLElement>();
     //---------
-    const scrollEvent = function (event?: Event) {
+    let stickyAnchor = styles.stickyAnchor;
+    let sticky = styles.sticky;
+    //-------
+    const scrollEvent = function () {
         if (ref.current && watch.current) {
             const header = ref.current;
             const anchor = watch.current;
@@ -45,14 +47,16 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
             // console.log(y)
 
             if (y <= -100) {
-                if (header.classList.contains(styles.sticky)) return;
-                header.classList.add(styles.sticky);
+                if (header.classList.contains(sticky)) return;
+                anchor.classList.add(stickyAnchor);
+                header.classList.add(sticky);
                 header.style.width = width + 'px';
                 header.style.left = x + 'px';
                 header.style.position = 'fixed'
             } else {
-                if (!header.classList.contains(styles.sticky)) return;
+                if (!header.classList.contains(sticky)) return;
                 header.classList.remove(styles.sticky);
+                anchor.classList.remove(stickyAnchor);
                 header.removeAttribute('style');
             }
         }
@@ -74,8 +78,8 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
         scrollEvent();
 
         var id: any;
-        window.addEventListener('wheel', scrollEvent);
-        window.addEventListener('resize', (e) => {
+        window.addEventListener('scroll', scrollEvent, true);
+        window.addEventListener('resize', () => {
             if (ref.current?.classList.contains(styles.sticky)) {
                 ref.current.classList.remove(styles.sticky);
                 ref.current.removeAttribute('style');
@@ -110,17 +114,6 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
                         </div>
 
                         <div className={classNames('flex items-center justify-end', styles.nav)}>
-                            {/* <div className={styles.search}>
-                            <IconButton
-                                bgColor='theme'
-                                shape='circle'
-                                size='18px'
-                                color='rgb(var(--color-theme-emphasis))'
-                            // variant='contained'
-                            >
-                                <CiSearch />
-                            </IconButton>
-                        </div> */}
                             <div className='flex gap-12 ml-auto items-center'>
                                 <div className='flex gap-4 items-center'>
                                     <Select
@@ -195,11 +188,11 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
                                                                     user: user.id
                                                                 })
                                                             }} normal className='grow' lg bright>Mark all as read </Title>
-                                                            <Button className='hover:!text-theme-button-hover' variant='none' size='sm' onClick={e => show()}>See all</Button>
+                                                            <Button className='hover:!text-theme-button-hover' variant='none' size='sm' onClick={() => show()}>See all</Button>
                                                         </div>
                                                     </Dropdown.Link>
                                                 </>
-                                            ), <Title normal className='justify-between w-full' lg bright>No new notifications <Button className='hover:!text-theme-button-hover' variant='none' size='sm' onClick={e => show()}>See all</Button></Title>)}
+                                            ), <Title normal className='justify-between w-full' lg bright>No new notifications <Button className='hover:!text-theme-button-hover' variant='none' size='sm' onClick={() => show()}>See all</Button></Title>)}
                                         </Dropdown.Content>
                                     </Dropdown>
                                     <UserWidget />
@@ -260,7 +253,7 @@ const UserWidget: React.FC<UserWidgetProps> = () => {
                     </div>
                 </Dropdown.Link>
 
-                <Dropdown.Link onClick={e => post(route('user.logout'))}>
+                <Dropdown.Link onClick={() => post(route('user.logout'))}>
                     <div className="flex gap-2 items-center">
                         <FaSignOutAlt />Log out
                     </div>

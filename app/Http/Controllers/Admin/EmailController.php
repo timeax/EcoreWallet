@@ -23,7 +23,7 @@ class EmailController extends Controller
 
     public function index()
     {
-        $templates = EmailTemplate::orderBy('id', 'desc')->paginate(15);
+        $templates = EmailTemplate::orderBy('id', 'desc')->get();
         return view('admin.email.index', compact('templates'));
     }
 

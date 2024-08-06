@@ -27,17 +27,23 @@ class CryptomusWebhookController extends Controller
         $wallet->balance = $previousBalance + ((float) $payment_amount);
         $wallet->save();
         //---------
-        Deposit::where(['cryptomus_uuid' => $uuid])->firstOrcreate([
-            'user_id' => $user->id,
-            'currency_id' => $address->currency_id,
-            'wallet_address' => $address->address,
-            'network' => $address->network,
-            'total_amount' => $payment_amount,
-            'charge' => $req->get('commission'),
-            'cryptomus_uuid' => $uuid,
-            'txid' => $req->get('txid'),
-            'status' => $status
-        ], ['status' => $status]);
+        Deposit::updateOrCreate(
+            ['cryptomus_uuid' => $uuid],
+            [
+                'user_id' => $user->id,
+                'currency_id' => $address->currency_id,
+                'wallet_address' => $address->address,
+                'network' => $address->network,
+                'total_amount' => $payment_amount,
+                'charge' => $req->get('commission'),
+                'cryptomus_uuid' => $uuid,
+                'txid' => $req->get('txid'),
+                'status' => $status
+            ],
+        );
+
+        // $deposit->status = $status;
+        // $deposit->save();
     }
 
     public function send(string $key, string $url_id, string $id, Request $request)

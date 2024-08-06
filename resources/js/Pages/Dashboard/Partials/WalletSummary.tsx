@@ -20,24 +20,24 @@ import CurrencyFormat from 'react-currency-format';
 
 const WalletSummary: React.FC<WalletSummaryProps> = ({ history, wallet }) => {
     //--- code here ---- //
-    let transactions = history.filter(item => item.currency_id == wallet.curr.id);
+    let transactions = history?.filter(item => item.currency_id == wallet.curr.id) || [];
     const { convert, marketData, currency } = useLive();
     const [data, setData] = useState<MarketData>();
+
+    const allIn = transactions?.filter(item => item.type == '+' && item.status == 'success');
+    const allout = transactions?.filter(item => item.type == '-' && item.status == 'success');
+
     //@ts-ignore
-    let totalIn = transactions.length > 0 ? transactions.reduce((p, c) => {
-        if (c.type === '+') {
-            return {
-                amount: calc.plus(p.amount, c.amount, c.charge),
-            }
-        } else return p;
+    let totalIn = allIn.length > 0 ? allIn.reduce((p, c) => {
+        return {
+            amount: calc.plus(p.amount, c.amount, c.charge),
+        }
     }) : { amount: 0 };
     //@ts-ignore
-    let totalOut = transactions.length > 0 ? transactions.reduce((p, c) => {
-        if (c.type === '-') {
-            return {
-                amount: calc.plus(p.amount, c.amount, c.charge),
-            }
-        } else return p;
+    let totalOut = allout.length > 0 ? allout.reduce((p, c) => {
+        return {
+            amount: calc.plus(p.amount, c.amount, c.charge),
+        };
     }) : { amount: 0 };
 
     useEffect(() => {

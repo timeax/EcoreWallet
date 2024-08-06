@@ -175,16 +175,17 @@ const Submit: React.FC<{ type: 'limit' | 'instant' }> = ({ type }) => {
 
     return <>
         <Button type='button' onClick={() => {
+            if (disabled) return;
             setHide(false)
             snapData(snap());
-        }} className={classNames({ 'opacity-50 cursor-not-allowed': disabled })} disabled={disabled} centered>{fields.from.converted > 0 || fields.to.converted > 0 ? 'Preview Conversion' : 'Enter an amount'}</Button>
+        }} className={classNames({ 'bg-primary-300 focus:!bg-primary-400 hover:bg-primary-400 cursor-not-allowed !text-white': disabled })} disabled={disabled} centered>{fields.from.converted > 0 || fields.to.converted > 0 ? 'Preview Conversion' : 'Enter an amount'}</Button>
 
         <Dialog header='Confirm' visible={!hide} style={{ height: 'fit-content' }} onHide={() => { if (hide) return; setHide(true); }}>
             <div className="m-0 flex flex-col gap-7">
                 <div className="flex gap-3 flex-col">
                     <div className="flex justify-between items-center">
                         <div className='flex gap-2 items-center'>
-                            <CryptoIcon height='25px' width='25px' size='12px' name={wallets.from.curr.curr_name} label={wallets.from.curr.symbol} />
+                            <CryptoIcon height='25px' width='25px' size='12px' curr={wallets.from.curr} />
                             <Title bold noPad lg>{data?.amount}</Title>
                         </div>
 
@@ -193,7 +194,7 @@ const Submit: React.FC<{ type: 'limit' | 'instant' }> = ({ type }) => {
                     <FaArrowDownLong />
                     <div className="flex justify-between items-center">
                         <div className='flex gap-2 items-center'>
-                            <CryptoIcon height='25px' width='25px' size='10px' name={wallets.to.curr.curr_name} label={wallets.to.curr.symbol} />
+                            <CryptoIcon height='25px' width='25px' size='10px' curr={wallets.to.curr} />
                             <Title bold noPad lg>{data?.toAmount}</Title>
                         </div>
 

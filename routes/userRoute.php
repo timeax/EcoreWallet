@@ -18,6 +18,7 @@ use App\Models\Language;
 use App\Models\LoginLogs;
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\NotifyMail;
 use App\Notifications\Refreshed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -184,6 +185,7 @@ Route::name('user.')->middleware('maintenance')->group(function () {
                     Route::post('/trades/withdraw', [TradeController::class, 'withdraw'])->name('process.withdraw');
                     Route::get('/trades/swap/{wallet?}', [TradeController::class, 'swap_ui'])->name('swap');
                     Route::post('/trades/swap', [TradeController::class, 'exchange'])->name('process.swap');
+                    Route::post('/trades/swap/cancel', [TradeController::class, 'cancelExchange'])->name('cancel.swap');
 
                     Route::name('trades.')->group(function () {
                         Route::get('/trades/spot/{type}/{wallet}', [TradeController::class, 'wallets'])->name('spot');
@@ -225,12 +227,6 @@ Route::name('user.')->middleware('maintenance')->group(function () {
 // Route::get('/myadmin', function () {
 
 //     $user = Auth::user();
-
-//     $users = User::all();
-
-//     foreach ($users as $person) {
-//         $person->generateTwoStepToken();
-//     }
 
 //     return (new NotifyMail('Account Deactivated', [
 //         mText("Hello $user->name, ", ['b']),

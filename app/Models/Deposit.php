@@ -38,7 +38,7 @@ class Deposit extends Model
                 'trnx'    => $deposit->txid,
                 'user_id' => $deposit->user_id,
                 'charge'  => 0.0, //$deposit->charge,
-                'amount'  => numFormat($deposit->total_amount, 8),
+                'amount'  => round($deposit->total_amount, 8),
                 'remark'  => 'deposit',
                 'currency_id'  => $deposit->currency_id,
                 'ref' => $deposit->cryptomus_uuid,
@@ -55,17 +55,21 @@ class Deposit extends Model
             //----------
             $user = User::find($deposit->user_id);
 
-            Transaction::where(['uuid' => $deposit->cryptomus_uuid])->findOrCreate([
-                'trnx'    => $deposit->txid,
-                'user_id' => $deposit->user_id,
-                'charge'  =>  0.0, //$deposit->charge,
-                'amount'  => numFormat($deposit->total_amount, 8),
-                'remark'  => 'deposit',
-                'currency_id'  => $deposit->currency_id,
-                'ref' => $deposit->cryptomus_uuid,
-                'type'    => '+',
-                'details' => getStatusMessage($deposit->status, 'Deposit')
-            ], ['status' => $deposit->status]);
+            Transaction::updateOrCreate(
+                ['ref' => $deposit->cryptomus_uuid],
+                [
+                    'trnx'    => $deposit->txid,
+                    'user_id' => $deposit->user_id,
+                    'charge'  =>  0.0, //$deposit->charge,
+                    'amount'  => round($deposit->total_amount, 8),
+                    'remark'  => 'deposit',
+                    'currency_id'  => $deposit->currency_id,
+                    'ref' => $deposit->cryptomus_uuid,
+                    'type'    => '+',
+                    'details' => getStatusMessage($deposit->status, 'Deposit'),
+                    'status' => $deposit->status
+                ]
+            );
 
             $user->notify(Notifications::deposit($deposit));
         });

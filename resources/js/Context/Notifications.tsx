@@ -26,7 +26,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     const [hard, setHard] = useState<Notifications[]>([]);
     const [folders, setFolders] = useState<{ label: string, value: string }[]>([]);
     const [folder, setFolder] = useState({ label: 'All Category', value: 'all' });
-    const [type, setRead] = useState('all');
+    const [type, setRead] = useState('unread');
 
     const [more, showMore] = useState(false);
 
@@ -43,21 +43,33 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         window.axios.post(route('data.mark.as.read'), {
             notify: id,
             user: user.id
-        })
+        });
+
+        setHard(hard.map(item => {
+            if (id == '*') return item;
+            if (item.id == id) return {
+                ...item,
+                read_at: Date.now() + '',
+            }
+
+            return item;
+        }));
     }
 
     const del = (id: string) => {
         window.axios.post(route('data.delete'), {
             notify: id,
             user: user.id
-        })
+        });
+
+        setHard(hard.filter(item => item.id !== id));
     }
 
     useEffect(() => {
         // if (hard.length == 0) return;
         let data = type == 'all' ? hard : hard.filter(item => type == 'unread' ? !item.read_at : item.read_at)
 
-        if (folder) data = folder.value == 'all' ? hard : data.filter(item => item.type == folder.value);
+        if (folder) data = folder.value == 'all' ? data : data.filter(item => item.type == folder.value);
 
         setNotification(data);
     }, [folder, type, hard])
@@ -79,6 +91,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             setFolders([{ label: 'All Category', value: 'all' }, ...data]);
         }, 'all');
     }, []);
+
+    const readStats = [
+        { label: 'read', value: 'read' },
+        { label: 'unread', value: 'unread' },
+        { label: 'all status', value: 'all' }
+    ];
 
     return (
         <NotificationContext.Provider value={{
@@ -103,11 +121,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
                             />
 
                             <Select
-                                items={[{ label: 'read', value: 'read' }, { label: 'unread', value: 'unread' }, { label: 'all status', value: 'all' }]}
+                                items={readStats}
                                 className="grow"
                                 quick
                                 unique="value"
-                                value={{ label: 'all status', value: 'all' }}
+                                value={readStats.find(item => item.value == 'unread')}
                                 onSelect={e => setRead(e.value.value)}
                             />
                         </div>
@@ -132,7 +150,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
                                                             })}>...show more</small>
                                                         </>
                                                     })}</Title>
-                                                    {showIf<any>(item.data.props.link, (() => <Title noPad sm>
+                                                    {showIf<any>(item.data.props.link, (() => <Title normal noPad sm>
                                                         <Link href={item.data.props.link?.url || '/'}>{item.data.props.link?.label}</Link>
                                                     </Title>))}
                                                 </div>

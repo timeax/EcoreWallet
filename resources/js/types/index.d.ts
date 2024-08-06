@@ -146,6 +146,7 @@ type Withdrawals = {
 }[];
 
 type Exchanges = {
+    id?: string | number;
     transaction_id: any;
     user_id: any;
     type: string;

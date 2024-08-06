@@ -34,7 +34,7 @@ class Wallet extends Model
         $all = $this->user->transactions();
 
         return new Attribute(
-            get: fn() => $all->where(['currency_id' => $curr])->with('currency')->get()
+            get: fn () => $all->where(['currency_id' => $curr])->with('currency')->get()
         );
     }
 
@@ -57,9 +57,9 @@ class Wallet extends Model
 
         return new Attribute(
             get: fn () => ([
-                "total" => numFormat($balance + $total_in, 8),
-                "available" => numFormat($balance - $total_out, 8),
-                'escrow' => numFormat($sum, 8)
+                "total" => round($balance + $total_in, 8),
+                "available" => round($balance - $total_out, 8),
+                'escrow' => round($sum, 8)
             ])
         );
     }

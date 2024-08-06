@@ -33,6 +33,10 @@
     }
 }
 
+.stickyAnchor {
+    height: $header-height;
+}
+
 .titlebar {
     display: flex;
     &::after {

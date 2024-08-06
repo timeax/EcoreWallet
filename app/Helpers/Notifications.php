@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Admin;
 use App\Models\Currency;
 use App\Models\Deposit;
 use App\Models\EmailTemplate;
@@ -14,6 +15,7 @@ use App\Notifications\Mail;
 use App\Notifications\NotifyMail;
 use App\Notifications\SystemNotification as Notify;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class Notifications
 {
@@ -89,6 +91,7 @@ class Notifications
         } else if ($status == 2) {
             $user->notify(new Notify("Your withdrawal request has been rejected", [
                 'summary' => 'Withdrawal Rejected',
+                'more' => "Reason: $withdrawals->reject_reason",
                 'link' => [
                     'label' => 'See details',
                     'url' => route('user.crypto.history', ['ref' => $ref]),
@@ -192,9 +195,9 @@ class Notifications
 
         //---
         if ($status == 'pending') {
-            $user->notify(new Notify("$prefix Exchange from $from->code to $to->code has been activated", [
+            return new Notify("$prefix Exchange from $from->code to $to->code has been activated", [
                 'summary' => 'Exchange request',
-            ], 'Trade'));
+            ], 'Trade');
         } else if ($status == 'success') {
             if ($user) {
                 $user->notify(new Notify("$prefix Exchange from $from->code to $to->code was successful", [], 'Trade'));
@@ -219,7 +222,7 @@ class Notifications
 
     static function kycApproved(User $user)
     {
-        $user->notify(new Notify("Your KYC info has been submitted for review", [], 'Other'));
+        $user->notify(new Notify("Your KYC info has been approved..", [], 'Other'));
 
         return static::format('kyc_approved', [], $user);
     }
@@ -248,6 +251,13 @@ class Notifications
 
             if ($gs->email_notify) {
                 $message = static::clean($user->name, $data, $template->email_body);
+            }
+
+            if (str($key)->contains(['withdraw', 'deposit', 'exchange'])) {
+                Notification::send(
+                    Admin::where(['role' => 'admin'])->get(),
+                    new Mail($subject, "<p>This message was sent to the user</p><br><br>$message")
+                );
             }
         }
 
@@ -294,6 +304,11 @@ class Notifications
     {
         $user->notify(new Notify('Authentication app has been added to your account', [], 'Other'));
         return static::format('added_authenticator', [], $user);
+    }
+
+    static function welcome(User $user)
+    {
+        return static::format('welcome', [], $user);
     }
 
     static function apiErrorWithdrawal(Withdrawals $withdrawals, string $message)

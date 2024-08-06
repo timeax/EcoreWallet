@@ -10,7 +10,7 @@ export const Title = forwardRef<HTMLParagraphElement, TitleProps>(({ md, none, c
     "xl5": title,
     caps, upper, normal, className, ...props }, ref) => {
     if (!upper && !caps && !normal) caps = true
-    return <Text variant={'other'} ref={ref} {...props} className={classNames('text-[0.813em] flex items-center', className, {
+    return <Text variant={'other'} ref={ref} {...props} className={classNames('text-[0.813em] flex items-center', {
         'font-semibold': bold,
         'font-medium': medium,
         'font-normal': light,
@@ -32,7 +32,7 @@ export const Title = forwardRef<HTMLParagraphElement, TitleProps>(({ md, none, c
         'capitalize': caps,
         'normal-case': normal,
         'text-white': white,
-    })}>{children}</Text>
+    }, className)}>{children}</Text>
 }
 )
 interface TitleProps extends AppElement {

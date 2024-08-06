@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\Notifications;
 use App\Http\Controllers\Controller;
 use App\Notifications\OtpSent;
 use Auth;
@@ -23,7 +24,7 @@ class VerifyEmailController extends Controller
         session(['verification_code' => $request->verification_code]);
 
         if ($user->markEmailAsVerified()) {
-            $user->notify(new OtpSent(''));
+            $user->notify(Notifications::welcome($user));
         } else {
             return redirect()->route('user.verify.email')->with([
                 'email.validation.error' => 'Invalid Verfication Code',

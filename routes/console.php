@@ -1,13 +1,15 @@
 <?php
 
+use App\Jobs\QuitQueue;
 use App\Jobs\UpdateCryptoPrices;
 use App\Jobs\UpdateExchangeRates;
-use App\Models\Currency;
+use App\Models\Escrow;
 use App\Models\GeckoCoins;
+use App\Models\Job;
+use App\Models\QueueCache;
 use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +31,7 @@ Artisan::command('market-data', function () {
 });
 
 Artisan::command('data', function () {
-    UpdateCryptoPrices::dispatch('historical');
+    UpdateCryptoPrices::dispatch('historical-data');
     UpdateCryptoPrices::dispatch('market-data');
 });
 
@@ -60,6 +62,81 @@ Artisan::command('load-gecko', function () {
 });
 
 
-Artisan::command('rates', function() {
+Artisan::command('rates', function () {
     UpdateExchangeRates::dispatch();
+});
+
+
+Artisan::command('escrows', function () {
+    Escrow::all()->each(function (Escrow $escrow) {
+        $status = $escrow->transaction?->status;
+        if (is_null($status)) return;
+        if ($status !== 'pending') $escrow->delete();
+    });
+});
+
+function forceStop(string $name)
+{
+    QuitQueue::dispatch()->onQueue($name);
+}
+//------------------------
+Artisan::command('supervisor {name}', function (string $name) {
+    $values = compact('name');
+    //=---
+    $cache = QueueCache::where($values)->first();
+    //-------
+    if ($cache) {
+        $at = strtotime($cache->created_at);
+        $this->info($at);
+        if ($at < $at + 6000) return;
+
+        $job = Job::where(['queue' => $name])->first();
+
+        if ($job) {
+            $created = (int) $job->created_at;
+            //---
+            $diff = strtotime('now') - $created;
+            if (($diff / 1000) >= 25) {
+                //----- force stop any queues running on this
+                forceStop($name);
+                //-----
+                $cache->delete();
+                Artisan::call("supervisor $name");
+            }
+        } else forceStop($name);
+
+
+        return 1;
+    } else $cache = QueueCache::create($values);
+
+    //------
+    Artisan::call("queue:work --queue=$name");
+    //----
+    $cache->delete();
+});
+
+Artisan::command('live:rates', function () {
+    Artisan::call('supervisor exchange-rates');
+});
+
+Artisan::command('live:notifications', function () {
+    Artisan::call('supervisor default');
+});
+
+Artisan::command('quit {name=all}', function (string $name) {
+    if ($name == 'all') {
+        Job::where(['queue' => 'exchange-rates'])->where(['attempts' => 0])->where("created_at", '<', strtotime('-10 seconds'))->delete();
+
+        Artisan::call("queue:restart");
+        Artisan::call("queue:restart");
+        Artisan::call("queue:restart");
+        Artisan::call("queue:restart");
+        //-----
+        QueueCache::truncate();
+        return;
+    }
+
+    forceStop($name);
+
+    QueueCache::where(compact('name'))->delete();
 });

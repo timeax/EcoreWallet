@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
 import { Currencies, PageProps, Trades, Transactions, Wallet, Wallets } from '@typings/index';
 import ClassicSections from '@layouts/ClassicSections';
-import { cutArr } from '@assets/fn';
+import { cutArr, sort } from '@assets/fn';
 import Card from '@components/Card';
 import Cardheader from '@components/Card/Cardheader';
 import { FaChevronRight } from 'react-icons/fa';
@@ -23,6 +23,7 @@ import { Link } from '@inertiajs/react';
 import { TransactionProvider } from '@context/TransactionDetail';
 
 export default function Dashboard({ auth, wallets, transactions, gs, currencies, ...props }: DashboardProps) {
+    wallets = sort(wallets, 'balance', 1)
     const [wallet, setWallet] = useState<Wallet>();
     return (
         <AuthenticatedLayout

@@ -4,11 +4,10 @@ namespace App\Jobs;
 
 use App\Models\Currency;
 use App\Models\Exchange;
-use App\Models\Generalsetting;
-use App\Models\HistoricalData;
 use App\Models\Rate;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -20,6 +19,7 @@ class UpdateExchangeRates implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 1;
     /**
      * Create a new job instance.
      */
@@ -32,28 +32,13 @@ class UpdateExchangeRates implements ShouldQueue
     {
         return "https://api.cryptomus.com/v1/exchange-rate/{$code}/list";
     }
-
-    private function buildLink2(string $name, string $days = '1')
-    {
-        $curr = @Currency::where(['default' => '1'])->first()->code;
-        $def = @str($curr)->lower() ?? 'usd';
-        return "https://api.coingecko.com/api/v3/coins/{$name}/market_chart?vs_currency={$def}&days={$days}&precision=8";
-    }
-
-    private function addHistoricalData(array $rates = [])
-    {
-        if (count($rates) > 0) {
-        }
-    }
-
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        $rate = Generalsetting::first()->exchange_rate ?? 0.02;
         //--------
-        Currency::all()->map(function ($curr) use ($rate) {
+        Currency::all()->map(function ($curr) {
             $code = $curr->code;
             $response = Http::get($this->buildLink($code));
             //---------
@@ -61,41 +46,109 @@ class UpdateExchangeRates implements ShouldQueue
                 $raw = $response['result'];
                 $data = json_encode($raw);
 
-                if (Exchange::where(['status' => 'pending', 'to' => $curr->id])->count() > 0)
-                    ExchangeLimitProcessor::dispatch(['id' => $curr->id, 'rates' => $data]);
+                $exchange = Exchange::where(['type' => 'limit', 'status' => 'pending', 'to' => $curr->id])->with('transferFrom')->get();
 
-                $rates = Rate::where(['currency_id' => $curr->id])->first();
-                if ($rates) {
-                    $rates->charges = $rate;
-                    $rates->rates = $data;
-                    $rates->save();
-                } else Rate::create([
-                    'currency_id' => $curr->id,
-                    'charges' => $rate,
-                    'rates' => $data
-                ]);
+                if ($exchange) {
+                    // ExchangeLimitProcessor::dispatch(['id' => $curr->id, 'rates' => $data]);
+                    $this->exchange($curr, $raw, $exchange);
+                }
+                Rate::updateOrCreate(
+                    ['currency_id' => $curr->id],
+                    [
+                        'currency_id' => $curr->id,
+                        'charges' => 0,
+                        'rates' => $data
+                    ]
+                );
+            }
+        });
+    }
 
-                $historical = HistoricalData::where(['currency_id' => $curr->id])->latest()->first();
-                if (!$historical) UpdateCryptoPrices::dispatch('historical-data');
-                else {
-                    $data = json_decode($historical->data);
-                    $list = Arr::where($raw, function ($data) {
-                        return $data['to'] == Currency::where(['default' => 1])->first()->code;
-                    });
+    /**
+     * @param Collection<int, Exchange> $list
+     */
+    private function exchange(Currency $curr, array $rates, $list)
+    {
+        //----------
+        foreach ($list as $limit) {
+            $time = strtotime('now');
+            $expire = $limit->expire_in;
+            //---------
+            //----------
+            if ($time >= $expire) {
+                // Log::info("$time -> $expire");
+                $limit->status = 'failed';
+                $limit->save();
+            } else {
+                $rateLimit = $limit->rate;
+                $from = $limit->transferFrom->code;
+                //---------
+                if ($curr) {
+                    $match = null;
+                    // $rates = json_decode($rates['rates']);
 
-
-                    if (count($list)) {
-                        //---
-                        $live = isset($data->live) ? $data->live :  [];
-                        //------
-                        $live[] =  [strtotime('now'), Arr::first($list)['course']];
-                        $data->live = $live;
+                    foreach ($rates as $rate) {
+                        if ($rate["to"] === $curr->code && $rate["from"] == $from) {
+                            $match = $rate;
+                            break;
+                        }
                     }
 
-                    $historical->data = json_encode($data);
-                    $historical->save();
+
+                    if ($match) {
+                        if ($rateLimit <= $match->course) {
+                            $rate = (float) $match->course;
+                            //----
+                            // $limit->rate = $rate;
+                            $limit->status = 'success';
+                            $limit->save();
+                        }
+                    }
                 }
             }
-        })->toArray();
+        }
     }
 }
+
+
+
+
+
+ // try {
+                //     $historical = HistoricalData::where(['currency_id' => $curr->id])->latest()->first();
+
+                //     $list = Arr::where($raw, function ($data) {
+                //         return $data['to'] == Currency::where(['default' => 1])->first()->code;
+                //     });
+
+                //     if (!$historical) {
+                //         if (HistoricalData::all()->count() == 0) UpdateCryptoPrices::dispatch('historical-data');
+                //         else {
+                //             if (count($list))
+                //                 HistoricalData::create([
+                //                     'currency_id' => $curr->id,
+                //                     'data' => [
+                //                         'live' => [
+                //                             [strtotime('now'), Arr::first($list)['course']]
+                //                         ]
+                //                     ]
+                //                 ]);
+                //         }
+                //     } else {
+                //         $data = json_decode($historical->data);
+
+                //         if (count($list)) {
+                //             //---
+                //             $live = isset($data->live) ? $data->live :  [];
+                //             //------
+                //             $live[] =  [strtotime('now'), Arr::first($list)['course']];
+                //             $data->live = $live;
+                //         }
+
+                //         $historical->data = json_encode($data);
+                //         $historical->save();
+                //     }
+                // } catch (\Throwable $th) {
+                //     //throw $th;
+                //     Log::info('Error from UpdateExchangeRates ' . $th->getMessage());
+                // }

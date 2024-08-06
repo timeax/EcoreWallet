@@ -44,11 +44,16 @@ class WithdrawalController extends Controller
         // @mailSend('accept_withdraw', , $withdraw->user);
 
         $user = $withdraw->user;
-        if (session()->get('withdraw') == 'fail') {
+        if (session(null)->get('withdraw') == 'fail') {
             $withdraw->status = 0;
             $withdraw->save();
             return back()->with('error', 'Withdraw Failed with errors.. Please check your mail');
         }
+
+        if ($withdraw->isDirty()) {
+            $withdraw->save();
+        }
+
         $user->notify(Notifications::withdraw_request($withdraw));
 
         return back()->with('success', 'Withdraw Accepted Successfully');
@@ -64,7 +69,7 @@ class WithdrawalController extends Controller
         $trnx = $withdraw->transaction()->first();
         //----------
         $trnx->remark      = 'withdraw';
-        $trnx->type        = '+';
+        // $trnx->type        = '-';
         $trnx->status        = 'failed';
         $trnx->details     = trans('Withdraw request rejected');
         //---------

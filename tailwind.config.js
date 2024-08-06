@@ -1,5 +1,4 @@
 import defaultTheme from "tailwindcss/defaultTheme";
-import forms from "@tailwindcss/forms";
 import colors from "./resources/js/Assets/colors";
 
 /** @type {import('tailwindcss').Config} */

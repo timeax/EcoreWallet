@@ -164,7 +164,6 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
     return (
         <Context.Provider value={{ ...props, echo, config, notify, notifications }}>
             <Head title={title}>
-                <link rel="shortcut icon" type={'icon'} href={icon} />
                 {usePusher ? <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> : ''}
             </Head>
             <Toast

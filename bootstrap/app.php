@@ -41,13 +41,6 @@ $app = Application::configure(basePath: $_ENV['APP_BASE_PATH'] ?? dirname(__DIR_
             }
             return $response;
         });
-    })->withSchedule(function (Schedule $schedule) {
-        //---- update
-        $schedule->job(new UpdateCryptoPrices('market-data'))->everyFiveMinutes();
-        //--- update the historical data of the wallets
-        $schedule->job(new UpdateCryptoPrices('historical-data'))->dailyAt('1:00');
-        //--- update the exchange rates of the cryptomus api
-        $schedule->job(new UpdateExchangeRates())->everyTenSeconds();
     })->create();
 
 

@@ -10,11 +10,12 @@ import Note from '@components/Trade/Note';
 import styles from '@styles/pages/trade.module.scss';
 import { classNames } from 'primereact/utils';
 import { showIf } from '@assets/fn';
-import { Message } from 'primereact/message';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
-const Withdraw: React.FC<WithdrawProps> = ({ auth, wallets, wallet: code, services, ...props }) => {
+const Withdraw: React.FC<WithdrawProps> = () => {
     //--- code here ---- //
+    const { auth, wallets, wallet: code, services, ...props } = usePage<WithdrawProps>().props;
+
     const [wallet, setWallet] = useState<Wallet | undefined>();
 
     useEffect(() => {

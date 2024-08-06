@@ -4,17 +4,23 @@ namespace App\Providers;
 
 use App\Helpers\Display;
 use App\Models\Generalsetting;
+use App\Models\Job;
 use App\Models\SupportTicket;
 use App\Models\Trade;
 use App\Models\User;
 use App\Models\Withdrawals;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Queue\Events\QueueBusy;
+use Illuminate\Queue\Events\WorkerStopping;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Opcodes\LogViewer\Facades\LogViewer;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,6 +50,12 @@ class AppServiceProvider extends ServiceProvider
                     'okpakodavx3@gmail.com',
                     'timmyokpako@gmail.com',
                 ]);
+        });
+
+        Event::listen(function (QueueBusy $event) {
+            Job::where(['queue' => $event->queue])->where(['attempts' => 0])->where("created_at", '<', strtotime('-15 seconds'))->delete();
+            //--------
+            Log::info('ALert: ' . $event->queue);
         });
 
         view()->composer('*', function ($settings) {

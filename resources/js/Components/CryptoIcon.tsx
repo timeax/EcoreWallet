@@ -36,9 +36,17 @@ const CryptoIcon: React.FC<CryptoIconProps> = ({ name: coin = '', shape = 'circl
             if (image) {
                 setLoaded(image.complete);
 
+                const interval = setInterval(() => {
+                    if (image.complete) {
+                        setLoaded(image.complete)
+                        clearInterval(interval);
+                    };
+                }, 1000);
+
                 setTimeout(() => {
-                    setLoaded(image.complete);
-                }, 1000)
+                    clearInterval(interval);
+                }, 10000);
+
             };
         }
     }, []);

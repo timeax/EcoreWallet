@@ -32,8 +32,24 @@ class UpdateCryptoPrices implements ShouldQueue
     public string $names;
     public array $store = [];
     public string $href;
+
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 5;
+
+    /**
+     * The maximum number of unhandled exceptions to allow before failing.
+     *
+     * @var int
+     */
+    public $maxExceptions = 3;
+
     public function __construct(public string $type, public array $rates = [])
     {
+        $this->onQueue('market');
         //
         $this->key = env('GECKO_KEY');
         $this->run($type);
@@ -65,7 +81,7 @@ class UpdateCryptoPrices implements ShouldQueue
             });
 
             // Log::info(json_encode($this->store));
-        } else {
+        } else if ($type == 'market-data') {
             $names = Arr::join(Currency::where(['type' => 2])->get()->map(function ($curr) {
                 $name = $curr->gecko_id;
                 $name = Str::lower($name);
@@ -89,7 +105,7 @@ class UpdateCryptoPrices implements ShouldQueue
                 'accept' => 'application/json',
                 'x-cg-demo-api-key' => $this->key,
             ])->get($this->href));
-        } else {
+        } else if ($this->type == 'historical-data') {
             foreach ($this->store as $name => $id) {
                 //---
                 $num = HistoricalData::where(['currency_id' => $id])->count();
@@ -118,7 +134,8 @@ class UpdateCryptoPrices implements ShouldQueue
                     MarketData::updateOrCreate([
                         'currency_id' => $id,
                     ], [
-                        'data' => json_encode($coin)
+                        'data' => json_encode($coin),
+                        'currency_id' => $id,
                     ]);
                 }
             } else {

@@ -28,7 +28,8 @@ class Exchange extends Model
             $transferTo = $user->wallets()->where(['crypto_id' => $to])->first();
             $transferFrom = $user->wallets()->where(['crypto_id' => $from])->first();
             $ref = $exchange->transaction_id;
-            $amount = (float) $exchange->amount;
+            //-----------
+            $gain = (float) $exchange->gain;
             $total = $exchange->total;
             $fee = $exchange->charges;
             //---------
@@ -42,7 +43,7 @@ class Exchange extends Model
                 'details' => getStatusMessage($exchange->status, 'Exchange'),
                 'status' => $exchange->status,
                 'type' => '+',
-                'amount' => $amount * (float) $exchange->rate
+                'amount' => $gain
             ]);
 
             Transaction::create([
@@ -66,7 +67,7 @@ class Exchange extends Model
                 'wallet_id' => $transferTo->id,
                 'user_id' => $user->id,
                 'transaction_ref' => $ref . 'in',
-                'amount' => $amount * (float) $exchange->rate
+                'amount' => $gain
             ]);
 
             Escrow::create([
@@ -74,7 +75,7 @@ class Exchange extends Model
                 'wallet_id' => $transferFrom->id,
                 'user_id' => $user->id,
                 'transaction_ref' => $ref . 'out',
-                'amount' => $amount
+                'amount' => $total
             ]);
 
             @$user->notify(Notifications::exchange($exchange));
@@ -83,9 +84,7 @@ class Exchange extends Model
         static::saved(function (self $exchange) {
             if ($exchange->status == 'pending') return;
             //----
-            $user = $exchange->user()->get();
-            $to = $exchange->transferTo;
-            $from = $exchange->transferFrom;
+            $user = $exchange->user;
             $transactions = $exchange->transactions()->get();
 
             //------------
@@ -94,28 +93,12 @@ class Exchange extends Model
                 //--------
                 $escrow = $transaction->escrow;
 
-                if ($transaction->type === '+') {
-                    $amount = $exchange->amount * (float) $exchange->rate;
-                    $transaction->amount = $amount;
-                    //---
-                    @$escrow->amount = $amount;
-                } else {
-                    // $amount = numFormat($exchange->amount * (float) $exchange->rate, 8);
-                    // $transaction->amount = $amount;
-                    // //---
-                    // @$escrow->amount = $amount;
-                }
-
                 $transaction->status = $exchange->status;
                 $transaction->details = getStatusMessage($exchange->status, 'Exchange');
                 //------------------
                 $transaction->save();
                 @$escrow->delete();
             }
-
-            $transactions->each(function ($item) {
-                return @$item->escrow()->delete();
-            });
 
             @$user->notify(Notifications::exchange($exchange));
         });

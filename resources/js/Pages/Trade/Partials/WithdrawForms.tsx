@@ -9,14 +9,15 @@ import styles from '@styles/pages/trade.module.scss';
 
 import React from 'react';
 import Button from "@components/Button"
-import { useForm } from "@inertiajs/react"
+import { router, useForm, usePage } from "@inertiajs/react"
 import { Dialog } from "primereact/dialog"
 import { assets, showIf } from "@assets/fn"
 import { RxDividerHorizontal } from "react-icons/rx"
 import { FaChevronRight, FaLongArrowAltRight } from "react-icons/fa"
 import { useConsole } from "@context/AuthenticatedContext"
 import { classNames } from "primereact/utils"
-import { Avatar } from "primereact/avatar"
+import { Avatar } from "primereact/avatar";
+import calc from 'number-precision';
 
 const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], wallet }) => {
     //--- code here ---- //
@@ -79,7 +80,11 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
 
     const onWalletSubmit = (e: any) => {
         e.preventDefault?.();
-        post(route('user.crypto.process.withdraw'));
+        post(route('user.crypto.process.withdraw'), {
+            onSuccess(page) {
+                router.reload();
+            },
+        });
         if (visible) setVisible(false);
         else if (visible2) setVisible2(false);
     }
@@ -99,20 +104,33 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
             ))}
             errorText={amountErr || errors.amount}
             onChange={(e: any) => {
-                const value = parseFloat(e.target.value || '0.0') || 0.0;
+                let temp = 0;
+                let value = e.target.value.trim();
+                if (value == '.') value = '0.';
+                //------------
+                else if (value.startsWith('0')) {
+                    if (value.length > 1) {
+                        if (value.charAt(1) === '0') value = '0';
+                        else if (value.charAt(1) !== '.') value = value.substring(1);
+                    }
+                } else if (value.startsWith('-')) value = '0';
+                else if (value.startsWith('.')) value = '0' + value;
+                //----
+                temp = value ? calc.times(value, 1) : 0;
+                //------------
                 if (!service || !wallet) return setData('amount', value);
-                const balance = parseFloat(wallet.all_balance.available);
+                const balance = calc.times(wallet.all_balance.available, 1);
                 //------
                 const charges = wallet?.curr.charges;
-                let charge = parseFloat((channel !== '@ecore' && charges?.withdraw_charge) || '0.0');
+                let charge = calc.times((channel !== '@ecore' && charges?.withdraw_charge) || '0.0', 1);
                 if (charge && charge > 0) {
-                    charge = (value * (charge / 100)) + (parseFloat(service?.commission.fee_amount || '0.0') || 0.0)
+                    charge = calc.plus(calc.times(temp, calc.divide(charge, 100)), ((service?.commission.fee_amount || '0.0') || 0.0))
                 }
                 //---
-                if ((value < parseFloat(service?.limit.min_amount || '0.0')) || value > parseFloat(service?.limit.max_amount || '100'
-                )) {
+                if ((temp < calc.times(service?.limit.min_amount || '0.0', 1)) || temp > calc.times(service?.limit.max_amount || '100'
+                    , 1)) {
                     setErr(`Min amount is ${service?.limit.min_amount}, Max is ${service?.limit.max_amount}`);
-                } else if (wallet && (charge + value) > balance) setErr('Insufficient Funds')
+                } else if (wallet && (charge + temp) > balance) setErr('Insufficient Funds')
                 else if (amountErr) setErr('');
 
                 setTotal(value > 0 ? charge : 0);

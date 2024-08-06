@@ -10,15 +10,15 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true,
-        "vendor": true,
+        "vendor": false,
         "tests": true,
         "storage": false,
         ".editorconfig": true,
         ".env.example": true,
         ".env": false,
-        ".vscode": true,
+        ".vscode": false,
         "node_modules": true,
-        "database": true,
+        "database": false,
         ".gitattributes": true,
         ".gitignore": false,
         "artisan": true,
@@ -34,9 +34,12 @@
         "resources\\js/Styles": true,
         "db": true,
         "vite.config.js": true,
-        "*.json": true,
+        "*.json": false,
         "**/.gitignore": true,
-        "**/LICENSE": true
+        "**/LICENSE": true,
+        "**/colors.theme.json": true,
+        "**/composer.json": true,
+        "tsconfig.json": true
     },
     "explorerExclude.backup": {},
     "intelephense.diagnostics.undefinedTypes": false,
@@ -46,4 +49,20 @@
     "intelephense.diagnostics.undefinedMethods": false,
     "intelephense.diagnostics.undefinedProperties": false,
     "intelephense.diagnostics.undefinedVariables": true,
+    "intelephense.files.associations": [
+        "*.php",
+        "*.phtml",
+        "*.inc",
+        "*.module",
+        "*.install",
+        "*.theme",
+        ".engine",
+        ".profile",
+        ".info",
+        ".test"
+    ],
+    "php.stubs": [
+        "*",
+        "pcntl"
+    ]
 }

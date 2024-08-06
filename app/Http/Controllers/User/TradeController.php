@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Helpers\Notifications;
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
 use App\Models\Exchange;
@@ -131,7 +132,7 @@ class TradeController extends Controller
                 'amount' => $finalAmount
             ]);
             //--------
-            return back()->with('success', 'Transfer request submitted successfully');
+            return back()->with(message('Transfer request submitted successfully'));
         }
 
         Withdrawals::create([
@@ -146,7 +147,7 @@ class TradeController extends Controller
             'currency_id' => $curr->id
         ]);
 
-        return back()->with('success', 'Withdraw request has been submitted successfully.');
+        return back()->with(message('Withdraw request has been submitted successfully.'));
     }
 
     public function history(Request $request)
@@ -157,7 +158,7 @@ class TradeController extends Controller
         $withdrawals = $user->withdrawals;
         $exchanges = $user->exchanges;
         $transfers = $user->transfers;
-        $transactions = Transaction::where(['user_id' => $request->user()->id])->with('currency')->get();
+        $transactions = Transaction::where(['user_id' => $request->user()->id])->with('currency')->latest()->get();
         return Inertia::render('Trade/History', compact('transactions', 'currencies', 'deposits', 'withdrawals', 'exchanges', 'transfers'));
     }
 
@@ -178,6 +179,27 @@ class TradeController extends Controller
         $services = $this->cryptomus->payoutServices();
 
         return Inertia::render('Trade/Exchange', compact('wallets', 'wallet', 'history', 'currencies'));
+    }
+
+    public function cancelExchange(Request $request)
+    {
+        $id = $request->get('id');
+        //---
+        if (!$id) return back()->with(message('Transaction ID is missing', 'warn'));
+
+        $exchange = Exchange::find($id);
+        if ($exchange) {
+            if ($exchange->status !== 'pending') back()->with(message('Transaction is already resolved..', 'warn'));
+
+            $exchange->status = 'failed';
+            $exchange->save();
+            //--------------
+            $request->user->notify(Notifications::exchange(($exchange)));
+            //---------
+            return back()->with(message('Exchange transaction has been cancelled'));
+        }
+
+        return back()->with(message('Could not find transaction..', 'warn'));
     }
 
     public function exchange(Request $request)
@@ -208,6 +230,7 @@ class TradeController extends Controller
 
         if (!$from || !$to) return back()->with(message('Something went wrong, try again later', 'error'));
         //-------
+        $rate = (float) $data['rate'];
         //---
         $charge = @$from->curr->charges->exchange_charge ?? 0;
         $chargeType = @$from->curr->charges->exchange_charge_type ?? '%';
@@ -220,7 +243,6 @@ class TradeController extends Controller
         ]);
         //-------
         if ($data['type'] == 'instant') {
-            $rate = (float) $data['rate'];
             //--------
             $gain = $amount * $rate;
             //----
@@ -235,6 +257,7 @@ class TradeController extends Controller
                     'amount' => $amount,
                     'charges' => $fee,
                     'total' => $loss,
+                    'gain' => round($gain, 8),
                     'from' => $from->curr->id,
                     'to' => $to->curr->id,
                     'status' => 'success',
@@ -245,9 +268,9 @@ class TradeController extends Controller
             return back()->with(message('Exchange request has been submitted successfully.'));
         }
 
-        $rate = (float) $data['limitRate'];
+        $limit = (float) $data['limitRate'];
         $expire = $data['expire'];
-
+        $gain = $amount * $rate;
         //--------
         $loss = $amount + $fee;
 
@@ -260,9 +283,10 @@ class TradeController extends Controller
             'total' => $loss,
             'from' => $from->curr->id,
             'to' => $to->curr->id,
+            'gain' => round($gain, 8),
             'status' => 'pending',
             'rate' => $rate,
-            'limit_rate' => $rate,
+            'limit_rate' => $limit,
             'expire_in' => toTime($expire)
         ]);
 

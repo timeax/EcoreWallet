@@ -10,7 +10,6 @@ import { getDate, showIf } from '@assets/fn';
 import { classNames } from 'primereact/utils';
 import { Title } from '@components/Trade';
 import useTransaction, { Status } from '@context/TransactionDetail';
-import CryptoIcon from '@components/CryptoIcon';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import css from '@styles/pages/transactions.module.scss'
@@ -20,10 +19,10 @@ import { styles as tableStyles } from '@assets/theme/transaction';
 import { TransactionIcon } from '@pages/Dashboard/Partials/HistorySection';
 const ExtraInfo: React.FC<ExtraInfoProps> = ({ wallet }) => {
     //--- code here ---- //
-    const history = wallet?.transactions?.filter(item => {
+    const history = (wallet?.transactions?.filter(item => {
         item.updated_at = new Date(item.updated_at || item.created_at);
         return item.currency_id === wallet?.crypto_id
-    }) || [];
+    }) || []).reverse();
 
     return (
         <Card className={styles.main}>
