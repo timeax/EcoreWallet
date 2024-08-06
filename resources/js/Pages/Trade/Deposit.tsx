@@ -37,6 +37,7 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
             }
         });
 
+
         setServiceList(list);
 
         setService(list[0]);
@@ -52,6 +53,7 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
             title='Fund Account'>
             <Page
                 {...{
+                    setService,
                     serviceList,
                     setWallet,
                     wallet,
@@ -65,7 +67,7 @@ const Deposit: React.FC<DepositProps> = ({ auth, addresses, wallets, wallet: cod
 
 
 
-const Page: React.FC<PageProp> = ({ wallet, service, serviceList, setWallet, wallets }) => {
+const Page: React.FC<PageProp> = ({ wallet, service, serviceList, setWallet, wallets, setService }) => {
     //--- code here ---- //
     const logger = useConsole();
 
@@ -137,6 +139,7 @@ const Page: React.FC<PageProp> = ({ wallet, service, serviceList, setWallet, wal
                                     label='network'
                                     variant='outline'
                                     quick
+                                    onSelect={(e) => setService(e.value)}
                                 />
                             </Container>
 
@@ -183,7 +186,8 @@ interface PageProp {
     service?: AddressState;
     serviceList: AddressState[];
     setWallet: React.Dispatch<Wallet>;
-    wallets: Wallets
+    wallets: Wallets;
+    setService: React.Dispatch<AddressState>;
 }
 
 
