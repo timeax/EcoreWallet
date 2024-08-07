@@ -269,7 +269,7 @@ class TradeController extends Controller
                 ]);
             } else return back()->with(message('Something went wrong, try again later', 'warn'));
 
-            return back()->with(message('Exchange request has been submitted successfully.'));
+            return back(303)->with(message('Exchange request has been submitted successfully.'));
         }
 
         $limit = (float) $data['limitRate'];

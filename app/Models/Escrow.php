@@ -38,7 +38,7 @@ class Escrow extends Model
             $wallet->balance = $balance - $charge;
             //------
             $wallet->save();
-            $escrow->reload();
+            // $escrow->reload();
         });
     }
 
