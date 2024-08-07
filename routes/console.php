@@ -27,12 +27,16 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('market-data', function () {
-    UpdateCryptoPrices::dispatch('market-data');
+    UpdateCryptoPrices::dispatchSync('market-data');
 });
 
 Artisan::command('data', function () {
     UpdateCryptoPrices::dispatch('historical-data');
     UpdateCryptoPrices::dispatch('market-data');
+});
+
+Artisan::command('historical', function () {
+    UpdateCryptoPrices::dispatchSync('historical-data');
 });
 
 Artisan::command('update-users', function () {
@@ -63,7 +67,8 @@ Artisan::command('load-gecko', function () {
 
 
 Artisan::command('rates', function () {
-    UpdateExchangeRates::dispatch();
+    // Log::info('I am being called');
+    UpdateExchangeRates::dispatchSync();
 });
 
 
@@ -77,7 +82,8 @@ Artisan::command('escrows', function () {
 
 function forceStop(string $name)
 {
-    QuitQueue::dispatch()->onQueue($name);
+    // QuitQueue::dispatch()->onQueue($name);
+    Artisan::call('quit');
 }
 //------------------------
 Artisan::command('supervisor {name}', function (string $name) {

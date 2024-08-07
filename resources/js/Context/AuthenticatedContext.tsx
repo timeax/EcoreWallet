@@ -2,10 +2,11 @@ import { Notifications, PageProps, User } from '@typings/index';
 import { Head, usePage } from '@inertiajs/react';
 import React, { PropsWithChildren, createContext, useContext, useEffect, useRef, useState } from 'react';
 import Echo from 'laravel-echo';
-import icon from '@assets/images/ecore-favi.ico'
-import { Toast, ToastMessageOptions } from 'primereact/toast';
+import { Toast, ToastMessage } from 'primereact/toast';
 import { useTheme } from './Theme';
 import { NotificationProvider } from './Notifications';
+import { FaBell } from 'react-icons/fa';
+import { Title } from '@components/Trade';
 
 //@ts-ignore
 const Context = createContext<AuthenticatedContextProps>();
@@ -19,33 +20,48 @@ export function useNotify() {
     return useContext(Context).notify
 }
 
+export function useReload() {
+    useContext(Context);
+}
+
 export function useConsole() {
     const context = useContext(Context).notify;
-    const options = (severity: ToastMessageOptions['severity'], detail: string, summary: string = '') => ({
+    const options = (severity: ToastMessage['severity'], detail: string, summary: string = '', content?: ToastMessage['content']) => ({
         closable: true,
         severity,
         summary,
-        detail
-    } as ToastMessageOptions);
+        detail,
+        content
+    } as ToastMessage);
     return {
-        warn(message: string, summary: string = '') {
-            context(options('warn', message, summary));
+        warn(message: string, summary: string = '', content?: ToastMessage['content']) {
+            context(options('warn', message, summary, content));
         },
 
-        info(message: string, summary: string = '') {
-            context(options('info', message, summary));
+        info(message: string, summary: string = '', content?: ToastMessage['content']) {
+            context(options('info', message, summary, content));
         },
 
-        error(message: string, summary: string = '') {
-            context(options('error', message, summary));
+        error(message: string, summary: string = '', content?: ToastMessage['content']) {
+            context(options('error', message, summary, content));
         },
 
-        success(message: string, summary: string = '') {
-            context(options('success', message, summary));
+        success(message: string, summary: string = '', content?: ToastMessage['content']) {
+            context(options('success', message, summary, content));
         },
 
-        log(message: string, summary: string = '') {
-            context(options('contrast', message, summary));
+        notification() {
+            //@ts-ignore
+            context(options('success', 'New notification', '', (props) => {
+                return <div className='grow'>
+                    <div className="flex items-center gap-3">
+                        <FaBell />
+                        <Title brighter noPad>
+                            New notification
+                        </Title>
+                    </div>
+                </div>
+            }))
         }
     }
 }
@@ -75,7 +91,7 @@ interface Events {
 }
 
 export function useWrapper() {
-    const { echo, user, notifications } = useContext(Context);
+    const { echo, user, notifications, refreshable } = useContext(Context);
     const { theme, setTheme } = useTheme();
     return {
         theme,
@@ -96,18 +112,22 @@ export function useWrapper() {
                         event: 'user.notify'
                     } as any);
 
-                    echo?.private(`user.${user.id}`).notification((notification: any) => {
-                        window.axios.get(route('data.notifications', { userId: user.id, type: props })).then((data => {
-                            const notifications = data.data;
-                            callback({
-                                data: notifications,
-                                event:
-                                    notification.message == 'reload'
-                                        ? 'user.notify'
-                                        : `user.${user.id}`,
-                            } as any)
-                        }));
-                    })
+                    echo?.private(`user.${user.id}`)
+                        .notification((notification: any) => {
+                            window.axios.get(route('data.notifications', { userId: user.id, type: props })).then((data => {
+                                const notifications = data.data;
+                                callback({
+                                    data: notifications,
+                                    event:
+                                        notification.message == 'reload'
+                                            ? 'user.notify'
+                                            : `user.${user.id}`,
+                                } as any)
+                            }));
+                        })
+                        .listen('.DataRefresh', () => {
+                            console.log('Refresh the data')
+                        })
                     break;
                 }
 
@@ -135,23 +155,19 @@ const AuthenticatedContextProvider: React.FC<AuthenticatedContextProviderProps> 
     const [config, setConfig] = useState<Store[]>([]);
     if (usePusher) {
         echo = new Echo({
-            broadcaster: 'reverb',
-            key: import.meta.env.VITE_REVERB_APP_KEY,
-            wsHost: import.meta.env.VITE_REVERB_HOST,
-            wsPort: import.meta.env.VITE_REVERB_PORT,
-            wssPort: import.meta.env.VITE_REVERB_PORT,
-            forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
-            enabledTransports: ['ws', 'wss'],
+            broadcaster: 'pusher',
+            key: import.meta.env.VITE_PUSHER_APP_KEY,
+            cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+            forceTLS: true
         });
     }
-
 
     const { auth: { notifications }, flash: { message } } = usePage<PageProps>().props;
     //------------
     const toast = useRef<{ show(props: any): void }>(null);
     //-----------
 
-    const notify = (props: ToastMessageOptions | ToastMessageOptions[]) => {
+    const notify = (props: ToastMessage | ToastMessage[]) => {
         toast.current?.show(props);
     }
 
@@ -192,8 +208,9 @@ interface AuthenticatedContextProps {
     user: User;
     echo?: Echo;
     config: Array<Store>;
-    notify(props: ToastMessageOptions): void
+    notify(props: ToastMessage): void
     notifications: Notifications[];
+    refreshable?: string[];
 }
 
 interface Store {

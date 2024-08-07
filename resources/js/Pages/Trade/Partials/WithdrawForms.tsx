@@ -49,6 +49,11 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
         temp: ''
     });
 
+    useEffect(() => {
+        if (data.amount > 0 && channel == 'wallet' && service) {
+            setCharge(data.amount, calc.times(wallet?.all_balance.available || 0, 1));
+        }
+    }, [service, wallet]);
 
     useEffect(() => {
         if (wallet) {
@@ -82,11 +87,30 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
         e.preventDefault?.();
         post(route('user.crypto.process.withdraw'), {
             onSuccess(page) {
-                router.reload();
-            },
+                // router.reload({
+                //     only: ['wallets'],
+                //     except: ['code']
+                // });
+            }
         });
         if (visible) setVisible(false);
         else if (visible2) setVisible2(false);
+    }
+
+    function setCharge(value: any, balance: any) {
+        const charges = wallet?.curr.charges;
+        let charge = calc.times((channel !== '@ecore' && charges?.withdraw_charge) || '0.0', 1);
+        if (charge && charge > 0) {
+            charge = calc.plus(calc.times(value, calc.divide(charge, 100)), ((service?.commission.fee_amount || '0.0') || 0.0))
+        }
+        //---
+        if ((value < calc.times(service?.limit.min_amount || '0.0', 1)) || value > calc.times(service?.limit.max_amount || '100'
+            , 1)) {
+            setErr(`Min amount is ${service?.limit.min_amount}, Max is ${service?.limit.max_amount}`);
+        } else if (wallet && (charge + value) > balance) setErr('Insufficient Funds')
+        else if (amountErr) setErr('');
+
+        setTotal(value > 0 ? charge : 0);
     }
 
     const Amount = <div>
@@ -121,19 +145,7 @@ const WithdrawForms: React.FC<WithdrawFormsProps> = ({ channel, services = [], w
                 if (!service || !wallet) return setData('amount', value);
                 const balance = calc.times(wallet.all_balance.available, 1);
                 //------
-                const charges = wallet?.curr.charges;
-                let charge = calc.times((channel !== '@ecore' && charges?.withdraw_charge) || '0.0', 1);
-                if (charge && charge > 0) {
-                    charge = calc.plus(calc.times(temp, calc.divide(charge, 100)), ((service?.commission.fee_amount || '0.0') || 0.0))
-                }
-                //---
-                if ((temp < calc.times(service?.limit.min_amount || '0.0', 1)) || temp > calc.times(service?.limit.max_amount || '100'
-                    , 1)) {
-                    setErr(`Min amount is ${service?.limit.min_amount}, Max is ${service?.limit.max_amount}`);
-                } else if (wallet && (charge + temp) > balance) setErr('Insufficient Funds')
-                else if (amountErr) setErr('');
-
-                setTotal(value > 0 ? charge : 0);
+                setCharge(temp, balance);
 
                 setData('amount', value);
             }}

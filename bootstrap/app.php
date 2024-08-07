@@ -1,13 +1,8 @@
 <?php
 
-use App\Events\LivePriceUpdater;
-use App\Jobs\UpdateCryptoPrices;
-use App\Jobs\UpdateExchangeRates;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Foundation\Application;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Http\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,13 +26,13 @@ $app = Application::configure(basePath: $_ENV['APP_BASE_PATH'] ?? dirname(__DIR_
     })->withExceptions(function (Exceptions $exceptions) {
         $exceptions->respond(function ($response) {
             if ($response && $response->getStatusCode() === 419) {
-                return back()->with(message('Session has expired', 'danger'));
+                return back()->with(message('Session has expired', 'error'));
             }
 
 
             if (is_null($response)) {
                 // return $response;
-                return redirect('/')->with(message('Something went wrong', 'danger'));
+                return redirect('/')->with(message('Something went wrong', 'error'));
             }
             return $response;
         });

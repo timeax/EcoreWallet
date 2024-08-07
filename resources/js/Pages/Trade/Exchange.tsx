@@ -6,7 +6,7 @@ import Exchange from '@components/Trade/Exchange';
 import Select from '@components/Trade/Select';
 import LiveFeed from '@context/LiveContext';
 import SpotProvider, { SnapData, useSpot } from '@context/SpotContext';
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@layouts/AuthenticatedLayout';
 import { Currencies, PageProps, Wallet, Wallets } from '@typings/index';
 import { Dialog } from 'primereact/dialog';
@@ -236,7 +236,11 @@ const Submit: React.FC<{ type: 'limit' | 'instant' }> = ({ type }) => {
                         'opacity-60': !processing
                     })} onClick={(e) => {
                         e.preventDefault()
-                        post(route('user.crypto.process.swap'));
+                        post(route('user.crypto.process.swap'), {
+                            onSuccess() {
+                                router.reload({ only: ['wallets', 'wallet'] })
+                            }
+                        });
                     }} bgColor='primary'>{showIf(processing, <>Convert {time}s</>, 'Refreshing...')}</Button>, (
                         <div className='flex flex-col gap-2 !justify-start'>
                             <Message className='text-[.813em]' text='Insufficient balance. Please fund your account.' severity='error' />

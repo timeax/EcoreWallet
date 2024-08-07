@@ -18,7 +18,6 @@ use App\Models\Language;
 use App\Models\LoginLogs;
 use App\Models\Setting;
 use App\Models\User;
-use App\Notifications\NotifyMail;
 use App\Notifications\Refreshed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,9 +60,9 @@ Route::middleware(['auth'])->group(function () {
                 }
             }
 
-            $user->notifyNow(new Refreshed());
+            return response()->json([], 200);
         }
-        return response()->json(['done' => 'done']);
+        return response()->json([], 500);
     })->name('data.mark.as.read');
 
     Route::post('/notifications/delete', function (Request $request) {
@@ -76,10 +75,9 @@ Route::middleware(['auth'])->group(function () {
             if ($notification) {
                 $notification->delete();
             }
-
-            $user->notifyNow(new Refreshed());
+            return response()->json([], 200);
         }
-        return response()->json(['done' => 'done']);
+        return response()->json([], 500);
     })->name('data.delete');
 
     Route::middleware([DeveloperAccess::class])->group(function () {

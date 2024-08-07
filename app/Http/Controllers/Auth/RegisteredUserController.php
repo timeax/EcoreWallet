@@ -42,16 +42,16 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        // event(new Registered($user));
 
         Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password]);
         // Check that email verification is forced...
-        return redirect(route('user.verification.send.redirect'));
+        return redirect(route('user.verification.send.redirect'))->with(message('Verification sent'));
     }
 }

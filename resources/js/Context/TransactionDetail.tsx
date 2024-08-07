@@ -498,8 +498,18 @@ const Exchange = (props: TransactionData) => {
                             bgColor="warning"
                             size="normal"
                             onClick={() => {
-                                //@ts-ignore
-                                router.post(route('user.crypto.cancel.swap', { id: props.data?.exchanges.id }));
+                                router.post(
+                                    //@ts-ignore
+                                    route('user.crypto.cancel.swap', { id: props.data?.exchanges.id }),
+                                    undefined,
+                                    {
+                                        onSuccess() {
+                                            router.reload({
+                                                only: ['wallets']
+                                            })
+                                        }
+                                    }
+                                );
                             }}
                         >Cancel</Button>
                     </div>

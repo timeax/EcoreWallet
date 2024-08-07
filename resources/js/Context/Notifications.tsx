@@ -12,7 +12,7 @@ import { Link } from "@inertiajs/react";
 import { classNames } from "primereact/utils";
 
 //@ts-ignore
-const NotificationContext = createContext<{ unread: Notifications[], show(notifications?: Notifications): void }>();
+const NotificationContext = createContext<{ unread: Notifications[], show(notifications?: Notifications): void, asRead(id?: any): void }>();
 
 export function useNotifications() {
     return useContext(NotificationContext);
@@ -43,26 +43,32 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         window.axios.post(route('data.mark.as.read'), {
             notify: id,
             user: user.id
+        }).then((props) => {
+            if (props.status == 200)
+                setHard(hard.map(item => {
+                    if (id == '*') return {
+                        ...item,
+                        read_at: Date.now() + '',
+                    };
+
+                    if (item.id == id) return {
+                        ...item,
+                        read_at: Date.now() + '',
+                    }
+
+                    return item;
+                }));
         });
-
-        setHard(hard.map(item => {
-            if (id == '*') return item;
-            if (item.id == id) return {
-                ...item,
-                read_at: Date.now() + '',
-            }
-
-            return item;
-        }));
     }
 
     const del = (id: string) => {
         window.axios.post(route('data.delete'), {
             notify: id,
             user: user.id
+        }).then((props) => {
+            if (props.status == 200)
+                setHard(hard.filter(item => item.id !== id));
         });
-
-        setHard(hard.filter(item => item.id !== id));
     }
 
     useEffect(() => {
@@ -79,9 +85,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             setHard(e.data);
             const data: any[] = [];
 
-            if (e.event !== 'user.notify') {
-                logger.info('New notification')
-            }
+            if (e.event !== 'user.notify') logger.notification()
 
             e.data.forEach(item => {
                 if (data.findIndex(val => val.label == item.type) !== -1) return;
@@ -103,7 +107,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             show(notifications) {
                 setOpen(true);
             },
-
+            asRead,
             unread: hard.filter(item => !item.read_at)
         }}>
             {children}
@@ -136,9 +140,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
                                 return (
                                     <div key={item.id} className="border-l-2 pl-3 flex-col flex border-l-emerald-600 gap-2">
                                         <div>
-                                            {showIf(folder.value == 'all', <Title xs noPad>{item.type}</Title>)}
+                                            {showIf(folder.value == 'all' && !item.data.props.summary, <Title xs noPad>{item.type}</Title>)}
                                             <div>
-                                                <Title sm noPad>{item.data.props.summary}</Title>
+                                                <Title xs noPad>{item.data.props.summary}</Title>
                                                 <div>
                                                     <Title bright className="!inline-block" noPad>{item.data.text}.  {showIf<any>(item.data.props.more, () => {
                                                         return <>
@@ -174,8 +178,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
                     </>
                 ), (
                     <NoData>
-                        <>No Notifications</>
+                        <>No New Notifications</>
                         <>You don't have any notifications</>
+                        <Button size="sm" shape="pill" onClick={() => setRead('all')}>Show All</Button>
                     </NoData>
                 ))}
             </Sidebar>

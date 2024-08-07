@@ -1,10 +1,10 @@
 import axios from "axios";
-import Echo from "laravel-echo";
-import Pusher from "pusher-js";
+// import Echo from "laravel-echo";
+// import Pusher from "pusher-js";
 //@ts-ignore
-window.Echo = Echo;
+// window.Echo = Echo;
 
-window.Pusher = Pusher;
+// window.Pusher = Pusher;
 
 window.axios = axios;
 

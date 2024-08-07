@@ -43,9 +43,24 @@ class Cryptomus
 
     public function services(): array
     {
-        $supported = Currency::where(['type' => 2])->get();
-        $services = $this->payment->services();
+        try {
+            $services = $this->payment->services();
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+            //----
+            $admins = Admin::where(['role' => 'admin'])->get();
+            Notification::sendNow($admins, new NotifyMail('API Error', [
+                mText('Hello Admin'),
+                mText('The following errors where found when connecting to cryptomus'),
+                mText("<b>$message</b>"),
+                mText("If you think this a code-based-problem please foward this mail to your developer"),
+            ]));
+
+            return [];
+        }
+
         $serviceList = array();
+        $supported = Currency::where(['type' => 2])->get();
 
         foreach ($services as $service) {
             $code = $service['currency'];
@@ -62,7 +77,21 @@ class Cryptomus
 
     public function payoutServices()
     {
-        $services = $this->builder->sendRequest('v1/payout/services');
+        try {
+            $services = @$this->builder->sendRequest('v1/payout/services');
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+            //----
+            $admins = Admin::where(['role' => 'admin'])->get();
+            Notification::sendNow($admins, new NotifyMail('API Error', [
+                mText('Hello Admin'),
+                mText('The following errors where found when connecting to cryptomus'),
+                mText("<b>$message</b>"),
+                mText("If you think this a code-based-problem please foward this mail to your developer"),
+            ]));
+
+            return [];
+        }
         $supported = Currency::where(['type' => 2])->get();
         $serviceList = array();
 
@@ -123,7 +152,7 @@ class Cryptomus
         $services = false;
         try {
             self::setBuilder('payout');
-            $services = $this->builder->sendRequest('v1/payout', [
+            $services = @$this->builder->sendRequest('v1/payout', [
                 'amount' => $withdrawals->amount,
                 'currency' => $withdrawals->currency->code,
                 'order_id' => $withdrawals->ref,
@@ -150,7 +179,7 @@ class Cryptomus
 
     static function sendError(Withdrawals $withdrawals, string $message)
     {
-        session()->flash('withdraw', 'fail');
+        session(null)->flash('withdraw', 'fail');
         //----
         $admins = Admin::where(['role' => 'admin'])->get();
         Notification::sendNow($admins, Notifications::apiErrorWithdrawal($withdrawals, $message));

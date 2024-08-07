@@ -349,45 +349,6 @@ const Page: React.FC<PageProp> = ({ header, fields, info }) => {
                 <Upload label='Front side' onChange={(value) => { idFileRef.current.front = value }} />
                 <Upload label='Back side' onChange={(value) => { idFileRef.current.back = value }} />
             </div>
-            // <div className={ss.two}>
-            //     <div className={ss.uploadbox}>
-            //         <input
-            //             onChange={(e) => {
-            //                 if (e.target.files?.length) {
-            //                     //@ts-ignore
-            //                     idRef.current[direction] = e.target.files[0];
-            //                     setidView({
-            //                         ...idView,
-            //                         [direction]: URL.createObjectURL(e.target.files[0]),
-            //                     });
-            //                 }
-            //             }}
-            //             accept="image/*"
-            //             type="file"
-            //             id="mx-kyc-fileup"
-            //             style={{ display: "none" }}
-            //         />
-            //         <span>
-            //             <Button
-            //                 shape='square'
-            //                 size='normal'
-            //                 onClick={() => {
-            //                     document.getElementById("mx-kyc-fileup")?.click();
-            //                 }}
-            //                 variant="contained"
-            //             >
-            //                 Upload
-            //             </Button>
-            //         </span>
-            //         <img src={idView[direction] || idfaces[direction]} alt="" />
-            //     </div>
-            //     {/* <div className={ss.describe}>
-            //         <img src={idfaces[direction]}></img>
-            //         {idView[direction] || fileFace == "back"
-            //             ? arrowBtn(direction)
-            //             : undefined}
-            //     </div> */}
-            // </div>
         );
     };
     //

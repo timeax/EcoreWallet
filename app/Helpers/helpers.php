@@ -30,9 +30,17 @@ function getPhoto($filename)
     }
 }
 
-function message(string $text, string $color = 'success', $variant = 'outlined')
+function message(string $text, string|array $color = 'success', $variant = 'outlined', array $props = [])
 {
-    return ['message' => compact('text', 'color', 'variant')];
+    if (is_array($color)) {
+        $props = $color;
+        $color = 'success';
+    }
+
+    return [
+        'message' => compact('text', 'color', 'variant'),
+        'props' => $props
+    ];
 }
 
 function msg(string $text, string $color = 'success', $variant = 'outlined')

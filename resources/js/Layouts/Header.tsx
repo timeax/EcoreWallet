@@ -12,7 +12,7 @@ import Dropdown from '@components/Dropdown';
 import styles from '@styles/layout/header.module.scss';
 import { CgMenuMotion } from 'react-icons/cg';
 import Tag from '@components/index';
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import Notify from '@widgets/Notification';
 import { FaCog, FaLock, FaSignOutAlt } from 'react-icons/fa';
 import { AiOutlineProfile } from 'react-icons/ai';
@@ -22,11 +22,12 @@ import Select from '@components/Trade/Select';
 import Button from '@components/Button';
 import { useNotifications } from '@context/Notifications';
 
+
 const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) => {
     //--- code here ---- //
     const { user, theme, setTheme } = useWrapper();
     // console.log(notifications, user)
-    const { show, unread: notification } = useNotifications();
+    const { show, unread: notification, asRead } = useNotifications();
     //--------
     const ref = useRef<HTMLElement>();
     const watch = useRef<HTMLElement>();
@@ -168,26 +169,14 @@ const Header: React.FC<HeaderProps> = ({ title, header, desc, toggleSidebar }) =
                                             {showIf(notification.length > 0, (
                                                 <>
                                                     {notification.map(item => {
-                                                        return <Dropdown.Link key={item.id} onClick={() => {
-                                                            // setNotification(notification.filter(n => n.id !== item.id));
-                                                            window.axios.post(route('data.mark.as.read'), {
-                                                                notify: item.id,
-                                                                user: user.id
-                                                            });
-                                                        }}>
+                                                        return <Dropdown.Link key={item.id} onClick={() => asRead(item.id)}>
                                                             {/* @ts-ignore */}
                                                             <Notify data={item.data.text || item.data.content} props={item.data.props} date={item.created_at} title={item.type} />
                                                         </Dropdown.Link>
                                                     })}
                                                     <Dropdown.Link className='!py-1 border-t border-t-theme-border'>
                                                         <div className='flex items-center cursor-pointer'>
-                                                            <Title onClick={() => {
-                                                                // setNotification([]);
-                                                                window.axios.post(route('data.mark.as.read'), {
-                                                                    notify: '*',
-                                                                    user: user.id
-                                                                })
-                                                            }} normal className='grow' lg bright>Mark all as read </Title>
+                                                            <Title onClick={() => asRead()} normal className='grow' lg bright>Mark all as read </Title>
                                                             <Button className='hover:!text-theme-button-hover' variant='none' size='sm' onClick={() => show()}>See all</Button>
                                                         </div>
                                                     </Dropdown.Link>

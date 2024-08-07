@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
                 'errors' => fn () => $request->session()->get('errors')
             ],
 
+            'updated_props' => fn () => $request->session()->get('props')
             // 'errors' => fn () => $request->session()->get('messages')
         ];
     }

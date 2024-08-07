@@ -132,7 +132,9 @@ class TradeController extends Controller
                 'amount' => $finalAmount
             ]);
             //--------
-            return back()->with(message('Transfer request submitted successfully'));
+            return back(303)->with(message('Transfer request submitted successfully', [
+                'code' => $wallet->curr->code
+            ]));
         }
 
         Withdrawals::create([
@@ -147,7 +149,9 @@ class TradeController extends Controller
             'currency_id' => $curr->id
         ]);
 
-        return back()->with(message('Withdraw request has been submitted successfully.'));
+        return back(303)->with(message('Withdraw request has been submitted successfully.', [
+            'code' => $wallet->curr->code
+        ]));
     }
 
     public function history(Request $request)
@@ -158,7 +162,7 @@ class TradeController extends Controller
         $withdrawals = $user->withdrawals;
         $exchanges = $user->exchanges;
         $transfers = $user->transfers;
-        $transactions = Transaction::where(['user_id' => $request->user()->id])->with('currency')->latest()->get();
+        $transactions = Transaction::where(['user_id' => $request->user()->id])->with('currency')->orderByDesc('updated_at')->get();
         return Inertia::render('Trade/History', compact('transactions', 'currencies', 'deposits', 'withdrawals', 'exchanges', 'transfers'));
     }
 
@@ -196,7 +200,7 @@ class TradeController extends Controller
             //--------------
             $request->user->notify(Notifications::exchange(($exchange)));
             //---------
-            return back()->with(message('Exchange transaction has been cancelled'));
+            return back(303)->with(message('Exchange transaction has been cancelled'));
         }
 
         return back()->with(message('Could not find transaction..', 'warn'));
@@ -290,6 +294,8 @@ class TradeController extends Controller
             'expire_in' => toTime($expire)
         ]);
 
-        return back()->with(message('Withdraw request has been submitted successfully.'));
+        return back()->with(message('Exchange request has been submitted successfully.', [
+            'code' => $from->crypto_id
+        ]));
     }
 }

@@ -84,15 +84,15 @@ class ManageUserController extends Controller
             $wallet->save();
 
             $trnx              = new Transaction();
-            $trnx->trnx        = str_rand();
+            $trnx->trnx        = uuid('sys');
             $trnx->user_id     = $request->user_id;
             $trnx->currency_id = $wallet->curr->id;
             $trnx->amount      = $request->amount;
             $trnx->charge      = 0;
-            $trnx->remark      = 'Credit';
+            $trnx->remark      = 'Deposit';
             $trnx->ref =  uuid($trnx->trnx);
             $trnx->type        = '+';
-            $trnx->details     = trans('Internal deposit');
+            $trnx->details     = trans('Deposit Complete');
             $trnx->status = 'success';
 
             $trnx->save();
@@ -115,16 +115,16 @@ class ManageUserController extends Controller
             $wallet->save();
 
             $trnx              = new Transaction();
-            $trnx->trnx        = str_rand();
+            $trnx->trnx        = uuid('sys');
             $trnx->user_id     = $request->user_id;
             $trnx->currency_id = $wallet->curr->id;
             $trnx->amount      = $request->amount;
             $trnx->charge      = 0;
             $trnx->ref = uuid($trnx->trnx);
 
-            $trnx->remark      = 'Debit';
+            $trnx->remark      = 'Withdrawal';
             $trnx->type        = '-';
-            $trnx->details     = trans('Internal debit');
+            $trnx->details     = trans('Withdrawal Complete');
             $trnx->status = 'success';
             $trnx->save();
 

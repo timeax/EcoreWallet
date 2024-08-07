@@ -20,7 +20,7 @@ const Withdraw: React.FC<WithdrawProps> = () => {
 
     useEffect(() => {
         setWallet(wallets.find(item => item.curr.code === code));
-    }, []);
+    }, [wallets]);
 
     const channels = [
         {
@@ -58,8 +58,16 @@ const Withdraw: React.FC<WithdrawProps> = () => {
                         </Title>
                     </Note>
                 )))}
+
                 <div className={classNames("mt-8 flex gap-10", styles.withdrawals)}>
                     <div className={styles.withdraw}>
+                        {showIf(services.length == 0 as any, (
+                            <Note variant='warning' className='!flex-row items-center !mt-0 !pl-0' title=''>
+                                <Title noPad xl normal className='!block text-warning'>
+                                    Services are currently down.. try again later
+                                </Title>
+                            </Note>
+                        ))}
                         <div className="flex flex-col gap-6">
                             <div className="flex flex-col gap-4">
                                 <div className="flex flex-col gap-3">
