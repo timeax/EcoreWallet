@@ -18,12 +18,12 @@ Route::middleware(['maintenance'])->group(function () {
 
     Route::get('/crypto',                          [FrontendController::class, 'assets'])->name('assets');
 
-    Route::get('/change-language/{code}',         [FrontendController::class,'langChange'])->name('lang.change');
-
+    Route::get('/change-language/{code}',         [FrontendController::class, 'langChange'])->name('lang.change');
 });
 
 
 Route::get('/maintenance',       [FrontendController::class, 'maintenance'])->name('front.maintenance');
 
+Route::post('/maintenance', [FrontendController::class, 'subscribe'])->name('front.maintenance.subscribe');
 
 require __DIR__ . '/auth.php';

@@ -167,7 +167,7 @@ class Cryptomus
             ]);
             //----
 
-            if ($services !== true) {
+            if ($services && isset($services["state"]) && $services["state"]) {
                 static::sendError($withdrawals, json_encode($services));
             }
         } catch (\Throwable $th) {

@@ -8,6 +8,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\GeneralSettingResource;
 use App\Http\Requests\Admin\GeneralSettingRequest;
+use App\Models\Subscriber;
+use App\Notifications\NotifyMail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class GeneralSettingController extends Controller
 {
@@ -19,24 +23,35 @@ class GeneralSettingController extends Controller
 
     public function update(GeneralSettingRequest $request)
     {
-       $this->resource->update($request->all());
-       return response()->json(__('Data update successfully'));
+        $this->resource->update($request->all());
+        return response()->json(__('Data update successfully'));
     }
 
 
     public function StatusUpdate($value)
     {
-        $value = explode(',',$value);
+        $value = explode(',', $value);
         $status = $value[0];
         $field = $value[1];
         $data = Generalsetting::findOrFail(1);
         $data->$field = $status;
         $data->update();
         Cache::forget('generalsettings');
-        if($status == 1){
-            return response()->json(['status'=>1,'success' => __('Data Updated Successfully.')]);
-        }else{
-            return response()->json(['status'=>0,'success' => __('Data Updated Successfully.')]);
+
+        if ($field == 'is_maintenance') {
+            if (!$status) {
+                $subscribers = Subscriber::where(['subscribe_to' => 'maintenance'])->get();
+                Notification::send($subscribers, new NotifyMail('', [
+                    mText('Hello,'),
+                    mText('We are pleased to you that we are back online,'),
+                ]));
+            }
+        }
+
+        if ($status == 1) {
+            return response()->json(['status' => 1, 'success' => __('Data Updated Successfully.')]);
+        } else {
+            return response()->json(['status' => 0, 'success' => __('Data Updated Successfully.')]);
         }
     }
 
@@ -64,7 +79,7 @@ class GeneralSettingController extends Controller
     {
         return view('admin.generalsetting.menu_section');
     }
-  
+
     public function maintenance()
     {
         return view('admin.generalsetting.maintenance');
@@ -81,17 +96,16 @@ class GeneralSettingController extends Controller
 
     public function updateApiSettings(Request $request)
     {
-       $request->validate([
-           'public_key' => 'required',
-           'private_key' => 'required',
-           'merchant_id' => 'required'
-       ]);
+        $request->validate([
+            'public_key' => 'required',
+            'private_key' => 'required',
+            'merchant_id' => 'required'
+        ]);
 
-       $gs = Generalsetting::firstOrFail();
-       $gs->api_settings = $request->except('_token');
-       $gs->update();
-       Cache::clear();
-       return back()->with('success','API settings updated.');
+        $gs = Generalsetting::firstOrFail();
+        $gs->api_settings = $request->except('_token');
+        $gs->update();
+        Cache::clear();
+        return back()->with('success', 'API settings updated.');
     }
- 
 }

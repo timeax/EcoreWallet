@@ -7,6 +7,7 @@ use App\Models\Currency;
 use App\Models\Generalsetting;
 use App\Models\Language;
 use App\Models\SiteContent;
+use App\Models\Subscriber;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -20,16 +21,41 @@ class FrontendController extends Controller
     }
 
 
-    public function maintenance()
+    public function maintenance(Request $request)
     {
         $gs = Generalsetting::first();
         if ($gs->is_maintenance == 1) {
-            abort(503);
+            if ($request->inertia())  return Inertia::location('/maintenance');
+            //---
+            return display('front.maintenance');
         } else {
             return redirect()->route('front.index');
         }
     }
 
+    public function subscribe(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email']
+        ]);
+
+        $type = 'maintenance';
+        $email = $request->get('email');
+
+        Subscriber::firstOrCreate(
+            [
+                'email' => $email,
+                'type' => $type
+            ],
+
+            [
+                'email' => $email,
+                'type' => $type
+            ]
+        );
+
+        return back()->with(message('Great! We will keep you posted..'));
+    }
 
     public function about()
     {
@@ -85,7 +111,7 @@ class FrontendController extends Controller
     {
         $language = Language::where('code', $code)->first();
         if (!$language) $code = 'en';
-        session()->put('lang', $code);
+        session(null)->put('lang', $code);
         return back();
     }
 }

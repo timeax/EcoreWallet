@@ -21,12 +21,12 @@
                <h6>@langg('Basic Settings')</h6>
             </div>
             <div class="card-body">
-              
+
                 <form id="geniusformUpdate" action="{{route('admin.gs.update')}}" enctype="multipart/form-data" method="POST">
                    @csrf
                    <input type="hidden" value="1" name="setting">
                    @include('admin.partials.form-both')
-                      
+
                     <div class="form-group row mb-3">
                         <label for="title" class="col-sm-3 col-form-label">{{ __('Website Title') }}</label>
                         <div class="col-sm-9">
@@ -39,7 +39,7 @@
                         <input type="text" class="form-control" id="title" name="contact_no" placeholder="{{ __('Contact No') }}" value="{{$gs->contact_no}}">
                         </div>
                     </div>
-    
+
                     <div class="form-group row">
                         <label for="theme_color" class="col-sm-3 col-form-label">{{ __('Theme Color') }}</label>
                         <div class="col-sm-9 input-group cp">
@@ -79,8 +79,8 @@
                             </div>
                         </div>
                     </div>
-    
-                    
+
+
                   <div class="form-group row mb-5">
                     <label for="tawk_id" class="col-sm-3 col-form-label">{{ __('Tawk.to ID') }}</label>
                     <div class="col-sm-9">
@@ -136,7 +136,7 @@
                             </div>
                         </div>
                     </div>
-                </div>       
+                </div>
                   <div class="form-group row ">
                     <label for="secendary_color" class="col-sm-3 col-form-label">{{ __('User Registration') }}</label>
                     <div class="col-sm-9">
@@ -150,7 +150,7 @@
                             </div>
                         </div>
                     </div>
-                </div>       
+                </div>
                 <div class="form-group row ">
                     <label for="secendary_color" class="col-sm-3 col-form-label">{{ __('Know Your Customer(KYC)') }}</label>
                     <div class="col-sm-9">
@@ -170,20 +170,20 @@
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="" name="kyc_offer_limit" value="{{$gs->kyc_offer_limit}}" placeholder="{{ __('KYC Offer Limit') }}">
                     </div>
-                  </div>       
+                  </div>
                 <div class="form-group row">
                     <label  class="col-sm-3 col-form-label">{{ __('KYC Trade Limit') }} <i class="fas fa-info-circle" data-toggle="tooltip" title="@langg('User can trade you put the number here, if they are not KYC verified. Put 0 for no limit.')"></i></label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="" name="kyc_trade_limit" value="{{$gs->kyc_trade_limit}}" placeholder="{{ __('KYC Trade Limit') }}">
                     </div>
-                  </div>   
+                  </div>
 
                   <div class="form-group row">
                     <label  class="col-sm-3 col-form-label">{{ __('Trade Fee (%)') }} <i class="fas fa-info-circle" data-toggle="tooltip" title="@langg('Put 0 if you don\'t want any fee.')"></i></label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="" name="trade_fee" value="{{$gs->trade_fee}}" placeholder="{{ __('Trade fee') }}">
                     </div>
-                  </div>      
+                  </div>
 
                   <div class="form-group row ">
                     <label for="secendary_color" class="col-sm-3 col-form-label">{{ __('Email Notification') }}</label>
@@ -198,7 +198,7 @@
                             </div>
                         </div>
                     </div>
-                </div>       
+                </div>
                 <div class="form-group row ">
                     <label for="secendary_color" class="col-sm-3 col-form-label">{{ __('SMS Notification') }}</label>
                     <div class="col-sm-9">
@@ -212,7 +212,7 @@
                             </div>
                         </div>
                     </div>
-                </div>       
+                </div>
                 <div class="form-group row ">
                     <label for="secendary_color" class="col-sm-3 col-form-label">{{ __('Two Step Authentication') }}</label>
                     <div class="col-sm-9">
@@ -226,8 +226,8 @@
                             </div>
                         </div>
                     </div>
-                </div>       
-      
+                </div>
+
                    <div class="form-group row">
                       <div class="col-12 text-right">
                          <button type="submit" class="btn btn-primary">{{translate('Update Settings')}}</button>

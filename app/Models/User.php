@@ -148,8 +148,8 @@ class User extends Authenticatable
 
             $this->notify(new OtpSent($this->verify_code));
 
-            session()->flash('emailcode_sent_at', strtotime('now'));
-            session()->flash('status', 'sent');
+            session(null)->flash('emailcode_sent_at', strtotime('now'));
+            session(null)->flash('status', 'sent');
             // event(new EmailVerificationSent($this));
         }
     }

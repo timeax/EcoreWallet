@@ -60,8 +60,12 @@
                                             <span class="badge badge-success">@langg('Accepted')</span>
                                         @elseif($withdrawlog->status == 2)
                                             <span class="badge badge-danger">@langg('Rejected')</span>
-                                        @else
+                                        @elseif ($withdrawlog->status == 0)
                                             <span class="badge badge-warning">@langg('Pending')</span>
+                                        @elseif ($withdrawlog->status == 3)
+                                            <span class="badge badge-danger">@langg('Failed')</span>
+                                        @elseif ($withdrawlog->status == 4)
+                                            <span class="badge badge-success">@langg('Processed')</span>
                                         @endif
                                     </td>
 
